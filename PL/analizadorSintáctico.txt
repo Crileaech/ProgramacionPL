@@ -1,0 +1,67 @@
+programa: variables subprogramas instrucciones;
+
+variables: VARIABLES (decl_var PyC)*;
+
+decl_var: VAR DOSPTOS tipo
+        | VAR COMA decl_var;
+
+tipo: NUMERO | BOOL | SEQUEN;
+
+subprogramas: SUBPROGRAMAS (funcion|procedimiento)*;
+
+instrucciones: INSTRUCCIONES (inst)*;
+
+inst: asignación PyC
+    | condición PyC
+    | iteración PyC
+    | BREAK PyC
+    | aserto PyC
+    | expr_func PyC
+
+asignación: VAR|((VAR COMA)* VAR) IGUAL expr|((expr COMA)* expr);
+
+condición: IF PA expr_bool PC THEN (inst)* ENDIF
+         | IF PA expr_bool PC THEN (inst)* ELSE (inst)* ENDIF;
+
+iteración: WHILE PA expr_bool PC DO (avance)? (inst)* ENDWHILE;
+
+aserto: LLAVEA expr_bool LLAVEC
+      | LLAVEA (FORALL|EXIST) PA VAR DOSPTOS CA expr_entero COMA expr_entero CC COMA expr_bool PC LLAVEC;
+
+avance: LLAVEA AVANZA DOSPTOS expr_func LLAVEC;
+
+funcion: FUNCION NOMBRE PA (most_var)? PC RETURN PA most_var PC variables instrucciones FFUNCION;
+
+procedimiento: PROCEDIMIENTO NOMBRE PA (most_var)? PC variables instrucciones FPROCEDIMIENTO;
+
+most_var: TIPO VAR
+        | TIPO VAR COMA most_var;
+
+expr: expr_entero
+    | expr_bool
+    | expr_seq
+    | expr_func;
+
+expr_entero: NUM
+           | NUM (SUMA|RESTA|POR) expr_entero
+           | VAR CA expr_entero CC //VAR en este caso sería una variable que almacena una secuencia de enteros
+           | expr_func; //en caso de que llamar a esa función devuelva un entero
+
+expr_bool: T
+         | F
+         | VAR (IGUALL|DISTINTO) VAR // == !=
+         | NUM (MENORIGUAL|MAYORIGUAL|MENOR|MAYOR) NUM
+         | expr_bool (AND|OR) expr_bool
+         | NO expr_bool
+         | VAR CA expr_entero CC //VAR en este caso sería una variable que almacena una secuencia de boolean
+         | expr_func //en caso de que llamar a esa función devuelva un boolean
+         ;
+
+expr_seq: CA CC
+        | CA (expr_entero|expr_bool) CC
+        | CA (expr_entero COMA)* expr_entero CC
+        | CA (expr_bool COMA)* expr_bool CC
+        | expr_func //en caso de que llamar a esa función devuelva una secuencia
+        ;
+
+expr_func: NOMBREFUNC PA VAR|(VAR COMA)* VAR PC;
