@@ -22,24 +22,6 @@ public interface AnasintVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitVariables(Anasint.VariablesContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link Anasint#decl_var}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitDecl_var(Anasint.Decl_varContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link Anasint#vars}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitVars(Anasint.VarsContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link Anasint#tipo}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitTipo(Anasint.TipoContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link Anasint#subprogramas}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -51,6 +33,18 @@ public interface AnasintVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitInstrucciones(Anasint.InstruccionesContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link Anasint#decl_var}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDecl_var(Anasint.Decl_varContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link Anasint#tipo}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTipo(Anasint.TipoContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link Anasint#inst}.
 	 * @param ctx the parse tree

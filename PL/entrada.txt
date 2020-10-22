@@ -1,7 +1,11 @@
-
+PROGRAMA
 VARIABLES
- i:NUM;
-
+ i,max,min:NUM;
+ s:SEQ;
 SUBPROGRAMAS
 
 INSTRUCCIONES
+ mostrar(7);
+ i = j;
+ S = [2,4,3,1,5];
+

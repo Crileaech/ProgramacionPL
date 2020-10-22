@@ -27,36 +27,6 @@ public interface AnasintListener extends ParseTreeListener {
 	 */
 	void exitVariables(Anasint.VariablesContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link Anasint#decl_var}.
-	 * @param ctx the parse tree
-	 */
-	void enterDecl_var(Anasint.Decl_varContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link Anasint#decl_var}.
-	 * @param ctx the parse tree
-	 */
-	void exitDecl_var(Anasint.Decl_varContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link Anasint#vars}.
-	 * @param ctx the parse tree
-	 */
-	void enterVars(Anasint.VarsContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link Anasint#vars}.
-	 * @param ctx the parse tree
-	 */
-	void exitVars(Anasint.VarsContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link Anasint#tipo}.
-	 * @param ctx the parse tree
-	 */
-	void enterTipo(Anasint.TipoContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link Anasint#tipo}.
-	 * @param ctx the parse tree
-	 */
-	void exitTipo(Anasint.TipoContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link Anasint#subprogramas}.
 	 * @param ctx the parse tree
 	 */
@@ -76,6 +46,26 @@ public interface AnasintListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitInstrucciones(Anasint.InstruccionesContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link Anasint#decl_var}.
+	 * @param ctx the parse tree
+	 */
+	void enterDecl_var(Anasint.Decl_varContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link Anasint#decl_var}.
+	 * @param ctx the parse tree
+	 */
+	void exitDecl_var(Anasint.Decl_varContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link Anasint#tipo}.
+	 * @param ctx the parse tree
+	 */
+	void enterTipo(Anasint.TipoContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link Anasint#tipo}.
+	 * @param ctx the parse tree
+	 */
+	void exitTipo(Anasint.TipoContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link Anasint#inst}.
 	 * @param ctx the parse tree

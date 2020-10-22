@@ -1,18 +1,18 @@
 parser grammar Anasint;
 options{ tokenVocab=Analex; }
 
-programa: variables subprogramas instrucciones EOF;
+programa: PROGRAMA variables subprogramas instrucciones EOF;
 
 variables: VARIABLES (decl_var)*;
+
+subprogramas: SUBPROGRAMAS (funcion|procedimiento)*;
+
+instrucciones: INSTRUCCIONES (inst)*;
 
 decl_var: (VAR COMA)* VAR DOSPTOS tipo PyC
         ;
 
 tipo: NUMERO | BOOL | SEQUEN;
-
-subprogramas: SUBPROGRAMAS (funcion|procedimiento)*;
-
-instrucciones: INSTRUCCIONES (inst)*;
 
 inst: asignacion PyC
     | condicion PyC
@@ -36,9 +36,9 @@ aserto: LLAVEA expr_bool LLAVEC
 
 avance: LLAVEA AVANZA DOSPTOS expr_func LLAVEC;
 
-funcion: FUNCION NOMBREFUNC PA (most_var)? PC RETURN PA most_var PC variables instrucciones FFUNCION;
+funcion: FUNCION VAR PA (most_var)? PC RETURN PA most_var PC variables instrucciones FFUNCION;
 
-procedimiento: PROCEDIMIENTO NOMBREFUNC PA (most_var)? PC variables instrucciones FPROCEDIMIENTO;
+procedimiento: PROCEDIMIENTO VAR PA (most_var)? PC variables instrucciones FPROCEDIMIENTO;
 
 most_var: TIPO VAR
         | TIPO VAR COMA most_var
@@ -47,7 +47,8 @@ most_var: TIPO VAR
 expr: expr_entero
     | expr_bool
     | expr_seq
-    | expr_func; //proce
+    | expr_func
+    ; //proce
 
 expr_entero: NUM
            | expr_entero (SUMA|RESTA|POR) expr_entero
@@ -71,4 +72,4 @@ expr_seq: CA CC // []
         | expr_func //en caso de que llamar a esa función devuelva una secuencia
         ;
 
-expr_func: NOMBREFUNC PA (VAR COMA)* VAR PC;
+expr_func: VAR PA (VAR|expr COMA)* VAR|expr PC;
