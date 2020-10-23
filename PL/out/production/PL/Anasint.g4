@@ -26,10 +26,10 @@ inst: asignacion PyC
 asignacion: (VAR COMA)* VAR IGUAL (expr COMA)* expr; // x = 8 ; x,y = 8,9 funcion();
 
 condicion: IF PA expr_bool PC THEN (inst)+ ENDIF
-         | IF PA expr_bool PC THEN (inst)+ ELSE (inst)* ENDIF
+         | IF PA expr_bool PC THEN (inst)+ ELSE (inst)+ ENDIF
          ;
 
-iteracion: WHILE PA expr_bool PC DO (avance)? (inst)* ENDWHILE;
+iteracion: WHILE PA expr_bool PC DO (avance)? (inst)+ ENDWHILE;
 
 aserto: LLAVEA expr_bool LLAVEC
       | LLAVEA (FORALL|EXIST) PA VAR DOSPTOS CA expr_entero COMA expr_entero CC COMA expr_bool PC LLAVEC //{ PARATODO(p:[0,ultima_posicion(s)],s[p]<=max && s[p]>=min) }
