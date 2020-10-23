@@ -18,6 +18,7 @@ inst: asignacion PyC
     | condicion
     | iteracion
     | BREAK PyC
+    | RETURN expr PyC
     | aserto
     | expr_func PyC
     ;
@@ -40,8 +41,8 @@ funcion: FUNCION VAR PA (most_var)? PC RETURN PA most_var PC variables instrucci
 
 procedimiento: PROCEDIMIENTO VAR PA (most_var)? PC variables instrucciones FPROCEDIMIENTO;
 
-most_var: TIPO VAR
-        | TIPO VAR COMA most_var
+most_var: tipo VAR
+        | tipo VAR COMA most_var
         ;
 
 expr: expr_entero
