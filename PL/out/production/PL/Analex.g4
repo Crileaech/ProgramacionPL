@@ -38,7 +38,7 @@ EXIST: 'EXISTE';
 AVANZA: 'avance';
 
 NUM: (DIGITO)+;
-VAR: LETRA(LETRA|DIGITO)*;
+VAR: LETRA(LETRA|DIGITO|'_')*;
 
 DOSPTOS: ':';
 PA : '(';

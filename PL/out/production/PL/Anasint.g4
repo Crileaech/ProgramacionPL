@@ -15,14 +15,14 @@ decl_var: (VAR COMA)* VAR DOSPTOS tipo PyC
 tipo: NUMERO | BOOL | SEQUEN;
 
 inst: asignacion PyC
-    | condicion PyC
-    | iteracion PyC
+    | condicion
+    | iteracion
     | BREAK PyC
     | aserto
     | expr_func PyC
     ;
 
-asignacion: (VAR COMA)* VAR IGUAL (expr|VAR COMA)* expr|VAR; // x = 8 ; x,y = 8,9 funcion();
+asignacion: (VAR COMA)* VAR IGUAL (expr COMA)* expr; // x = 8 ; x,y = 8,9 funcion();
 
 condicion: IF PA expr_bool PC THEN (inst)+ ENDIF
          | IF PA expr_bool PC THEN (inst)+ ELSE (inst)* ENDIF
@@ -47,16 +47,17 @@ most_var: TIPO VAR
 expr: expr_entero
     | expr_bool
     | expr_seq
-    | expr_func
     ; //proce
 
-expr_entero: NUM
+expr_entero: VAR
+           | NUM
            | expr_entero (SUMA|RESTA|POR) expr_entero
            | VAR CA expr_entero CC //VAR en este caso sería una variable que almacena una secuencia de enteros
            | expr_func //en caso de que llamar a esa función devuelva un entero
            ;
 
-expr_bool: T
+expr_bool: VAR
+         | T
          | F
          | VAR (IGUALL|DISTINTO) VAR // == !=
          | expr_entero (MENORIGUAL|MAYORIGUAL|MENOR|MAYOR) expr_entero
@@ -66,10 +67,11 @@ expr_bool: T
          | expr_func //en caso de que llamar a esa función devuelva un boolean
          ;
 
-expr_seq: CA CC // []
+expr_seq: VAR
+        | CA CC // []
         | CA (expr_entero COMA)* expr_entero CC
         | CA (expr_bool COMA)* expr_bool CC
         | expr_func //en caso de que llamar a esa función devuelva una secuencia
         ;
 
-expr_func: VAR PA (expr COMA)* expr PC;
+expr_func: VAR PA expr (COMA expr)* PC;
