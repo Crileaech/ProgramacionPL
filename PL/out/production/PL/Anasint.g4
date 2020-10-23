@@ -23,7 +23,7 @@ inst: asignacion PyC
     | expr_func PyC
     ;
 
-asignacion: (VAR COMA)* VAR IGUAL (expr COMA)* expr; // x = 8 ; x,y = 8,9 funcion();
+asignacion: (VAR COMA)* VAR IGUAL ((VAR|expr) COMA)* (VAR|expr); // x = 8 ; x,y = 8,9 funcion();
 
 condicion: IF PA expr_bool PC THEN (inst)+ ENDIF
          | IF PA expr_bool PC THEN (inst)+ ELSE (inst)+ ENDIF
@@ -50,15 +50,14 @@ expr: expr_entero
     | expr_seq
     ; //proce
 
-expr_entero: VAR
-           | NUM
+expr_entero: NUM
            | expr_entero (SUMA|RESTA|POR) expr_entero
            | VAR CA expr_entero CC //VAR en este caso sería una variable que almacena una secuencia de enteros
            | expr_func //en caso de que llamar a esa función devuelva un entero
+           | VAR
            ;
 
-expr_bool: VAR
-         | T
+expr_bool: T
          | F
          | VAR (IGUALL|DISTINTO) VAR // == !=
          | expr_entero (MENORIGUAL|MAYORIGUAL|MENOR|MAYOR) expr_entero
@@ -66,13 +65,15 @@ expr_bool: VAR
          | NO expr_bool
          | VAR CA expr_entero CC //VAR en este caso sería una variable que almacena una secuencia de boolean
          | expr_func //en caso de que llamar a esa función devuelva un boolean
+         | VAR
          ;
 
-expr_seq: VAR
-        | CA CC // []
+expr_seq: CA CC // []
         | CA (expr_entero COMA)* expr_entero CC
         | CA (expr_bool COMA)* expr_bool CC
         | expr_func //en caso de que llamar a esa función devuelva una secuencia
-        ;
+        | VAR;
 
-expr_func: VAR PA expr (COMA expr)* PC;
+expr_func: VAR PA (VAR|expr) (COMA VAR|expr)* PC; //VAR|expr si en cada expr hay VAR?. Para que VAR no sea reconocido como una expr_entera de entrada.
+                                                  // solo en casos específicos no hace falta especificar esto, como en comparaciones <, > etc donde sí o
+                                                  // sí dada nuestra implementación es necesario que dichas variables sean expr_enteras

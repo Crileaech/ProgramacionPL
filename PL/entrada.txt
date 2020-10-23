@@ -3,7 +3,7 @@ VARIABLES
  i,max,min:NUM;
  s:SEQ;
 SUBPROGRAMAS
-FUNCION bucle_1_avance(SEQ seq, NUM pos) dev (NUM r)
+/*FUNCION bucle_1_avance(SEQ seq, NUM pos) dev (NUM r)
  VARIABLES
  INSTRUCCIONES
  r=ultima_posicion(s)-i;
@@ -15,6 +15,7 @@ FUNCION bucle_1_avance(SEQ seq, NUM pos) dev (NUM r)
   INSTRUCCIONES
   j=0;
   max=s[j];
+
   mientras(j<=ultima_posicion(s)) hacer
   si (s[j]>max) entonces
   max=s[j];
@@ -22,10 +23,13 @@ FUNCION bucle_1_avance(SEQ seq, NUM pos) dev (NUM r)
   fsi
   j=j+1;
   fmientras
-  FPROCEDIMIENTO
+  FPROCEDIMIENTO*/
 
 INSTRUCCIONES
-{ cierto }
+ a = i&&j;
+ mostrar(i);
+ a = i;
+/*{ cierto }
 s=[3,4,2,7,9,0,11];
  i=0;
  mostrar(i);
@@ -43,4 +47,4 @@ s=[3,4,2,7,9,0,11];
  { PARATODO(p:[0,i],s[p]<=max && s[p]>=min) }
  i=i+1;
  fmientras
-{ PARATODO(p:[0,ultima_posicion(s)],s[p]<=max && s[p]>=min) }
+{ PARATODO(p:[0,ultima_posicion(s)],s[p]<=max && s[p]>=min) }*/
