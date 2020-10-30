@@ -82,7 +82,7 @@ iteracion: WHILE PA expresion PC DO (expr_avanza)? (delcaracion_instrucciones)+ 
          ;
 expr_avanza: LLAVEABIERTA AVANZA DOSPUNTOS expr_funcion LLAVECERRADA
            ;
-expr_funcion: VAR PA (VAR|expresion) (COMA VAR|expr)* PC;
+expr_funcion: VAR PA (VAR|expresion) (COMA VAR|expresion)* PC;
             ;
 reptura_control: BREAK PyC
                ;
