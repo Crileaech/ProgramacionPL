@@ -6,13 +6,13 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import javax.swing.*;
 import java.util.Arrays;
-public class Principal {
+public class Main {
     public static void main(String[] args) throws Exception{
         CharStream input = CharStreams.fromFileName(args[0]);
-        Analex analex = new Analex(input);
-        CommonTokenStream tokens = new CommonTokenStream(analex);
+        Analex lexer = new Analex(input);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
         Anasint anasint = new Anasint(tokens);
-        ParseTree tree = anasint.sentencia();
+        ParseTree tree = anasint.programa();
         JFrame frame = new JFrame("Árbol de Análisis");
         JPanel panel = new JPanel();
         TreeViewer viewr = new TreeViewer(Arrays.asList(

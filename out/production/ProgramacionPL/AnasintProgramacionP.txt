@@ -94,7 +94,7 @@ asertos: LLAVEABIERTA (expresion | cuantificador ) LLAVECERRADA
        ;
 expresion: expr_integer
          | expr_boolean
-         | expr_sequential
+         | expr_seq
          ;
 expr_integer: NUM
             | expr_integer operacion_entero expr_integer
@@ -109,7 +109,7 @@ expr_boolean: T
             | NO expr_boolean
             | expr_integer
             ;
-expr_sequential: CA CC // []
+expr_seq: CA CC // []
                 | CA (expr_integer|expr_boolean COMA)* (expr_integer|expr_boolean) CC
                 | expr_funcion
                 | VAR

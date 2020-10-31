@@ -1,0 +1,52 @@
+OBJETIVO 1 => P es un lenguaje de programación secuencial con asertos. La idea es usar asertos para verificar la corrección del programa. Si al
+ejecutar un programa, sus asertos son ciertos entonces el programa se considera correcto. El programa sería incorrecto en otro
+caso. El programa P se estructura en 3 secciones: una dedicada a la declaración de variables (sección VARIABLES), otra dedicada
+a la declaración de subprogramas (sección SUBPROGRAMAS) y otra dedicada al uso de variables y subprogramas (sección
+INSTRUCCIONES).
+
+OBJETIVO 2: P es un lenguaje de programación secuencial con asertos.
+Usaremos aserto para verificar correcto funcionamiento del programa.
+Decimos que un aserto es cierto entonces el programa se consedira correto.
+De acuerdo con la definición de P, consideramos 2 tipos de datos: elementales (NUM y LOG)
+y no elemenetales (SEQ(NUM), SEQ(LOG)).
+
+(1) La evaluacion de un aserto no puede ser indefinido entonces es incorrecto así
+    la funcion predicado igualdad o desigualdad toma valores verdadero o falso. Sino condición evalua indefinido
+(2) El aserto se localiza en algún punto de las instrucciones del programa o
+    subprograma
+(3) los asertos son condiciones extendidas con dos tipos de posibles cuantificaciones:
+    (3.1) cuantificación universal, ej. {PARATODO(p:[0,ultima_posicion(s)],s[i]<=max)}
+    (3.2) cuantificación existencial ej. {EXISTE(x:[0,ultima_posicion(s)],s[x]>10)}
+(5) Cuantificacion rango finito de valores enteros y condición
+(6) Decimos que llamar a un subprograma es correcto si la secuencia de expresiones coincide en numero y tipo => (Mental otro objetivo)*
+(7) Una iteración es errónea si los valores devueltos por su función de avance no decrecen en cada iteración sucesiva. Por ejemplo, la
+    función bucle_1_avance devuelve la siguiente secuencia de valores para la iteración asociada: 6,5,4,3,2,1,0 siendo s =
+    [3,4,2,7,9,0,11].
+
+DECISIÓN DISEÑO 1: Para decidir si un aserto es cierto o falso, se
+necesita saber el tipo de las variables implicadas.
+Se necesita almacenar esta información al procesar la declaración de
+variables.
+(almacén variables) variable | tipo
+ ---------------------------------
+ i,max,min | NUM, variables numericas
+ SEQ(NUM) | secuencia de enteros
+ SEQ(LOG) | secuencia logica
+ T,F | LOG, variables logicas
+
+programa : PROGRAMA n=variables {almacenar n en alamacen} subprogramas instrucciones
+
+(parámetro de salida n)
+variables : VARIABLES (m=decl_vars {almacenar m en n})*
+(parámetro de salida m)
+decl_vars : r=vars DOSPUNTOS t=tipo PyC {almacenar en m cada variable en r con tipo t}
+(parámetro de salida t)
+tipo: NUMERO {t=variables numericas}
+ | BOOL {t=variables logicas}
+ | SEQ(NUM) {t=secuencia numerica}
+ | SEQ(LOG) {t=secuencia logica}
+ ;
+(parámetro de salida r)
+vars : (VAR {incluir VAR en r} COMA)* VAR
+
+
