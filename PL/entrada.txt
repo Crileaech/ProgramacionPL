@@ -1,15 +1,15 @@
 PROGRAMA
 VARIABLES
  i,max,min:NUM;
- s:SEQ;
+ s:SEQ(NUM);
 SUBPROGRAMAS
-/*FUNCION bucle_1_avance(SEQ seq, NUM pos) dev (NUM r)
+FUNCION bucle_1_avance(SEQ(NUM) seq, NUM pos) dev (NUM r)
  VARIABLES
  INSTRUCCIONES
  r=ultima_posicion(s)-i;
  dev r;
  FFUNCION
-  PROCEDIMIENTO mayor(SEQ s, NUM i, NUM max)
+  PROCEDIMIENTO mayor(SEQ(NUM) s, NUM i, NUM max)
   VARIABLES
   j: NUM;
   INSTRUCCIONES
@@ -23,14 +23,15 @@ SUBPROGRAMAS
   fsi
   j=j+1;
   fmientras
-  FPROCEDIMIENTO*/
+  FPROCEDIMIENTO
 
 INSTRUCCIONES
- a = i&&j;
+ a = !i&&j;
  mostrar(i);
- a = i;
-/*{ cierto }
-s=[3,4,2,7,9,0,11];
+ a = i*7+9;
+{ cierto }
+ s=[4,2,7,9,0,11];
+ s=[T,F];
  i=0;
  mostrar(i);
  min=s[i];
@@ -47,4 +48,4 @@ s=[3,4,2,7,9,0,11];
  { PARATODO(p:[0,i],s[p]<=max && s[p]>=min) }
  i=i+1;
  fmientras
-{ PARATODO(p:[0,ultima_posicion(s)],s[p]<=max && s[p]>=min) }*/
+{ PARATODO(p:[0,ultima_posicion(s)],s[p]<=max && s[p]>=min) }

@@ -63,97 +63,97 @@ public class AnasintBaseListener implements AnasintListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDecl_var(Anasint.Decl_varContext ctx) { }
+	@Override public void enterDeclaracion_variables(Anasint.Declaracion_variablesContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDecl_var(Anasint.Decl_varContext ctx) { }
+	@Override public void exitDeclaracion_variables(Anasint.Declaracion_variablesContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTipo(Anasint.TipoContext ctx) { }
+	@Override public void enterIdentificador(Anasint.IdentificadorContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTipo(Anasint.TipoContext ctx) { }
+	@Override public void exitIdentificador(Anasint.IdentificadorContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterInst(Anasint.InstContext ctx) { }
+	@Override public void enterElementales(Anasint.ElementalesContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitInst(Anasint.InstContext ctx) { }
+	@Override public void exitElementales(Anasint.ElementalesContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAsignacion(Anasint.AsignacionContext ctx) { }
+	@Override public void enterSecuencias(Anasint.SecuenciasContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitAsignacion(Anasint.AsignacionContext ctx) { }
+	@Override public void exitSecuencias(Anasint.SecuenciasContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCondicion(Anasint.CondicionContext ctx) { }
+	@Override public void enterTipos(Anasint.TiposContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitCondicion(Anasint.CondicionContext ctx) { }
+	@Override public void exitTipos(Anasint.TiposContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIteracion(Anasint.IteracionContext ctx) { }
+	@Override public void enterTipos_elementales(Anasint.Tipos_elementalesContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitIteracion(Anasint.IteracionContext ctx) { }
+	@Override public void exitTipos_elementales(Anasint.Tipos_elementalesContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAserto(Anasint.AsertoContext ctx) { }
+	@Override public void enterTipos_no_elementales(Anasint.Tipos_no_elementalesContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitAserto(Anasint.AsertoContext ctx) { }
+	@Override public void exitTipos_no_elementales(Anasint.Tipos_no_elementalesContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAvance(Anasint.AvanceContext ctx) { }
+	@Override public void enterDeclaracion_subprogramas(Anasint.Declaracion_subprogramasContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitAvance(Anasint.AvanceContext ctx) { }
+	@Override public void exitDeclaracion_subprogramas(Anasint.Declaracion_subprogramasContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -183,13 +183,13 @@ public class AnasintBaseListener implements AnasintListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterMost_var(Anasint.Most_varContext ctx) { }
+	@Override public void enterParams(Anasint.ParamsContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitMost_var(Anasint.Most_varContext ctx) { }
+	@Override public void exitParams(Anasint.ParamsContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -207,13 +207,13 @@ public class AnasintBaseListener implements AnasintListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExpr_entero(Anasint.Expr_enteroContext ctx) { }
+	@Override public void enterExpr_integer(Anasint.Expr_integerContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExpr_entero(Anasint.Expr_enteroContext ctx) { }
+	@Override public void exitExpr_integer(Anasint.Expr_integerContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -243,6 +243,18 @@ public class AnasintBaseListener implements AnasintListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterExpr_avanza(Anasint.Expr_avanzaContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitExpr_avanza(Anasint.Expr_avanzaContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterExpr_func(Anasint.Expr_funcContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -250,6 +262,138 @@ public class AnasintBaseListener implements AnasintListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitExpr_func(Anasint.Expr_funcContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterDeclaracion_instrucciones(Anasint.Declaracion_instruccionesContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDeclaracion_instrucciones(Anasint.Declaracion_instruccionesContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAsignacion(Anasint.AsignacionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAsignacion(Anasint.AsignacionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCondicion(Anasint.CondicionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCondicion(Anasint.CondicionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterBlq_sino(Anasint.Blq_sinoContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitBlq_sino(Anasint.Blq_sinoContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterIteracion(Anasint.IteracionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitIteracion(Anasint.IteracionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterMostrar(Anasint.MostrarContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMostrar(Anasint.MostrarContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAsertos(Anasint.AsertosContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAsertos(Anasint.AsertosContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCuantificador(Anasint.CuantificadorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCuantificador(Anasint.CuantificadorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCuantificadorUniversal(Anasint.CuantificadorUniversalContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCuantificadorUniversal(Anasint.CuantificadorUniversalContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCuantificadorExistencial(Anasint.CuantificadorExistencialContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCuantificadorExistencial(Anasint.CuantificadorExistencialContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCuantificacion(Anasint.CuantificacionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCuantificacion(Anasint.CuantificacionContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
