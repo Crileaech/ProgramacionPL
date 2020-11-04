@@ -52,8 +52,7 @@ expr: expr_integer
     | expr_seq
     ;
 
-expr_integer: expr_integer (SUMA|RESTA) expr_integer
-            | expr_integer POR expr_integer
+expr_integer: expr_integer (POR|SUMA|RESTA) expr_integer
             | VAR CA expr_integer CC // variable que almacena una secuencia de enteros
             | expr_func // en caso de que devuelva un entero
             | NUM
@@ -63,9 +62,11 @@ expr_integer: expr_integer (SUMA|RESTA) expr_integer
 expr_bool: T
          | F
          | VAR (IGUALL|DISTINTO) VAR
-         | expr_integer (MENORIGUAL|MAYORIGUAL|MENOR|MAYOR) expr_integer
-         | expr_bool (AND|OR) expr_bool
+         | expr_bool (IGUALL|DISTINTO) expr_bool
+         | expr_seq (IGUALL|DISTINTO) expr_seq
+         | expr_integer (MENORIGUAL|MAYORIGUAL|MENOR|MAYOR|IGUALL|DISTINTO) expr_integer
          | NO expr_bool
+         | expr_bool (AND|OR) expr_bool
          | VAR CA expr_integer CC //VAR en este caso sería una variable que almacena una secuencia de boolean
          | expr_func //en caso de que llamar a esa función devuelva un boolean
          | VAR
