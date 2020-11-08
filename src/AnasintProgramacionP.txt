@@ -1,22 +1,42 @@
+========================================================
 DEFINICION DE DISEÑO ANALIZADOR SINTÁCTICO
+
+Para reconocer estructuras sintácticas usaremos gramáticas independientes
+de contexto (gramática).
+
+Una gramática es un conjunto de regla.
+
+En concreto en este documento podremos encontrar las especificaciones
+para nuestro programa P.
+
+P es un lenguaje de programación secuencial con asertos.
+La idea es usar asertos para verificar la corrección del programa.
+Si al ejecutar un programa, sus asertos son ciertos entonces el programa se considera correcto.
+El programa sería incorrecto en otro caso.
+El programa P se estructura en 3 secciones:
+una dedicada a la declaración de variables(sección VARIABLES),
+otra dedicada a  la  declaración  de subprogramas(secciónSUBPROGRAMAS)
+y  otra  dedicada al  uso  devariables  y  subprogramas (secciónINSTRUCCIONES).
+
+========================================================
 
 programa: PROGRAMA variables subprogramas instrucciones
 variables: VARIABLES (declaracion_variables)*
         ;
-declaracion_variables: identificador DOSPUNTOS tipos PyC
+declaracion_variables: identificador DOSPTOS  tipos PyC
                        ;
-identificador: var_numericas
+identificador: elementales
              | secuencias
              ;
-var_numericas: (variable COMA)* variable DOSPUNTOS tipos_elementales PyC
+elementales: (variable COMA)* variable DOSPTOS tipos_elementales PyC
              ;
-secuencias: variable DOSPUNTOS tipos_no_elementales PyC
+secuencias: variable DOSPTOS tipos_no_elementales PyC
           ;
 tipos: tipos_elementales
      | tipos_no_elementales
      ;
-tipos_elementales: NUM
-                 | LOG
+tipos_elementales: NUMERO
+                 | BOOL
                  ;
 tipos_no_elementales: SEQ(NUM)
                     | SEQ(LOG)
@@ -24,29 +44,68 @@ tipos_no_elementales: SEQ(NUM)
 
 subprogramas:SUBPROGRAMAS (declaracion_subprogramas)*
             ;
-declaracion_subprogramas: funciones
-                       ;
-funciones: declaracion_funicones
-         ;
-declaracion_funicones: (FUNCION|PROCEDIMIENTOS) parametros declaracion_variables instrucciones (FFUNCION|FPROCEDIMIENTO);
+variable: VAR;
+declaracion_subprogramas: funcion
+                        | procedimiento
+                        ;
+funcion: FUNCION variable PA (params)? PC RETURN PA params PC variables instrucciones FFUNCION;
+procedimiento: PROCEDIMIENTO variable PA (params)? PC variables instrucciones FPROCEDIMIENTO;
 
-parametros: params_entrada
-          | params_salida
+params: tipos variable
+      | tipos variable COMA params
+      ;
+
+op_integer: POR
+          | SUMA
+          | RESTA
           ;
-params_entrada: param_entrada
-               ;
-param_entrada: desigualdades PA SEQ variable PC
-               ;
-desigualdades: DISTINTO
-             | MENOR
-             | MAYOR
-             | MENOR_IGUAL
-             | MAYOR_IGUAL
-             ;
-params_salida: RETURN PA param_salida PC
-               ;
-param_salida: PA (tipos_elementales variable COMA)* PC
+
+comp_integer: MENORIGUAL
+            | MAYORIGUAL
+            | MENOR
+            | MAYOR
+            | comp_bool
             ;
+op_bool: AND
+       | OR
+       ;
+
+comp_bool: IGUALL
+         | DISTINTO
+         ;
+
+expr: expr_integer
+    | expr_bool
+    | expr_seq
+    | expr_func
+    | expr_sacar_elem
+    ;
+
+expr_integer: expr_integer op_integer expr_integer
+            | NUM
+            | variable
+            ;
+
+expr_bool: T
+         | F
+         | expr_bool comp_bool expr_bool
+         | expr_seq comp_bool expr_seq
+         | expr_integer comp_integer expr_integer
+         | NO expr_bool
+         | expr_bool op_bool expr_bool
+         | variable
+         ;
+
+expr_seq: CA CC // []
+        | CA (expr COMA)* expr CC
+        | variable
+        ;
+
+expr_sacar_elem: variable CA expr_integer CC;
+
+expr_avanza: LA AVANZA DOSPTOS expr_func LC;
+
+expr_func: variable PA (variable|expr) (COMA variable|expr)* PC PyC;
 
 instrucciones: INSTRUCCIONES (declaracion_instrucciones)*
               ;
@@ -54,67 +113,30 @@ delcaracion_instrucciones: asignacion
                          | condicional
                          | iteracion
                          | ruptura
-                         | declaracion_subproggramas
                          | devolucion_resultados
                          | mostrar_consola
                          | asertos
+                         | expr_func
                          ;
-asignacion: asig_simple
-          | asig_multiple
-          ;
-asig_simple: variable ASIGNACION CA (DIGITOS COMA)* DIGITOS CC PyC
-             ;
-asig_multiple: declaracion_variables ASIGNACION declaracion_variables operacion_entero DIGITO PyC
-             ;
-operacion_entero: MULTIPLICACION
-                | SUMA
-                | RESTA
-                ;
+asignacion: (variable COMA)* variable IGUAL ((variable|expr) COMA)* (variable|expr) PyC;
+
 condicional: condicion
             ;
-condicion: IF (blq_si|blq_sino) ENDIF
-        ;
-blq_si: PA expresion PC THEN (delcaracion_instrucciones)+
+condicion: IF PA expr_bool PC THEN (declaracion_instrucciones)+ (blq_sino)? ENDIF;
         ;
 blq_sino: PA expresion PC THEN (delcaracion_instrucciones)+ ELSE (delcaracion_instrucciones)+
         ;
 iteracion: WHILE PA expresion PC DO (expr_avanza)? (delcaracion_instrucciones)+ ENDWHILE
          ;
-expr_avanza: LLAVEABIERTA AVANZA DOSPUNTOS expr_funcion LLAVECERRADA
-           ;
-expr_funcion: variable PA (variable|expresion) (COMA variable|expresion)* PC;
             ;
-reptura_control: BREAK PyC
+ruptura: BREAK PyC
                ;
 devolucion_resultados: RETURN expresion PyC
                     ;
-mostrar_consola: PRINTLN PA declaracion_variables PC
+mostrar_consola: MOSTRAR PA (expr COMA)* expr PC PyC;
                 ;
-asertos: LLAVEABIERTA (expresion | cuantificador ) LLAVECERRADA
+asertos: LA ( expr_bool | cuantificador ) LC;
        ;
-variable: VAR;
-expresion: expr_integer
-         | expr_boolean
-         | expr_sequential
-         ;
-expr_integer: NUM
-            | expr_integer operacion_entero expr_integer
-            | identificador CA expr_integer CC // variable que almacena una secuencia de enteros
-            | expr_funcion // llamar a esa función devuelva un entero
-            | variable
-            ;
-funcion_booleana_binaria: AND | OR ;
-expr_boolean: T
-            | F
-            | expr_integer desigualdades expr_integer
-            | expr_boolean funcion_booleana_binaria expr_boolean
-            | NO expr_boolean
-            | expr_integer
-            ;
-expr_sequential: CA CC // []
-                | CA (expr_integer|expr_boolean| variable COMA)* (expr_integer|expr_boolean|variable) CC
-                | expr_funcion
-                ;
 cuantificador: cuantificadorUniversal
             | cuantificadorExistencial
             ;
@@ -123,7 +145,4 @@ cuantificadoUniversal: FORALL cuantificacion
 cuantificadorExistencial: EXISTS cuantificacion
                         ;
 cuantificacion: PA variable DOSPTOS CA expr_integer COMA expr_integer CC COMA expr_bool PC;
-
-expr_entero: CA expresion COMA expresion CC
-           ;
 

@@ -1,27 +1,74 @@
-VARIABLES:'VARIABLES';
-PyC:';';
-DOSPUNTOS:':';
-NUM:'NUM';
-LOG:'LOG';
-SEQ:'SEQ';
-PA:'(';
-PC:')';
-COMA:',';
-INSTRUCCIONES:'INSTRUCCIONES';
-FUNCION:'FUNCION';
-SUBPROGRAMAS:'SUBPROGRAMAS';
-FFUNCION:'FFUNCION';
-CA:'[';
-CC:']';
-IDENT:['a.. z'| 'A'..'Z']+;
-DIGITOS:['0..9']*;
-ASIGNACION:'=';
-MAYOR_QUE:'mayor_que';
-MENOR_QUE:'menor_que';
-MNEOR:'menor';
-MAYOR:'mayor';
-MAX:'max';
-MIN:'min';
-HACER:'hacer';
-MIENTRAS:'mientras';
-FINMIENTRAS:'fmientras';
+=================================================================
+DEFINICIÓN DE DISEÑO ANALEX
+
+Los lexemas o tokens son los símbolos terminales que aparecen en la gramática y representan las distintas  categoríasde
+palabras y  símbolos  de  puntuación que  podemos  encontrar  en  una sentencia del lenguaje
+
+====================================================================
+
+BLANCO: ' ';
+TABULADOR: '\t';
+FIN_LINEA: '\r'?'\n';
+
+//Lexemas auxiliares
+fragment DIGITO: [0-9];
+fragment LETRA: [a-zA-Z];
+
+VARIABLES: 'VARIABLES';
+PROGRAMA: 'PROGRAMA';
+SUBPROGRAMAS: 'SUBPROGRAMAS';
+INSTRUCCIONES: 'INSTRUCCIONES';
+FUNCION: 'FUNCION';
+FFUNCION: 'FFUNCION';
+RETURN: 'dev';
+PROCEDIMIENTO: 'PROCEDIMIENTO';
+FPROCEDIMIENTO: 'FPROCEDIMIENTO';
+
+NUMERO : 'NUM';
+BOOL: 'LOG';
+SEQ_NUM: 'SEQ(NUM)';
+SEQ_BOOL: 'SEQ(BOOL)';
+SEQ: 'SEQ';
+T: 'T' | 'cierto';
+F: 'F' | 'falso';
+BREAK: 'ruptura';
+IF: 'si';
+THEN: 'entonces';
+ENDIF: 'fsi';
+ELSE: 'sino';
+WHILE: 'mientras';
+DO: 'hacer';
+ENDWHILE: 'fmientras';
+FORALL: 'PARATODO';
+EXISTS: 'EXISTE';
+AVANZA: 'avance';
+MOSTRAR: 'mostrar';
+
+NUM: ('-')?DIGITO+;
+VAR: LETRA(LETRA|DIGITO|'_')*;
+
+DOSPTOS: ':';
+PA : '(';
+PC : ')';
+CA: '[';
+CC: ']';
+LA: '{';
+LC: '}';
+PyC : ';';
+COMA : ',';
+POR : '*';
+SUMA : '+';
+RESTA : '-';
+IGUAL: '=';
+IGUALL: '==';
+DISTINTO: '!=';
+MENORIGUAL: '<=';
+MAYORIGUAL: '>=';
+MENOR: '<';
+MAYOR: '>';
+NO: '!';
+AND: '&&';
+OR: '||';
+
+COMENTARIO_BLOQUE : '/*' .*? '*/'.
+COMENTARIO_LINEA : '//' .*? FIN_LINEA;
