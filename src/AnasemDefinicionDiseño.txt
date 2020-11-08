@@ -41,7 +41,11 @@ programas P siempre usan variables y subprogramas).
 
    GRAMATICA ATRIBUIDA
 
-   DECISIÓN DISEÑO 1: Para decidir si un aserto es cierto o falso, se
+   ==============================================
+   ARGUMENTO DISEÑO 1: OBJETIVO 2 => OBJETIVO 1
+   ==============================================
+
+   DECISIÓN DISEÑO 1: Para decidir si una instruccion es correcta, se
    necesita saber el tipo de las variables implicadas.
    Se necesita almacenar esta información al procesar la declaración de
    variables.
@@ -67,23 +71,96 @@ programas P siempre usan variables y subprogramas).
    (parámetro de salida r)
    vars : (variable {incluir variable en r} COMA)* variable
 
-DECISIÓN DISEÑO 2: Para decidir si los argumentos desde (b)..(h).
-   
-(parámetro de salida tipo)
-expr: tipo=expr_booleana
- | tipo=expr_entera
- | tipo=expr_secuencia
+   -----------------------------------------------------------
+   ARGUMENTO DISEÑO 2: DECISIÓN DISEÑO 2=> OBJETIVO 2 (a)
+   ---------------------------------------------------------
+   DECISIÓN DISEÑO 3:El cálculo del tipo de una expresión se basa en las
+   siguientes funciones:
 
-funcion_booleana_binaria = AND|OR
-desigualdades: DISTINTO
+     ==========================================================
+           PSEUDOCODIGO EXPR_INTEGER
+
+           (función tipo_op_aritm(tipo1,tipo2
+               si tipo1 o tipo2 es igual a no tipo entonces
+                   tipo= no tipo
+               sino
+                   si tipo1 y tipo2 son enteros entonces
+                       tipo=entero
+                   sino tipo=no tipo)
+
+     ==========================================================
+       PSEUDOCODIGO EXPR_BOOLEAN
+
+       (función tipo_op_booleano(tipo1,tipo2)
+           si tipo1 o tipo2 es igual a no tipo entonces
+               tipo= no tipo
+           sino
+               si tipo1 y tipo2 son booleanos entonces
+                   tipo=booleano
+               sino tipo=no tipo)
+
+    ==========================================================
+
+     PSEUDOCODIGO EXPR_SEQ
+
+           (función tipo_seq_elems(tipos)
+               si algun elemento en tipos es igual a no tipo
+                    o es igual a corchetes vacios entonces
+                   tipo= no tipo
+               sino
+                  si todos los elementos en tipos son iguales a  entero entonces
+                       tipo=entero
+                  sino
+                    si todos los elementos en tipos son iguales a  booleano entonces
+                        tipo=booleano)
+
+     ==========================================================
+            PSEUDOCODIGO FUNCION TIPO AVANCE
+
+            (función tipo_avance(tipo1,tipo2)
+                si tipo1 o tipo2 es igual a no tipo entonces
+                    tipo= no tipo
+                sino
+                    si tipo1 y tipo2 son booleanos entonces
+                        tipo=booleano
+                    sino tipo=no tipo)
+
+     ==========================================================
+      PSEUDOCODIGO FUNCION TIPO ULTIMA POSICION
+
+                 (función tipo_ultima_posicion(tipo1,tipo2)
+                     si tipo1 o tipo2 es igual a no tipo entonces
+                         tipo= no tipo
+                     sino
+                         si tipo1 y tipo2 son booleanos entonces
+                             tipo=booleano
+                         sino tipo=no tipo)
+
+     ==========================================================
+
+    -------------------------------------------------------------
+    ARGUMENTO DISEÑO 2: DECISIÓN DISEÑO 2=> OBJETIVO 2 (b). .(h)
+    -----------------------------------------------------------
+    DECISIÓN DISEÑO 2: Para decidir si los argumentos desde (b)..(h) cumplen con el objetivo.
+   
+    (parámetro de salida tipo)
+    expr: tipo=expr_booleana
+          | tipo=expr_entera
+          | tipo=expr_secuencia
+
+    (parámetro de salida tipo)
+    variable: IDENT {tipo=tipo almacenado para VAR en almacén variables}
+
+    funcion_booleana_binaria = AND|OR
+
+    desigualdades: DISTINTO
              | MENOR
              | MAYOR
              | MENOR_IGUAL
              | MAYOR_IGUAL
              ;
-(parámetro de salida tipo)
-expr_boolean: T
-expr_boolean: T
+    (parámetro de salida tipo)
+    expr_boolean: T
             | F
             | expr_integer desigualdades expr_integer
             | tipo1=expr_boolean funcion_booleana_binaria tipo2=expr_boolean
@@ -91,17 +168,23 @@ expr_boolean: T
             | expr_integer
             ;
 
-operacion_entero: MULTIPLICACION
+    operacion_entero: MULTIPLICACION
                 | SUMA
                 | RESTA
                 ;
-(parámetro de salida tipo)
-expr_integer: NUM {tipo=entero}
+    (parámetro de salida tipo)
+    expr_integer: NUM {tipo=entero}
             | tipo1=expr_integer operacion_entero tipo2=expr_integer
             | tipo=identificador CA expr_integer CC // variable que almacena una secuencia de enteros
             | expr_funcion // llamar a esa función devuelva un entero
-            | VAR
+            | variable
             ;
+    (parámetro de salida tipos)
+    expre_seq: CA CC
+             | CA ((tipo=expr_entera | tipo=expr_booleana | tipo=variable) COMA )*
+                  (tipo=expr_entera | tipo=expr_booleana | tipo=variable) CC {añadir tipo a tipos}
+             | expr_funcion
+             ;
 
 
 
