@@ -1,4 +1,4 @@
-// Generated from C:/Users/Juan/IdeaProjects/ProgramacionPL/src\Anasint.g4 by ANTLR 4.8
+// Generated from C:/Users/Enrique/Desktop/PL/src\Anasint.g4 by ANTLR 4.8
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 /**

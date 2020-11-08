@@ -1,4 +1,4 @@
-// Generated from C:/Users/Juan/IdeaProjects/ProgramacionPL/src\Analex.g4 by ANTLR 4.8
+// Generated from C:/Users/Enrique/Desktop/PL/src\Analex.g4 by ANTLR 4.8
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;
@@ -22,7 +22,7 @@ public class Analex extends Lexer {
 		T=20, F=21, BREAK=22, IF=23, THEN=24, ENDIF=25, ELSE=26, WHILE=27, DO=28, 
 		ENDWHILE=29, FORALL=30, EXISTS=31, AVANZA=32, MOSTRAR=33, NUM=34, VAR=35, 
 		DOSPTOS=36, PA=37, PC=38, CA=39, CC=40, LA=41, LC=42, PyC=43, COMA=44, 
-		SUMA=45, RESTA=46, POR=47, IGUAL=48, IGUALL=49, DISTINTO=50, MENORIGUAL=51, 
+		POR=45, SUMA=46, RESTA=47, IGUAL=48, IGUALL=49, DISTINTO=50, MENORIGUAL=51, 
 		MAYORIGUAL=52, MENOR=53, MAYOR=54, NO=55, AND=56, OR=57, COMENTARIO_BLOQUE=58, 
 		COMENTARIO_LINEA=59;
 	public static String[] channelNames = {
@@ -40,7 +40,7 @@ public class Analex extends Lexer {
 			"FPROCEDIMIENTO", "EVAL", "DEF", "NUMERO", "BOOL", "SEQ_NUM", "SEQ_BOOL", 
 			"SEQ", "T", "F", "BREAK", "IF", "THEN", "ENDIF", "ELSE", "WHILE", "DO", 
 			"ENDWHILE", "FORALL", "EXISTS", "AVANZA", "MOSTRAR", "NUM", "VAR", "DOSPTOS", 
-			"PA", "PC", "CA", "CC", "LA", "LC", "PyC", "COMA", "SUMA", "RESTA", "POR", 
+			"PA", "PC", "CA", "CC", "LA", "LC", "PyC", "COMA", "POR", "SUMA", "RESTA", 
 			"IGUAL", "IGUALL", "DISTINTO", "MENORIGUAL", "MAYORIGUAL", "MENOR", "MAYOR", 
 			"NO", "AND", "OR", "COMENTARIO_BLOQUE", "COMENTARIO_LINEA"
 		};
@@ -55,7 +55,7 @@ public class Analex extends Lexer {
 			"'SEQ(BOOL)'", "'SEQ'", null, null, "'ruptura'", "'si'", "'entonces'", 
 			"'fsi'", "'sino'", "'mientras'", "'hacer'", "'fmientras'", "'PARATODO'", 
 			"'EXISTE'", "'avance'", "'mostrar'", null, null, "':'", "'('", "')'", 
-			"'['", "']'", "'{'", "'}'", "';'", "','", "'+'", "'-'", "'*'", "'='", 
+			"'['", "']'", "'{'", "'}'", "';'", "','", "'*'", "'+'", "'-'", "'='", 
 			"'=='", "'!='", "'<='", "'>='", "'<'", "'>'", "'!'", "'&&'", "'||'"
 		};
 	}
@@ -67,7 +67,7 @@ public class Analex extends Lexer {
 			"EVAL", "DEF", "NUMERO", "BOOL", "SEQ_NUM", "SEQ_BOOL", "SEQ", "T", "F", 
 			"BREAK", "IF", "THEN", "ENDIF", "ELSE", "WHILE", "DO", "ENDWHILE", "FORALL", 
 			"EXISTS", "AVANZA", "MOSTRAR", "NUM", "VAR", "DOSPTOS", "PA", "PC", "CA", 
-			"CC", "LA", "LC", "PyC", "COMA", "SUMA", "RESTA", "POR", "IGUAL", "IGUALL", 
+			"CC", "LA", "LC", "PyC", "COMA", "POR", "SUMA", "RESTA", "IGUAL", "IGUALL", 
 			"DISTINTO", "MENORIGUAL", "MAYORIGUAL", "MENOR", "MAYOR", "NO", "AND", 
 			"OR", "COMENTARIO_BLOQUE", "COMENTARIO_LINEA"
 		};
@@ -265,8 +265,8 @@ public class Analex extends Lexer {
 		"P\3\2\2\2\u0190\u0191\7+\2\2\u0191R\3\2\2\2\u0192\u0193\7]\2\2\u0193T"+
 		"\3\2\2\2\u0194\u0195\7_\2\2\u0195V\3\2\2\2\u0196\u0197\7}\2\2\u0197X\3"+
 		"\2\2\2\u0198\u0199\7\177\2\2\u0199Z\3\2\2\2\u019a\u019b\7=\2\2\u019b\\"+
-		"\3\2\2\2\u019c\u019d\7.\2\2\u019d^\3\2\2\2\u019e\u019f\7-\2\2\u019f`\3"+
-		"\2\2\2\u01a0\u01a1\7/\2\2\u01a1b\3\2\2\2\u01a2\u01a3\7,\2\2\u01a3d\3\2"+
+		"\3\2\2\2\u019c\u019d\7.\2\2\u019d^\3\2\2\2\u019e\u019f\7,\2\2\u019f`\3"+
+		"\2\2\2\u01a0\u01a1\7-\2\2\u01a1b\3\2\2\2\u01a2\u01a3\7/\2\2\u01a3d\3\2"+
 		"\2\2\u01a4\u01a5\7?\2\2\u01a5f\3\2\2\2\u01a6\u01a7\7?\2\2\u01a7\u01a8"+
 		"\7?\2\2\u01a8h\3\2\2\2\u01a9\u01aa\7#\2\2\u01aa\u01ab\7?\2\2\u01abj\3"+
 		"\2\2\2\u01ac\u01ad\7>\2\2\u01ad\u01ae\7?\2\2\u01ael\3\2\2\2\u01af\u01b0"+

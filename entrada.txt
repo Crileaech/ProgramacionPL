@@ -6,6 +6,7 @@ SUBPROGRAMAS
 FUNCION bucle_1_avance(SEQ(NUM) seq, NUM pos) dev (NUM r)
  VARIABLES
  INSTRUCCIONES
+ i = [7,8]!=[9,10];
  r=ultima_posicion(s)-i;
  dev r;
  FFUNCION
@@ -26,11 +27,12 @@ FUNCION bucle_1_avance(SEQ(NUM) seq, NUM pos) dev (NUM r)
   FPROCEDIMIENTO
 
 INSTRUCCIONES
- a = i&&j;
+ a = !i&&j;
  mostrar(i);
- a = i;
+ a = i*7+9;
 { cierto }
-s=[3,4,2,7,9,0,11];
+ s=[4,2,7,9,0,11];
+ s=[T,F];
  i=0;
  mostrar(i);
  min=s[i];
