@@ -149,7 +149,7 @@ programas P siempre usan variables y subprogramas).
           | tipo=expr_secuencia
 
     (parámetro de salida tipo)
-    variable: IDENT {tipo=tipo almacenado para VAR en almacén variables}
+    variable: VAR {tipo=tipo almacenado para VAR en almacén variables}
 
     funcion_booleana_binaria = AND|OR
 
