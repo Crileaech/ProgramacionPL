@@ -8,9 +8,9 @@ declaracion_variables: identificador DOSPUNTOS tipos PyC
 identificador: var_numericas
              | secuencias
              ;
-var_numericas: (VAR COMA)* VAR DOSPUNTOS tipos_elementales PyC
+var_numericas: (variable COMA)* variable DOSPUNTOS tipos_elementales PyC
              ;
-secuencias: VAR DOSPUNTOS tipos_no_elementales PyC
+secuencias: variable DOSPUNTOS tipos_no_elementales PyC
           ;
 tipos: tipos_elementales
      | tipos_no_elementales
@@ -35,17 +35,17 @@ parametros: params_entrada
           ;
 params_entrada: param_entrada
                ;
-param_entrada: desigualdades PA SEQ VAR PC
+param_entrada: desigualdades PA SEQ variable PC
                ;
-desigualdades: distinto
-             | menor
-             | mayor
-             | menor_igual_que
-             | mayor_igual_que
+desigualdades: DISTINTO
+             | MENOR
+             | MAYOR
+             | MENOR_IGUAL
+             | MAYOR_IGUAL
              ;
 params_salida: RETURN PA param_salida PC
                ;
-param_salida: PA (tipos_elementales VAR COMA)* PC
+param_salida: PA (tipos_elementales variable COMA)* PC
             ;
 
 instrucciones: INSTRUCCIONES (declaracion_instrucciones)*
@@ -53,7 +53,7 @@ instrucciones: INSTRUCCIONES (declaracion_instrucciones)*
 delcaracion_instrucciones: asignacion
                          | condicional
                          | iteracion
-                         | reptura_control
+                         | ruptura
                          | declaracion_subproggramas
                          | devolucion_resultados
                          | mostrar_consola
@@ -62,7 +62,7 @@ delcaracion_instrucciones: asignacion
 asignacion: asig_simple
           | asig_multiple
           ;
-asig_simple: VAR ASIGNACION CA (DIGITOS COMA)* DIGITOS CC PyC
+asig_simple: variable ASIGNACION CA (DIGITOS COMA)* DIGITOS CC PyC
              ;
 asig_multiple: declaracion_variables ASIGNACION declaracion_variables operacion_entero DIGITO PyC
              ;
@@ -82,7 +82,7 @@ iteracion: WHILE PA expresion PC DO (expr_avanza)? (delcaracion_instrucciones)+ 
          ;
 expr_avanza: LLAVEABIERTA AVANZA DOSPUNTOS expr_funcion LLAVECERRADA
            ;
-expr_funcion: VAR PA (VAR|expresion) (COMA VAR|expresion)* PC;
+expr_funcion: variable PA (variable|expresion) (COMA variable|expresion)* PC;
             ;
 reptura_control: BREAK PyC
                ;
@@ -92,6 +92,7 @@ mostrar_consola: PRINTLN PA declaracion_variables PC
                 ;
 asertos: LLAVEABIERTA (expresion | cuantificador ) LLAVECERRADA
        ;
+variable: VAR;
 expresion: expr_integer
          | expr_boolean
          | expr_sequential
@@ -100,25 +101,29 @@ expr_integer: NUM
             | expr_integer operacion_entero expr_integer
             | identificador CA expr_integer CC // variable que almacena una secuencia de enteros
             | expr_funcion // llamar a esa función devuelva un entero
-            | VAR
+            | variable
             ;
+funcion_booleana_binaria: AND | OR ;
 expr_boolean: T
             | F
             | expr_integer desigualdades expr_integer
-            | expr_boolean (AND|OR) expr_boolean
+            | expr_boolean funcion_booleana_binaria expr_boolean
             | NO expr_boolean
             | expr_integer
             ;
 expr_sequential: CA CC // []
-                | CA (expr_integer|expr_boolean COMA)* (expr_integer|expr_boolean) CC
+                | CA (expr_integer|expr_boolean| variable COMA)* (expr_integer|expr_boolean|variable) CC
                 | expr_funcion
-                | VAR
                 ;
 cuantificador: cuantificadorUniversal
             | cuantificadorExistencial
             ;
-cuantificadoUniversal: FORALL PA VAR DOSPTOS expr_entero COMA expresion PC
+cuantificadoUniversal: FORALL cuantificacion
                     ;
+cuantificadorExistencial: EXISTS cuantificacion
+                        ;
+cuantificacion: PA variable DOSPTOS CA expr_integer COMA expr_integer CC COMA expr_bool PC;
+
 expr_entero: CA expresion COMA expresion CC
            ;
 

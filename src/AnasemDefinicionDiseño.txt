@@ -1,52 +1,118 @@
-OBJETIVO 1 => P es un lenguaje de programación secuencial con asertos. La idea es usar asertos para verificar la corrección del programa. Si al
-ejecutar un programa, sus asertos son ciertos entonces el programa se considera correcto. El programa sería incorrecto en otro
-caso. El programa P se estructura en 3 secciones: una dedicada a la declaración de variables (sección VARIABLES), otra dedicada
-a la declaración de subprogramas (sección SUBPROGRAMAS) y otra dedicada al uso de variables y subprogramas (sección
-INSTRUCCIONES).
+OBJETIVO 1 (abstracto y declarativo): analizador semántico capaz de decidir si la seccion
+instrucciones del programa en un lenguaje llamado P están bien estructuradas (suponemos que los
+programas P siempre usan variables y subprogramas).
 
-OBJETIVO 2: P es un lenguaje de programación secuencial con asertos.
-Usaremos aserto para verificar correcto funcionamiento del programa.
-Decimos que un aserto es cierto entonces el programa se consedira correto.
-De acuerdo con la definición de P, consideramos 2 tipos de datos: elementales (NUM y LOG)
-y no elemenetales (SEQ(NUM), SEQ(LOG)).
+OBJETIVO 2 (concreto y declarativo):analizador semántico capaz de decidir si la seccion
+instrucciones del programa  en un lenguaje llamado P están bien estructuradas (suponemos que los
+programas P siempre usan variables y subprogramas).
+(a) Las instrucciones del programa llamado P esta bien estructuras si y sólo si están formadas por
+    asignaciones, condiciones, iteraciones, rupturas de control, llamada a subprogramas, devuelven el resultdo,
+    muestran por consola el valor y asertos.
+(b) Una instruccion es una asignacion bien estructurada si y solo si está formada por una expresión entera,
+    expresion booleana o expresión secuencial
+    (b.1) Una expresión es de tipo entera si y sólo si es una constante entera, una variable entera
+          o la suma, resta o producto de expresiones enteras.
+    (b.2) Una expresión es de tipo booleana si y sólo si es una constante booleana, o una variable
+          booleana
+    (b.3) Una expresión es de tipo secuencial si y sólo si es una constante secuencia, una variable
+          booleana o una variable entera
+    (b.4) Una asignacion no admite expresiones sin valor a una variable
+(c) Una instruccion es una condicion bien estructurada si y solo si están formadas por expresiones de tipo boolean
+    y un bloque de instrucciones
+    (c.1) Las condiciones se contruyen en base a igualdades y desigualdades de expresiones con el mismo tipo
+    (c.2) Las condiciones se pueden concatenar con operadores de conjuncion, disyuncion y negacion
+    (c.3) Las condiciones se evaluan a variable boolean e indefinido
+(d) Una instruccion es una iteracion bien estructurada si y solo si esta formada por un bloque de instrucciones
+    con una condicion al principio
+    (d.1) A una iteracion se le puede asociar una funcion avance incluida en las expresiones funcion
+    (d.2) Una iteracion es erronea si los valored devueltos por funcion de avance no decrecen
+(e) Una instruccion ruputura de control esta bien estructura si y solo si lleva al programa
+    fuera del bloque y pospone comprobacion
+(f) Una instruccion que hace declaracion de subprograma esta bien estructura si y solo si
+    permite hacer llamadas a los mismos
+    (f.1) Llamada a una funcion es parte de un una expresion.
+    (f.2) Un procedimiento nunca es parte de una expresion.
+(g) Una instruccion mostrar esta bien estructura si y solo si muestra por consola lista de variables.
+(h) Una instruccion aserto esta bien estructurado si y solo si es una expresion booleana y cuantificador
+    (h.1) cuantificación universal, ej. PARATODO(p:[0,ultima_posicion(s)],s[i]<=max)
+    (h.2) cuantificación existencial ej. EXISTE(x:[0,ultima_posicion(s)],s[x]>10)
 
-(1) La evaluacion de un aserto no puede ser indefinido entonces es incorrecto así
-    la funcion predicado igualdad o desigualdad toma valores verdadero o falso. Sino condición evalua indefinido
-(2) El aserto se localiza en algún punto de las instrucciones del programa o
-    subprograma
-(3) los asertos son condiciones extendidas con dos tipos de posibles cuantificaciones:
-    (3.1) cuantificación universal, ej. {PARATODO(p:[0,ultima_posicion(s)],s[i]<=max)}
-    (3.2) cuantificación existencial ej. {EXISTE(x:[0,ultima_posicion(s)],s[x]>10)}
-(5) Cuantificacion rango finito de valores enteros y condición
-(6) Decimos que llamar a un subprograma es correcto si la secuencia de expresiones coincide en numero y tipo => (Mental otro objetivo)*
-(7) Una iteración es errónea si los valores devueltos por su función de avance no decrecen en cada iteración sucesiva. Por ejemplo, la
-    función bucle_1_avance devuelve la siguiente secuencia de valores para la iteración asociada: 6,5,4,3,2,1,0 siendo s =
-    [3,4,2,7,9,0,11].
+    ===========================================================================
 
-DECISIÓN DISEÑO 1: Para decidir si un aserto es cierto o falso, se
-necesita saber el tipo de las variables implicadas.
-Se necesita almacenar esta información al procesar la declaración de
-variables.
-(almacén variables) variable | tipo
- ---------------------------------
- i,max,min | NUM, variables numericas
- SEQ(NUM) | secuencia de enteros
- SEQ(LOG) | secuencia logica
- T,F | LOG, variables logicas
+   GRAMATICA ATRIBUIDA
 
-programa : PROGRAMA n=variables {almacenar n en alamacen} subprogramas instrucciones
+   DECISIÓN DISEÑO 1: Para decidir si un aserto es cierto o falso, se
+   necesita saber el tipo de las variables implicadas.
+   Se necesita almacenar esta información al procesar la declaración de
+   variables.
+   (almacén variables) variable | tipo
+                       ---------------------------------
+                       i,max,min | NUM, variables numericas
+                       SEQ(NUM)  | secuencia de enteros
+                       SEQ(LOG)  | secuencia logica
+                       T,F       | LOG, variables logicas
 
-(parámetro de salida n)
-variables : VARIABLES (m=decl_vars {almacenar m en n})*
-(parámetro de salida m)
-decl_vars : r=vars DOSPUNTOS t=tipo PyC {almacenar en m cada variable en r con tipo t}
-(parámetro de salida t)
-tipo: NUMERO {t=variables numericas}
- | BOOL {t=variables logicas}
- | SEQ(NUM) {t=secuencia numerica}
- | SEQ(LOG) {t=secuencia logica}
- ;
-(parámetro de salida r)
-vars : (VAR {incluir VAR en r} COMA)* VAR
+   programa : PROGRAMA n=variables {almacenar n en alamacen} subprogramas instrucciones
+
+   (parámetro de salida n)
+   variables : VARIABLES (m=decl_vars {almacenar m en n})*
+   (parámetro de salida m)
+   decl_vars : r=vars DOSPUNTOS t=tipo PyC {almacenar en m cada variable en r con tipo t}
+   (parámetro de salida t)
+   tipo: NUMERO {t=variables numericas}
+    | BOOL {t=variables logicas}
+    | SEQ(NUM) {t=secuencia numerica}
+    | SEQ(LOG) {t=secuencia logica}
+    ;
+   (parámetro de salida r)
+   vars : (variable {incluir variable en r} COMA)* variable
+
+DECISIÓN DISEÑO 2: Para decidir si los argumentos desde (b)..(h).
+   
+(parámetro de salida tipo)
+expr: tipo=expr_booleana
+ | tipo=expr_entera
+ | tipo=expr_secuencia
+
+funcion_booleana_binaria = AND|OR
+desigualdades: DISTINTO
+             | MENOR
+             | MAYOR
+             | MENOR_IGUAL
+             | MAYOR_IGUAL
+             ;
+(parámetro de salida tipo)
+expr_boolean: T
+expr_boolean: T
+            | F
+            | expr_integer desigualdades expr_integer
+            | tipo1=expr_boolean funcion_booleana_binaria tipo2=expr_boolean
+            | NO tipo1=expr_boolean
+            | expr_integer
+            ;
+
+operacion_entero: MULTIPLICACION
+                | SUMA
+                | RESTA
+                ;
+(parámetro de salida tipo)
+expr_integer: NUM {tipo=entero}
+            | tipo1=expr_integer operacion_entero tipo2=expr_integer
+            | tipo=identificador CA expr_integer CC // variable que almacena una secuencia de enteros
+            | expr_funcion // llamar a esa función devuelva un entero
+            | VAR
+            ;
+
+
+
+
+
+
+
+
+
+
+
+
 
 
