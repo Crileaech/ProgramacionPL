@@ -76,6 +76,12 @@ public interface AnasintVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitTipos_no_elementales(Anasint.Tipos_no_elementalesContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link Anasint#variable}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitVariable(Anasint.VariableContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link Anasint#declaracion_subprogramas}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -123,6 +129,12 @@ public interface AnasintVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitExpr_seq(Anasint.Expr_seqContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link Anasint#expr_sacar_elem}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpr_sacar_elem(Anasint.Expr_sacar_elemContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link Anasint#expr_avanza}.
 	 * @param ctx the parse tree

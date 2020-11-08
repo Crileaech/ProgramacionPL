@@ -117,6 +117,16 @@ public interface AnasintListener extends ParseTreeListener {
 	 */
 	void exitTipos_no_elementales(Anasint.Tipos_no_elementalesContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link Anasint#variable}.
+	 * @param ctx the parse tree
+	 */
+	void enterVariable(Anasint.VariableContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link Anasint#variable}.
+	 * @param ctx the parse tree
+	 */
+	void exitVariable(Anasint.VariableContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link Anasint#declaracion_subprogramas}.
 	 * @param ctx the parse tree
 	 */
@@ -196,6 +206,16 @@ public interface AnasintListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExpr_seq(Anasint.Expr_seqContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link Anasint#expr_sacar_elem}.
+	 * @param ctx the parse tree
+	 */
+	void enterExpr_sacar_elem(Anasint.Expr_sacar_elemContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link Anasint#expr_sacar_elem}.
+	 * @param ctx the parse tree
+	 */
+	void exitExpr_sacar_elem(Anasint.Expr_sacar_elemContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link Anasint#expr_avanza}.
 	 * @param ctx the parse tree

@@ -32,17 +32,18 @@ tipos_no_elementales: SEQ_NUM
                     ;
 
 //---SUBPROGRAMAS---
+variable: VAR;
 
 declaracion_subprogramas: funcion
                         | procedimiento
                         ;
 
-funcion: FUNCION VAR PA (params)? PC RETURN PA params PC variables instrucciones FFUNCION;
+funcion: FUNCION variable PA (params)? PC RETURN PA params PC variables instrucciones FFUNCION;
 
-procedimiento: PROCEDIMIENTO VAR PA (params)? PC variables instrucciones FPROCEDIMIENTO;
+procedimiento: PROCEDIMIENTO variable PA (params)? PC variables instrucciones FPROCEDIMIENTO;
 
-params: tipos VAR
-      | tipos VAR COMA params
+params: tipos variable
+      | tipos variable COMA params
       ;
 
 //---TIPOS/EXPRESIONES---
@@ -50,39 +51,36 @@ params: tipos VAR
 expr: expr_integer
     | expr_bool
     | expr_seq
+    | expr_func
+    | expr_sacar_elem
     ;
 
 expr_integer: expr_integer (POR|SUMA|RESTA) expr_integer
-            | VAR CA expr_integer CC // variable que almacena una secuencia de enteros
-            | expr_func // en caso de que devuelva un entero
             | NUM
-            | VAR
+            | variable
             ;
 
 expr_bool: T
          | F
-         | VAR (IGUALL|DISTINTO) VAR
          | expr_bool (IGUALL|DISTINTO) expr_bool
          | expr_seq (IGUALL|DISTINTO) expr_seq
          | expr_integer (MENORIGUAL|MAYORIGUAL|MENOR|MAYOR|IGUALL|DISTINTO) expr_integer
          | NO expr_bool
          | expr_bool (AND|OR) expr_bool
-         | VAR CA expr_integer CC //VAR en este caso sería una variable que almacena una secuencia de boolean
-         | expr_func //en caso de que llamar a esa función devuelva un boolean
-         | VAR
+         | variable
          ;
 
 expr_seq: CA CC // []
-        | CA (expr_integer COMA)* expr_integer CC
-        | CA (expr_bool COMA)* (expr_bool) CC
-        | expr_func
-        | VAR
+        | CA (expr COMA)* expr CC
+        | variable
         ;
+
+expr_sacar_elem: variable CA expr_integer CC ;
 
 expr_avanza: LA AVANZA DOSPTOS expr_func LC;
 
 //antes: VAR PA (VAR) (COMA var)* PC
-expr_func: VAR PA (VAR|expr) (COMA VAR|expr)* PC;
+expr_func: variable PA (variable|expr) (COMA variable|expr)* PC;
 
 //---INSTRUCCIONES---
 
@@ -97,7 +95,7 @@ declaracion_instrucciones: asignacion
                          ;
 
 //antes: (VAR COMA)* VAR IGUAL (expr COMA)* (expr) PyC;
-asignacion: (VAR COMA)* VAR IGUAL ((VAR|expr) COMA)* (VAR|expr) PyC;
+asignacion: (variable COMA)* variable IGUAL ((variable|expr) COMA)* (variable|expr) PyC;
 
 condicion: IF PA expr_bool PC THEN (declaracion_instrucciones)+ (blq_sino)? ENDIF;
 
@@ -107,7 +105,7 @@ iteracion: WHILE PA expr_bool PC DO (expr_avanza)? (declaracion_instrucciones)+ 
 
 mostrar: MOSTRAR PA (expr COMA)* expr PC PyC;
 
-asertos: LA ( expr | cuantificador ) LC;
+asertos: LA ( expr_bool | cuantificador ) LC;
 
 cuantificador: cuantificadorUniversal
              | cuantificadorExistencial
@@ -118,4 +116,4 @@ cuantificadorUniversal: FORALL cuantificacion;
 cuantificadorExistencial: EXISTS cuantificacion;
 
 //DUDA EXPR BOOLEANA
-cuantificacion: PA VAR DOSPTOS CA expr_integer COMA expr_integer CC COMA expr_bool PC;
+cuantificacion: PA variable DOSPTOS CA expr_integer COMA expr_integer CC COMA expr_bool PC;

@@ -1,9 +1,9 @@
 PROGRAMA
 VARIABLES
- i,max,min:NUM;
+ i,max,min:LOG;
  s:SEQ(NUM);
 SUBPROGRAMAS
-FUNCION bucle_1_avance(SEQ(NUM) seq, NUM pos) dev (NUM r)
+/*FUNCION bucle_1_avance(SEQ(NUM) seq, NUM pos) dev (NUM r)
  VARIABLES
  INSTRUCCIONES
  i = [7,8]!=[9,10];
@@ -24,13 +24,15 @@ FUNCION bucle_1_avance(SEQ(NUM) seq, NUM pos) dev (NUM r)
   fsi
   j=j+1;
   fmientras
-  FPROCEDIMIENTO
+  FPROCEDIMIENTO*/
 
 INSTRUCCIONES
  a = !i&&j;
  mostrar(i);
  a = i*7+9;
-{ cierto }
+ b = [i,j,k,l];
+ duncionprueba(7*3);
+/*{ cierto }
  s=[4,2,7,9,0,11];
  s=[T,F];
  i=0;
@@ -49,4 +51,4 @@ INSTRUCCIONES
  { PARATODO(p:[0,i],s[p]<=max && s[p]>=min) }
  i=i+1;
  fmientras
-{ PARATODO(p:[0,ultima_posicion(s)],s[p]<=max && s[p]>=min) }
+{ PARATODO(p:[0,ultima_posicion(s)],s[p]<=max && s[p]>=min) }*/
