@@ -61,7 +61,7 @@ programas P siempre usan variables y subprogramas).
    (parámetro de salida n)
    variables : VARIABLES (m=decl_vars {almacenar m en n})*
    (parámetro de salida m)
-   decl_vars : r=vars DOSPUNTOS t=tipo PyC {almacenar en m cada variable en r con tipo t}
+   decl_vars : r=vars DOSPTOS t=tipo PyC {almacenar en m cada variable en r con tipo t}
    (parámetro de salida t)
    tipo: NUMERO {t=variables numericas}
     | BOOL {t=variables logicas}
