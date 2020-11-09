@@ -1,61 +1,185 @@
-semántico
+LENGUAJE DE PROGRAMACIÓN P
 
-OBJETIVO 1:
+Variables de tipo entero, booleano (elementales) o secuencia de booleanos enteros (no elemental)
 
-El analizador semántico debe ser capaz de detectar si las asignaciones en P están bien tipadas.
-a) Una asignación está bien tipada si y solo sí el tipo de la expresión a asignar
-coincide con el tipo de la variable que se está asignando.
-b) Una expresión es numérica en los siguientes casos:
-    b.1) Constante de tipo numérico.
-    b.2) Variable de tipo numérico.
-    b.3) Resultado de la suma, resta o multiplicación.
-    b.4) Llamada a una función con valor numérico de retorno. (? preguntar)
-    b.5) En la extracción del valor iésimo en una secuencia numérica.
-c) Una expresión es de tipo lógico en los siguientes casos:
-    c.1) Constante de tipo lógico.
-    c.2) Variable de tipo lógico.
-    c.3) Resultado del AND y OR lógicos entre dos expresiones lógicas.
-    c.4) Resultado de comprobar la igualdad o desigualdad entre dos expresiones de igual tipo.
-    c.5) Resultado de ejercer las comparaciones menor, mayor, menor igual o mayor igual entre dos expresiones numéricas.
-    c.6) Resultado del NO lógico de una expresión lógica.
-    c.7) Llamada a una función con un valor lógico de retorno.
-    c.8) En la extracción del valor iésimo en una secuencia de valores lógicos.
-d) Una expresión es de tipo secuencia en los siguientes casos:
-    d.1) Lista por extensión [...]. En el caso de almacenar valores enteros será una secuencia entera.
-        En el caso de almacenar valores lógicos una secuencia lógica.
-        En el caso de estar vacía tomará el tipo requerido en la asignación siempre y cuando la variable por asignar
-        tenga como tipo la secuencia numérica o lógica.
-    d.2) Variable de tipo secuencia numérica o lógica.
-    d.3) Llamada a una función que devuelva un valor secuencia numérica o lógica como retorno.
+--Restricciones semánticas
+Abstracto:
+a)	Decidir si las asignaciones están bien tipadas.
 
-    -Errores propuestos:
-        PROGRAMA
-        VARIABLES
-            seq:SEQ(NUM);
-            i:NUM;
-            loEs:LOG;
-        SUBPROGRAMAS
-            FUNCION esTrue(LOG v) dev (LOG loEs)
-             VARIABLES
-             INSTRUCCIONES
-                loEs = v;
-                dev loEs;
-             FFUNCION
-        INSTRUCCIONES
-            seq = 1; // Error 1 por asignación mal tipada. seq es una SEQ(NUM) mientras que 1 es una cte tipo NUM.
-            i = T; // Error 1 por asignación mal tipada. i es una variable tipo NUM mientras que T es una cte tipo LOG.
-            loEs = esTrue(i); // Error 2 por introducción de parámetro cuyo tipo no coincide con el declarado como entrada en la función.
-                             // La asignación sí sería correcta.
+Concreto:
+a)	Una asignación está bien tipada si y sólo si el tipo de la variable a la que se asigna coincide con el tipo de la expresión de la expresión asignada.
+b)	Una expresión es de tipo entero si y sólo si es una constante o variable entera; una operación matemática suma, resta o producto entre dos expresiones enteras; una función que devuelva un número entero; o la extracción de un valor de una secuencia numérica.
+c)	Una expresión es de tipo booleano si y sólo si es una constante o variable booleana; la conjunción, disyunción o negación de expresiones booleanas;
+la comparación entre expresiones booleanas; la comparación entre expresiones enteras; una función que devuelva un booleano; o la extracción de un valor de una secuencia booleana. Consideramos que una condición puede devolver un resultado indefinido en caso de que uno de los operandos esté indefinido (ej: variable sin valor).
+d)	Una expresión es de tipo secuencia entera si y sólo si es un conjunto de expresiones enteras o una variable de tipo secuencia entera. Puede estar vacía.
+e)	Una expresión es de tipo secuencia booleana si y sólo si es un conjunto de expresiones booleanas o una variable de tipo secuencia booleana. Puede estar vacía.
 
-DECISIÓN DE DISEÑO SOBRE EL ERROR 1:
-Para saber si una asignación está bien tipada necesitamos un almacén que contenga información acerca del tipo de las variables declaradas.
-De este modo, cuando se produzca una asignación podremos comprobar si el valor asignado a dicha variable concuerda con el tipo registrado
-en el almacén.
 
-Almacén de variables:
+--Gramática atribuida
 
-    variables   |    tipos
- --------------------------------------
-     seq        |    Secuencia numérica
-     i          |    Numérico
-     loEs       |    Lógico
+Decisión 1: Almacenamos las variables y las desglosamos por tipos. Las variables sin tipo o indefinidas serán consideradas erróneas. Consideramos que varias variables enteras o booleanas pueden declararse juntas siempre que sean del mismo tipo; las variables secuenciales se declaran de una en una.
+
+Almacén de variables
+Variable	    Tipo
+------------------------------------
+i, max, min	    entero
+b, exist	    booleano
+s_num	        secuencia entera
+s_bool	        secuencia booleana
+
+
+programa: PROGRAMA n=variables {almacenar n en almacén} subprogramas instrucciones EOF
+
+//parámetro de salida n
+variables: VARIABLES (m=declaracion_variables {almacenar m en n})*
+
+//parámetro de salida m
+declaracion_variables: (r,t)=identificador PyC {almacenar en m cada variable en r con tipo t};
+
+
+//parámetro de salida (r, t)
+identificador: elementales {incluir r y t en (r, t)}
+             | secuencias {incluir r y t en (r, t)}
+
+             ;
+
+elementales: (VAR {incluir VAR en r} COMA)* VAR {incluir VAR en r}  DOSPTOS t=tipos_elementales;
+
+secuencias: VAR {incluir VAR en r} DOSPTOS t=tipos_no_elementales;
+
+//parámetro de salida t
+tipos_elementales: NUMERO {t=entero}
+                 | BOOL   {t=booleano}
+                 ;
+
+tipos_no_elementales: SEQ_NUM  {t=secuencia entera}
+                    | SEQ_BOOL {t=secuencia booleana}
+
+
+
+Decisión 2: Una asignación en P estará bien tipada si y sólo si el tipo de la variable a la que se asigna coincide con el tipo de la expresión asignada. Tenemos expresiones de tipo elemental (enteros y booleanos) y de tipo no elemental (secuencias enteras o booleanas) y sin tipo.
+Cualquier operación entre una variable tipada y una sin tipo dará como resultado un error.
+
+función comprobar_tipos_asignacion(tipo_var, tipo_expr)
+   si tipo_expr es igual a no_tipo
+      ERROR
+   sino
+   	si tipo_var es igual tipo_expr
+      		NO ERROR
+   	sino
+      		ERROR
+fin
+
+asignacion: (VAR {incluir VAR en r} COMA)* VAR {incluir VAR en r} IGUAL t=expr PyC
+
+{comprobar_tipos_asignacion(tipo de IDENT almacenado en almacén variables, t)};
+
+
+Decisión 3: Funciones que calculan el tipo de las expresiones
+
+//Operaciones aritméticas
+función tipo_op_entera(tipo1, tipo2)
+   si tipo1 o tipo2 son iguales a no_tipo
+      tipo = no_tipo
+   sino
+        si tipo1 y tipo2 son iguales a entero
+            tipo = entero
+        sino
+            tipo = no_tipo
+fin
+
+//Operaciones lógicas
+función tipo_op_booleana(tipo1, tipo2)
+   si tipo1 o tipo2 son iguales a no_tipo
+      tipo = no_tipo
+   sino
+        si tipo1 y tipo2 son iguales a booleano
+            tipo = booleano
+        sino
+            tipo = no_tipo
+fin
+
+//Comparaciones de enteros y booleanos
+función tipo_comp_booleana(tipo1, tipo2)
+   si tipo1 o tipo2 son iguales a no_tipo
+      tipo = no_tipo
+   sino
+        si tipo1 y tipo2 son iguales a booleano o entero
+            tipo = booleano
+        sino
+            tipo = no_tipo
+fin
+
+//Secuencias de elementos (enteras y booleanas)
+función tipo_secuencia(tipos)
+    si algún elemento en tipos es (no_tipo o secuencia)
+        tipo = no_tipo
+    sino
+        si todos los elementos en tipos son iguales a entero
+            tipo = secuencia entera
+        sino
+            si todos los elementos en tipos son iguales a booleano
+                tipo = secuencia booleana
+            sino
+                tipo = no_tipo
+fin
+
+//Definición de la salida de los tipos
+
+op_integer: POR
+          | SUMA
+          | RESTA
+          ;
+
+comp_integer: MENORIGUAL
+            | MAYORIGUAL
+            | MENOR
+            | MAYOR
+            | comp_bool
+            ;
+
+op_bool: AND
+       | OR
+       ;
+
+comp_bool: IGUALL
+         | DISTINTO
+         ;
+
+(parámetro de salida tipo)
+expr: tipo = expr_integer
+    | tipo = expr_bool
+    | tipo = expr_seq
+    ;
+{incluir r y t en (r, t)}
+expr_integer: tipo1=expr_integer op_integer tipo2=expr_integer {tipo = tipo_op_entera(tipo1,tipo2)}
+            | (tipoS=tipo almacenado para VAR) CA expr_integer CC {tipo = subtipo de tipo_secuencia(tipoS)}
+            | {tipo = tipo que devuelve expr_func}
+            | NUM {tipo = entero}
+            | {tipo = tipo almacenado para VAR}
+            ;
+
+expr_bool: T {tipo = booleano}
+         | F {tipo = booleano}
+         | tipo1=(tipo almacendo para VAR) comp_bool tipo2=(tipo almacendo para VAR) {tipo = tipo_comp_booleana(tipo1,tipo2)}
+         | tipo2=expr_bool comp_bool tipo2=expr_bool {tipo = tipo_comp_booleana(tipo1,tipo2)}
+         | expr_seq comp_bool expr_seq {tipo = tipo_comp_booleana(tipo1,tipo2)}
+         | expr_integer comp_integer {tipo = tipo_comp_booleana(tipo1,tipo2)}
+         | NO expr_bool {tipo = booleano}
+         | tipo1=expr_bool op_bool tipo2=expr_bool {tipo = tipo_op_booleana(tipo1,tipo2)}
+         | (tipoS=tipo almacenado para VAR) CA expr_integer CC {tipo = subtipo de tipo_secuencia(tipoS)}
+         | {tipo = tipo que devuelve expr_func}
+         | {tipo = tipo almacenado para VAR}
+         ;
+
+expr_seq: CA CC {tipo = secuencia booleana o entera}
+        | CA (expr_integer COMA)* expr_integer CC {tipo = secuencia entera}
+        | CA (expr_bool COMA)* expr_bool CC {tipo = secuencia booleana}
+        | {tipo = tipo que devuelve expr_func}
+        | {tipo = tipo almacenado para VAR}
+        ;
+
+expr_func: VAR PA (VAR|expr) (COMA VAR|expr)* PC;
+
+oEs       |    Lógico
+
