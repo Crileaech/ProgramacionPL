@@ -3,14 +3,14 @@ VARIABLES
  i,max,min:LOG;
  s:SEQ(NUM);
 SUBPROGRAMAS
-/*FUNCION bucle_1_avance(SEQ(NUM) seq, NUM pos) dev (NUM r)
+FUNCION bucle_1_avance(SEQ(NUM) seq, NUM pos) dev (NUM r)
  VARIABLES
  INSTRUCCIONES
  i = [7,8]!=[9,10];
- r=ultima_posicion(s)-i;
+ r=ultima_posicion(s)&&T;
  dev r;
  FFUNCION
-  PROCEDIMIENTO mayor(SEQ(NUM) s, NUM i, NUM max)
+/*  PROCEDIMIENTO mayor(SEQ(NUM) s, NUM i, NUM max)
   VARIABLES
   j: NUM;
   INSTRUCCIONES
@@ -27,12 +27,12 @@ SUBPROGRAMAS
   FPROCEDIMIENTO*/
 
 INSTRUCCIONES
- a = !i&&j;
+/* a = !i&&j;
  mostrar(i);
  a = i*7+9;
  b = [i,j,k,l];
  duncionprueba(7*3);
-/*{ cierto }
+{ cierto }
  s=[4,2,7,9,0,11];
  s=[T,F];
  i=0;

@@ -56,22 +56,24 @@ expr: expr_integer
     ;
 
 expr_integer: expr_integer (POR|SUMA|RESTA) expr_integer
+            | expr_func
             | NUM
             | variable
             ;
 
 expr_bool: T
          | F
-         | expr_bool (IGUALL|DISTINTO) expr_bool
+         | expr_bool (IGUALL|DISTINTO|AND|OR) expr_bool
          | expr_seq (IGUALL|DISTINTO) expr_seq
          | expr_integer (MENORIGUAL|MAYORIGUAL|MENOR|MAYOR|IGUALL|DISTINTO) expr_integer
          | NO expr_bool
-         | expr_bool (AND|OR) expr_bool
+         | expr_func
          | variable
          ;
 
 expr_seq: CA CC // []
         | CA (expr COMA)* expr CC
+        | expr_func
         | variable
         ;
 

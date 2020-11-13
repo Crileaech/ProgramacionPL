@@ -33,11 +33,11 @@ d) Una expresión es de tipo secuencia numérica o lógica en los siguientes cas
 
 f) Una expresión tiene tipo inválido si no se le puede asignar ninguna de las expresiones anteriores.
 
-CONSIDERACIÓN: consideramos 8 tipos distintos de funciones: asignación, condición, iteración,
+/*CONSIDERACIÓN: consideramos 8 tipos distintos de funciones: asignación, condición, iteración,
                ruptura, devolución, mostrar, asertos y llamada a función.
                De estas, nos vemos obligados a definir gramáticas atribuidas debido a las limitaciones del
                sintáctico en las siguientes: asignación y expresión función. En el resto, en el caso de asignaciones
-               erróneas, el analizador léxico sintáctico las reconocería.
+               erróneas, el analizador léxico sintáctico las reconocería.*/
 
     ERRORES PROPUESTOS:
         PROGRAMA
@@ -51,12 +51,18 @@ CONSIDERACIÓN: consideramos 8 tipos distintos de funciones: asignación, condic
              INSTRUCCIONES
                 loEs = v;
                 dev loEs;
-             FFUNCION
+            FFUNCION
+            FUNCION prueba(LOG logico) dev (NUM var2)
+             VARIABLES
+             INSTRUCCIONES
+                var2 = 2*3;
+                dev var2; //Error 3 por devolución de una variable que no
+            FFUNCION
         INSTRUCCIONES
             seq = 1; // Error 1 por asignación mal tipada. seq es una SEQ(NUM) mientras que 1 es una cte tipo NUM.
             i = T; // Error 1 por asignación mal tipada. i es una variable tipo NUM mientras que T es una cte tipo LOG.
             loEs = esTrue(i); // Error 2 por introducción de parámetro cuyo tipo no coincide con el declarado como entrada en la función.
-                             // La asignación sí sería correcta.
+                             // La asignación a la variable loEs sí sería correcta.
 
 DECISIÓN DE DISEÑO SOBRE EL ERROR 1:
 
@@ -80,7 +86,7 @@ programa: PROGRAMA n=variables {almacenar n en almacén} subprogramas instruccio
 variables: VARIABLES (m=declaracion_variables {almacenar m en n})*;
 
 (parámetro de salida m)
-declaracion_variables: r=identificador DOSPTOS tipo=t PyC; {Extraer de r_y_t r y t. Tras esto, almacenar en m cada variable en r con tipo t}
+declaracion_variables: r=identificador DOSPTOS PyC; {Extraer de r_y_t r y t. Tras esto, almacenar en m cada variable en r con tipo t}
 
 (parámetro de salida r_y_t)
 identificador: elementales
@@ -119,7 +125,7 @@ funcion comprobarTiposAsignación(tipo_var, tipo_expr)
         sino
             error
 
-funcion comprobaciónTiposAsignaciónMultiple(tipo_vars, tipo_exprs)
+funcion comprobaciónTiposAsignaciones(tipo_vars, tipo_exprs) //para asignaciones múltiples
     almacen n
     pares = pares_var_expr(tipo_vars, tipo_exprs)
     para cada par en pares:
@@ -150,14 +156,33 @@ función comprobarAsignacionesAParámetros(tipo_parametros, tipo_exprs)
        sino
            error
 
+//hay que comprobar también que el tipo del valor devuelto coincide con el tipo indicado que se devolverá
+
 DECISIÓN 1.4:
 El cálculo del tipo de una expresión se basa en las siguientes funciones.
+
+funcion tipoVariable(identificador)
+    si identificador en almacen(=n) global:
+        tipo = n[identificador]
+    en otro caso si estamos en función:
+        almacenFuncion = extraer de almacen de funciones (=k) el almacen de la funcion(=[PARAM(...), DEV(...), CUERPO(...)]
+        tipo = tipo inválido //si no se haya en ningun lugar declarada la variable entonces no tiene tipo
+        para cada subAlmacen en almacenFuncion:
+            si identificador en subAlmacen:
+                tipo = subAlmacen[identificador]
+                fin
+    sino:
+        tipo = tipo inválido
+
+funcion tipoFuncion(expr_func)
+    almacenFuncion = extraer de k el almacen de la funcion
+    tipo = almacenFuncion[DEV] //tipo sería una colección de los tipos devueltos por la función.
 
 funcion tipoOperaciónNumérica(tipo1,tipo2)
       si tipo1 o tipo2 es igual a tipo inválido entonces
             tipo = tipo inválido
       sino
-            si tipo1 es igual a tipo2 entonces //no hay que mirar si tipo1 o tipo2 son numéricos pues ya lo comprueba el sintáctico
+            si tipo1 y tipo2 son numéricos entonces
                 tipo = tipo1
             sino
                 tipo = tipo inválido
@@ -166,7 +191,7 @@ funcion tipoComparaciónNumérica(tipo1,tipo2)
      si tipo1 o tipo2 es igual a tipo inválido entonces
            tipo = tipo inválido
      sino
-            si tipo1 y tipo2 son iguales entonces //no hay que mirar si tipo1 o tipo2 son numéricos pues ya lo comprueba el sintáctico
+            si tipo1 y tipo2 son iguales a numérico entonces
                 tipo = lógico
             sino
                 tipo = tipo inválido
@@ -181,7 +206,7 @@ funcion tipoComparaciónIgualdad(tipo1,tipo2)
        si tipo1 o tipo2 es igual a tipo inválido entonces
              tipo = tipo inválido
        sino
-             si tipo1 y tipo2 son iguales entonces
+             si tipo1 y tipo2 son iguales a booleano entonces
                  tipo = tipo1
              sino
                  tipo = tipo inválido
@@ -197,6 +222,9 @@ funcion tipoComparaciónIgualdad(tipo1,tipo2)
             sino
                 tipo = tipo inválido
 
- //dejar s[i] para luego... podría estar mal. Interpretarlo como instrucción?
-//?? colapso mental -> cosas ya definidas en el sintáctico
+ funcion tipoElementoDeSecuencia(expr_sacar_elem)
+      identificador = sacar de expr_sacar_elem nombre identificador
+      tipo = tipoVariable(identificador)
+
+
 
