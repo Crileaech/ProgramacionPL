@@ -95,7 +95,6 @@ declaracion_instrucciones: asignacion
                          | expr_func PyC
                          ;
 
-//antes: (VAR COMA)* VAR IGUAL (expr COMA)* (expr) PyC;
 asignacion: (variable COMA)* variable IGUAL ((variable|expr) COMA)* (variable|expr) PyC;
 
 condicion: IF PA expr_bool PC THEN (declaracion_instrucciones)+ (blq_sino)? ENDIF;
@@ -116,5 +115,4 @@ cuantificadorUniversal: FORALL cuantificacion;
 
 cuantificadorExistencial: EXISTS cuantificacion;
 
-//DUDA EXPR BOOLEANA
 cuantificacion: PA variable DOSPTOS CA expr_integer COMA expr_integer CC COMA expr_bool PC;

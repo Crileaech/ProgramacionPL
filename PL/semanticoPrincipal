@@ -1,17 +1,3 @@
-//OBJETIVO: especificación abstracta y declarativa de los errores semánticos
-// propuestos:
-// error 1,
-// …,
-// error k
-//DECISIONES DE DISEÑO error 1:
-// (DECISIÓN 1.1) …
-// (DECISIÓN 1.2) …
-// …
-//DECISIONES DE DISEÑO error k:
-// (DECISIÓN k.1) …
-// (DECISIÓN k.2) …
-//GRAMÁTICA ATRIBUIDA: …
-
 OBJETIVO:
  -Propuestos:
   ERROR 1:
@@ -154,7 +140,7 @@ OBJETIVO:
         elementales: (VAR {incluir VAR en r} COMA)* VAR {incluir VAR en r} DOSPTOS t=tipos_elementales {incluir r y t en (r,t)};
  
         (parámetro de salida (r,t))
-        secuencias: VAR {incluir VAR en r} DOSPTOS t=tipos_no_elementales {incluir r_y_t en unión};
+        secuencias: VAR {incluir VAR en r} DOSPTOS t=tipos_no_elementales {incluir r_y_t en (r,t)};
  
         (parámetro de salida t)
         tipos: tipos_elementales
@@ -489,3 +475,61 @@ OBJETIVO:
             sino
                 no error
 
+ GRAMÁTRICA ATRIBUIDA:
+
+        almacénG -> almacén de tipos de variables globales
+        almacénF -> almacén de tipos de variables de subprogramas
+        aAmbigüedad -> almacén con información de ambiguedad de las variables
+
+        programa: PROGRAMA n=variables {almacenar n en almacén} k=subprogramas {almacenar k en almacénF} instrucciones EOF;
+
+        (parámetro de salida k)
+         subprogramas: SUBPROGRAMAS (f=declaracion_subprogramas {almacena f en k})*;
+
+         (parámetro de salida f)
+         declaracion_subprogramas: funcion
+                                 | procedimiento
+                                 ;
+
+        (parámetro de salida f)
+         funcion: FUNCION variable PA (PARAM=params)? PC RETURN PA DEV=params PC CUERPO=variables instrucciones FFUNCION;
+        {Almacena en f PARAM, DEV y CUERPO}
+
+        (parámetro de salida f)
+         procedimiento: PROCEDIMIENTO variable PA (PARAM=params)? PC CUERPO=variables instrucciones FPROCEDIMIENTO;
+        {Almacena en f PARAM, DEV (vacío) y CUERPO}
+
+        (parámetro de salida PARAM o DEV)
+         params: t=tipos r=variable {Almacena en PARAM o DEV t y r. Almacena en aAmbigüedad r}
+                | t=tipos r=variable COMA params {Almacena en PARAM o DEV t y r. Almacena en aAmbigüedad r} //recursividad revisar
+                ; (obtención de m vista en la decisión de diseño del error 1)
+
+        (parámetro de salida n,CUERPO)
+        variables: VARIABLES (m=declaracion_variables {almacenar m en n o CUERPO})*;
+
+        (parámetro de salida m)
+        declaracion_variables: (r,t)=identificador PyC; {Almacenar en m cada variable en r con tipo t}
+
+        (parámetro de salida (r,t))
+        identificador: elementales
+                     | secuencias
+                     ;
+
+        (parámetro de salida (r,t))
+        elementales: (VAR {incluir VAR en r} COMA)* VAR {incluir VAR en r} DOSPTOS t=tipos_elementales {incluir r y t en (r,t). Almacena en aAmbigüedad (r,True)};
+
+        (parámetro de salida (r,t))
+        secuencias: VAR {incluir VAR en r} DOSPTOS t=tipos_no_elementales {incluir r y t en (r,t). Almacenar en aAmbigüa (r,True)};
+
+        (parámetro de salida t)
+        tipos: tipos_elementales
+             | tipos_no_elementales
+             ;
+
+        tipos_elementales: NUMERO {t=numero}
+                         | BOOL {t=lógico}
+                         ;
+
+        tipos_no_elementales: SEQ_NUM {t=secuencia numérica}
+                            | SEQ_BOOL {t=secuencia lógica}
+                            ;

@@ -7,7 +7,7 @@ FUNCION bucle_1_avance(SEQ(NUM) seq, NUM pos) dev (NUM r)
  VARIABLES
  INSTRUCCIONES
  i = [7,8]!=[9,10];
- r=ultima_posicion(s)&&T;
+ r=ultima_posicion(s)-1;
  dev r;
  FFUNCION
 /*  PROCEDIMIENTO mayor(SEQ(NUM) s, NUM i, NUM max)

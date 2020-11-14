@@ -81,7 +81,6 @@ expr_sacar_elem: variable CA expr_integer CC ;
 
 expr_avanza: LA AVANZA DOSPTOS expr_func LC;
 
-//antes: VAR PA (VAR) (COMA var)* PC
 expr_func: variable PA (variable|expr) (COMA variable|expr)* PC;
 
 //---INSTRUCCIONES---
