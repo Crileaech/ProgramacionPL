@@ -89,23 +89,8 @@ OBJETIVO:
   expresión ambigua.
   Se considera una expresión ambigua a aquella que contiene una variable sin valor asignado.
 
-  ERROR 5:
-     PROGRAMA
-     VARIABLES
-        ...
-     SUBPROGRAMAS
-         FUNCION esTrue(LOG v) dev (LOG loEs)
-          VARIABLES
-             ...
-          INSTRUCCIONES
-             dev loEs; //Error 5. Se está devolviendo una variable que es ambigua.
-         FFUNCION
-     INSTRUCCIONES
-         ...
 
-   El analizador semántico deberá ser capaz de detectar que la variable devuelta no sea ambigua.
-
- ERROR 6:
+ ERROR 5:
      PROGRAMA
      VARIABLES
         i:NUM;
@@ -118,7 +103,7 @@ OBJETIVO:
 
    El analizador semántico debe ser capaz de detectar usos de variables no declaradas.
 
- ERROR 7:
+ ERROR 6:
      PROGRAMA
      VARIABLES
         i:NUM;
@@ -416,4 +401,91 @@ OBJETIVO:
                 no error
             sino
                 error
- 
+
+ DECISIONES DE DISEÑO error 4 (error por uso de variables ambiguas):
+
+    (DECISIÓN 4.1)
+    Una variable ambigua es aquella a la que aún no se le ha asociado ningún valor o en su defecto, aquella a la que
+    se le ha asociado una expresión formada al menos por una variable ambigua.
+
+    En caso del uso de una variable bien declarada pero local (de subprograma) en una instrucción de programa se produ-
+    ciría un error, error capturado por la decisión de diseño 5. No es necesario por tanto, discernir en este caso
+    entre variables locales y de programa.
+
+    Almacén de ambiguedad: { i:True, j:False ... }. True en caso de ambigua, False en caso contrario.
+
+    programa: PROGRAMA v=variables {almacenar v en almacén} sv=subprogramas {almacenar sv en almacén} instrucciones EOF;
+
+    (parámetro de salida sv)
+     subprogramas: SUBPROGRAMAS (r=declaracion_subprogramas {almacena r en sv})*;
+
+    (parámetro de salida r)
+     declaracion_subprogramas: funcion
+                             | procedimiento
+                             ;
+
+    (parámetro de salida r)
+     funcion: FUNCION variable PA (PARAM=params)? PC RETURN PA DEV=params PC CUERPO=variables instrucciones FFUNCION;
+    {Almacena en r los elementos de PARAM, DEV y CUERPO}
+
+    (parámetro de salida r)
+     procedimiento: PROCEDIMIENTO variable PA (PARAM=params)? PC CUERPO=variables instrucciones FPROCEDIMIENTO;
+    {Almacena en r los elementos de PARAM, DEV (vacío) y CUERPO}
+
+    (parámetro de salida PARAM o DEV)
+     params: tipos r=variable {Almacena en PARAM o DEV (r,True)}
+           | tipos r=variable {Almacena en PARAM o DEV (r,True)} COMA s=params
+           ;
+
+    (parámetro de salida n o CUERPO)
+    variables: VARIABLES (m=declaracion_variables {almacenar (r,True) en n o CUERPO})*;
+
+    (parámetro de salida r)
+    declaracion_variables: r=identificador PyC;
+
+    (parámetro de salida r)
+    identificador: elementales
+                 | secuencias
+                 ;
+
+    (parámetro de salida r)
+    elementales: (VAR {incluir VAR en r} COMA)* VAR {incluir VAR en r} DOSPTOS tipos_elementales;
+
+    (parámetro de salida r)
+    secuencias: VAR {incluir VAR en r} DOSPTOS tipos_no_elementales;
+
+ En el momento en el que se produzca una asignación sobre una variable deberemos cambiar su valor asociado en el almacén de
+ ambigüedad por False. A no ser que lo que se asigne sea una expresión que contenga una variable ambigua, en cuyo caso se
+ seguirá siendo ambigua.
+
+ DECISIONES DE DISEÑO error 5 (error por uso de variable no declarada):
+
+     (DECISIÓN 5.1)
+     P no permite el uso de variables que no están declaradas. //resoluble en funcion tipoVariable de manera más eficiente.
+
+     función compruebaDeclaración(identificador)
+        si identificador en almacen de programa //significaría que es una variable global
+            no error
+        si estamos en un subprograma
+            f = almacén de variables del subprograma
+            si identificador está en alguno de los almacenes de f(=PARAM, DEV, CUERPO) //variable local
+                no error
+            sino  //si no es ni local ni global no ha sido declarada
+                error
+        sino
+            error //si no estamos en subprograma y se hace uso de una variable que no es global, error.
+
+     Por cada aparición de una variable deberemos hacer uso de esta función para asegurarnos que haya sido declarada.
+
+ DECISIONES DE DISEÑO error 6 (error por declaración múltiple de una misma variable):
+
+    (DECISIÓN 6.1)
+    P no permitirá la declaración de una misma variable múltiples veces.
+
+    función compruebaYaDeclarados(identificadores) // i,max,j:NUM; -> identificadores = {i,max,j}
+        para cada ident en identificadores
+            si compruebaDeclaracion(ident) no error //compruebaDeclaración devuelve error si no existe en almacén
+                error
+            sino
+                no error
+
