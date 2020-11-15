@@ -55,7 +55,8 @@ expr: expr_integer
     | expr_sacar_elem
     ;
 
-expr_integer: expr_integer (POR|SUMA|RESTA) expr_integer
+expr_integer: PA expr_integer (POR|SUMA|RESTA) expr_integer PC
+            | expr_integer (POR|SUMA|RESTA) expr_integer
             | expr_func
             | NUM
             | variable
@@ -63,7 +64,9 @@ expr_integer: expr_integer (POR|SUMA|RESTA) expr_integer
 
 expr_bool: T
          | F
-         | expr_bool (IGUALL|DISTINTO|AND|OR) expr_bool
+         | expr_bool (IGUALL|DISTINTO) expr_bool
+         | expr_bool (AND|OR) expr_bool
+         | PA expr_bool (AND|OR) expr_bool PC
          | expr_seq (IGUALL|DISTINTO) expr_seq
          | expr_integer (MENORIGUAL|MAYORIGUAL|MENOR|MAYOR|IGUALL|DISTINTO) expr_integer
          | NO expr_bool

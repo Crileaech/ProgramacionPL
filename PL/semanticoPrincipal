@@ -1,4 +1,5 @@
 OBJETIVO:
+
  -Propuestos:
   ERROR 1:
         PROGRAMA
@@ -68,13 +69,12 @@ OBJETIVO:
      SUBPROGRAMAS
         ...
      INSTRUCCIONES
-        j = i+2; //Error 5. i es ambigua.
+        j = i+2; //Error 4. i es indefinido.
 
-  El analizador semántico debe ser capaz de detectar variables ambiguas.
-  Se considera variable ambigua aquella a la que no se le ha asignado ninguna expresión, o en su defecto, se le ha asignado una
-  expresión ambigua.
-  Se considera una expresión ambigua a aquella que contiene una variable sin valor asignado.
-
+  El analizador semántico debe ser capaz de detectar variables indefinidas.
+  Se considera variable indefinida aquella a la que no se le ha asignado ninguna expresión, o en su defecto, se le ha asignado una
+  expresión indefinida.
+  Se considera una expresión indefinida a aquella que contiene una variable sin valor asignado.
 
  ERROR 5:
      PROGRAMA
@@ -83,8 +83,8 @@ OBJETIVO:
      SUBPROGRAMAS
         ...
      INSTRUCCIONES
-        j = 7; //Error 4. Se está asignando a una variable no declarada un valor.
-        prueba(k);//Error 4. Se está pasando como parámetro una variable no declarada. ¿Definir como errores distintos?
+        j = 7; //Error 5. Se está asignando a una variable no declarada un valor.
+        prueba(k); //Error 5. Se está pasando como parámetro una variable no declarada. ¿Definir como errores distintos?
                                                                            Hay que tener en cuenta tmb usos en otro tipo d expresiones.
 
    El analizador semántico debe ser capaz de detectar usos de variables no declaradas.
@@ -93,11 +93,11 @@ OBJETIVO:
      PROGRAMA
      VARIABLES
         i:NUM;
-        i:NUM; //Error 7. Se está declarando una misma variable varias veces.
+        i:NUM; //Error 6. Se está declarando una misma variable varias veces.
      SUBPROGRAMAS
          FUNCION esTrue(LOG v) dev (LOG loEs)
           VARIABLES
-             i:LOG; //Error 7.
+             i:LOG; //Error 6.
           INSTRUCCIONES
              ...
          FFUNCION
@@ -106,6 +106,8 @@ OBJETIVO:
 
    El analizador semántico debe ser capaz de detectar las declaraciones múltiples.
 
+//posible ERROR 7 -> BREAK fuera de bucle.
+//mirar asertos
 
  DECISIONES DE DISEÑO error 1 (error asignación):
  
@@ -287,7 +289,8 @@ OBJETIVO:
                      fin
          sino:
              tipo = tipo inválido
- 
+
+
      funcion tipoFuncion(expr_func)
          almacenFuncion = extraer de k el almacen de la funcion
          tipo = almacenFuncion[DEV] //tipo sería una colección de los tipos devueltos por la función.
@@ -348,23 +351,23 @@ OBJETIVO:
      (DECISIÓN 2.2)
      Una asignación de una expresión sobre un parámetro a función está bien tipada sí y solo sí el tipo de dicha
      expresión coincide con el tipo del parámetro.
+
+      función comprobarAsignacionesAParámetros(tipo_parametros, tipo_exprs)
+             almacen n
+             pares = pares_var_expr(tipo_parametros, tipo_exprs)
+             para cada par en pares:
+                 añado en n comprobarAsignaciónAParámetro(tipo_param en par, tipo_expr en par)
+             si en n no error entonces
+                 no error
+             sino
+                 error
  
      función comprobarAsignaciónAParámetro(tipo_parametro, tipo_expr)
             si tipo_parametro es igual a tipo_expr entonces
                 no error
             sino
                 error
- 
-     función comprobarAsignacionesAParámetros(tipo_parametros, tipo_exprs)
-            almacen n
-            pares = pares_var_expr(tipo_parametros, tipo_exprs)
-            para cada par en pares:
-                añado en n comprobarAsignaciónAParámetro(tipo_param en par, tipo_expr en par)
-            si en n no error entonces
-                no error
-            sino
-                error
- 
+
  DECISIONES DE DISEÑO error 3 (error por devolución de tipos distintos a indicados en cabecera de subprograma):
  
      (DECISIÓN 3.1)
@@ -377,7 +380,7 @@ OBJETIVO:
                 no error
             sino
                 error
- 
+
      función comprobarAsignacionesAParámetros(tipos_devueltos, tipos_aDevolver)
             almacen n
             pares = pares_var_expr(tipos_devueltos, tipos_aDevolver)
