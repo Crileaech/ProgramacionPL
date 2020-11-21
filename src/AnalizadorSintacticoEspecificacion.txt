@@ -89,6 +89,7 @@ expr_integer: expr_integer op_integer expr_integer
 expr_bool: T
          | F
          | expr_bool comp_bool expr_bool
+         | PA expr_bool comp_bool expr_bool PC
          | expr_seq comp_bool expr_seq
          | expr_integer comp_integer expr_integer
          | NO expr_bool
