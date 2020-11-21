@@ -1,8 +1,40 @@
-import org.antlr.v4.runtime.tree.ParseTreeListener;
-
 import java.util.HashMap;
 import java.util.Map;
 public class Anasem_listener extends AnasintBaseListener {
+    /*
+     (DECISIÓN 1.2)
+     Una asignación está bien tipada sí y solo sí el tipo de la variable coincide con el tipo de la expresión asignada.
+
+     funcion comprobarTiposAsignación(tipo_var, tipo_expr)
+         si tipo expr es igual a tipo invalido
+             error
+         sino
+             si tipo_var es igual a tipo_expr entonces
+                 no error
+             sino
+                 error
+
+     funcion comprobaciónTiposAsignaciones(tipo_vars, tipo_exprs) //para asignaciones múltiples.
+         almacen n
+         pares = pares_var_expr(tipo_vars, tipo_exprs)
+         para cada par en pares:
+             añado en n comprobarTiposAsignación(tipo_var en par, tipo_expr en par)
+         si en n no error entonces
+             no error
+         sino
+             error
+    * */
+    public void exitAsignacion(Anasint.AsignacionContext ctx){
+        if(ctx.variable()==null){
+            System.out.println("ERROR");
+        }else{
+            if(ctx.variable().equals(ctx.expr())){
+                System.out.println("NO ERROR");
+            }else {
+                System.out.println("ERROR");
+            }
+        }
+    }
     /*
       (DECISIÓN 5.1)
      P no permite el uso de variables que no están declaradas. //resoluble en funcion tipoVariable de manera más eficiente.

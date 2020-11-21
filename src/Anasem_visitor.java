@@ -70,6 +70,13 @@ public class Anasem_visitor extends AnasintBaseVisitor<Object>{
              | tipos_no_elementales
     ;
 
+     */
+    public Integer visitTipos(Anasint.TiposContext ctx, String var) {
+        Map<String, Integer> variables = new HashMap<>();
+        variables.put(var, ctx.getStart().getType());
+        return null;
+    }
+
     /*tipos_elementales: NUMERO {t=numero}
                          | BOOL {t=lógico}
     ;
@@ -91,7 +98,77 @@ public class Anasem_visitor extends AnasintBaseVisitor<Object>{
         return Anasint.SEQ_BOOL;
     }
 
+    /* (DECISIÓN 1.3)
+     El cálculo del tipo de una expresión se basa en las siguientes funciones.
+
+     funcion tipoOperaciónNumérica(tipo1,tipo2)
+           si tipo1 o tipo2 es igual a tipo inválido entonces
+                 tipo = tipo inválido
+           sino
+                 si tipo1 es igual a tipo2 entonces //no hay que mirar si tipo1 o tipo2 son numéricos pues ya lo comprueba el sintáctico
+                     tipo = tipo1
+                 sino
+                     tipo = tipo inválido
+
+     */
+    public Integer visitOp_integer(Anasint.Op_integerContext ctx) {
+        Integer t1 = (Integer) visit(ctx.POR());
+        Integer t2 = (Integer) visit(ctx.RESTA());
+        if (t1==null || t2==null) return null;
+        else
+        if (t1.equals(t2) && t1==Anasint.NUM) return Anasint.NUM;
+        else return null;
+    }
 
 
+    /*funcion tipoComparaciónNumérica(tipo1,tipo2)
+          si tipo1 o tipo2 es igual a tipo inválido entonces
+                tipo = tipo inválido
+          sino
+                 si tipo1 y tipo2 son iguales entonces //no hay que mirar si tipo1 o tipo2 son numéricos pues ya lo comprueba el sintáctico
+                     tipo = lógico
+                 sino
+                     tipo = tipo inválido*/
+
+    public Integer visitComp_integer(Anasint.Comp_integerContext ctx) {
+        Integer t1 = (Integer) visit(ctx.MAYOR());
+        Integer t2 = (Integer) visit(ctx.MENOR());
+        if (t1==null || t2==null) return null;
+        else
+        if (t1.equals(t2) && t1==Anasint.NUM) return Anasint.NUM;
+        else return null;
+    }
+    /*
+    * funcion tipoComparaciónIgualdad(tipo1,tipo2)
+          si tipo1 o tipo2 es igual a tipo inválido entonces
+                tipo = tipo inválido
+          sino
+                 tipo = lógico
+    */
+    public Integer visitComp_bool(Anasint.Comp_boolContext ctx) {
+        Integer t1 = (Integer) visit(ctx.DISTINTO());
+        Integer t2 = (Integer) visit(ctx.IGUALL());
+        if (t1==null || t2==null) return null;
+        else
+        if (t1.equals(t2) && t1==Anasint.BOOL) return Anasint.BOOL;
+        else return null;
+    }
+    /*funcion tipoOperaciónLógica(tipo1,tipo2)
+            si tipo1 o tipo2 es igual a tipo inválido entonces
+                  tipo = tipo inválido
+            sino
+                  si tipo1 y tipo2 son iguales entonces
+                      tipo = tipo1
+                  sino
+                      tipo = tipo inválido
+     */
+    public Integer visitOp_bool(Anasint.Op_boolContext ctx) {
+        Integer t1 = (Integer) visit(ctx.AND());
+        Integer t2 = (Integer) visit(ctx.OR());
+        if (t1==null || t2==null) return null;
+        else
+        if (t1.equals(t2) && t1==Anasint.BOOL) return Anasint.BOOL;
+        else return null;
+    }
 }
     
