@@ -1,5 +1,42 @@
-OBJETIVO:
+OBJETIVOS:
+  Objetivo 1:
+       El analizador semántico, por tanto, debe ser capaz de detectar si las asignaciones en P están bien tipadas.
+       Una asignación está bien tipada si y solo sí el tipo de la expresión a asignar coincide con el tipo de la variable
+       que se está asignando:
 
+        a)	Una expresión es de tipo entero si y sólo si es una constante o variable entera; una operación matemática suma,
+        resta o producto entre dos expresiones enteras; una función que devuelva un número entero; o la extracción de un
+        valor de una secuencia numérica.
+        b)	Una expresión es de tipo booleano si y sólo si es una constante o variable booleana; la conjunción, disyunción o
+        negación de expresiones booleanas; la comparación entre expresiones booleanas; la comparación entre expresiones
+        enteras; una función que devuelva un booleano; o la extracción de un valor de una secuencia booleana. Consideramos
+        que una condición puede devolver un resultado ambiguo en caso de que uno de los operandos sea ambiguo (ej: variable sin valor).
+        c)	Una expresión es de tipo secuencia entera si y sólo si es un conjunto de expresiones enteras o una variable de tipo secuencia
+        entera. Puede estar vacía.
+        d)	Una expresión es de tipo secuencia booleana si y sólo si es un conjunto de expresiones booleanas o una variable de tipo
+        secuencia booleana. Puede estar vacía.
+
+  Objetivo 2:
+        El analizador semántico debe ser capaz de detectar si las expresiones pasadas como parámetros de un subprograma corresponden con
+        los tipos de los parámetros de entrada de dicha función.
+
+  Objetivo 3:
+        El analizador semántico deberá ser capaz de detectar que el tipo de la expresión/variable devuelta coincide con el tipo de devolución
+        indicado en la cabecera de la función.
+
+  Objetivo 4:
+        El analizador semántico debe ser capaz de detectar variables ambiguas.
+        Se considera variable ambigua aquella a la que no se le ha asignado ninguna expresión, o en su defecto, se le ha asignado una
+        expresión ambigua.
+        Se considera una expresión ambigua a aquella que contiene una variable sin valor asignado.
+
+  Objetivo 5:
+        El analizador semántico debe ser capaz de detectar usos de variables no declaradas.
+
+  Objetivo 6:
+        El analizador semántico debe ser capaz de detectar las declaraciones múltiples.
+
+ //no se puede llamar a una función que no existe.
  -Propuestos:
   ERROR 1:
         PROGRAMA
@@ -10,22 +47,6 @@ OBJETIVO:
         INSTRUCCIONES
             seq = 1; // Error 1 por asignación mal tipada. seq es una SEQ(NUM) mientras que 1 es una cte tipo NUM.
             i = T; // Error 1 por asignación mal tipada. i es una variable tipo NUM mientras que T es una cte tipo LOG.
-
-   El analizador semántico, por tanto, debe ser capaz de detectar si las asignaciones en P están bien tipadas.
-   Una asignación está bien tipada si y solo sí el tipo de la expresión a asignar coincide con el tipo de la variable
-   que se está asignando:
-
-    a)	Una expresión es de tipo entero si y sólo si es una constante o variable entera; una operación matemática suma,
-    resta o producto entre dos expresiones enteras; una función que devuelva un número entero; o la extracción de un
-    valor de una secuencia numérica.
-    b)	Una expresión es de tipo booleano si y sólo si es una constante o variable booleana; la conjunción, disyunción o
-    negación de expresiones booleanas; la comparación entre expresiones booleanas; la comparación entre expresiones
-    enteras; una función que devuelva un booleano; o la extracción de un valor de una secuencia booleana. Consideramos
-    que una condición puede devolver un resultado ambiguo en caso de que uno de los operandos sea ambiguo (ej: variable sin valor).
-    c)	Una expresión es de tipo secuencia entera si y sólo si es un conjunto de expresiones enteras o una variable de tipo secuencia
-    entera. Puede estar vacía.
-    d)	Una expresión es de tipo secuencia booleana si y sólo si es un conjunto de expresiones booleanas o una variable de tipo
-    secuencia booleana. Puede estar vacía.
 
   ERROR 2:
         PROGRAMA
@@ -40,74 +61,56 @@ OBJETIVO:
             i = 2*3;
             loEs = esTrue(i); // Error 2 por introducción de parámetro cuyo tipo no coincide con el declarado como entrada en la función.
 
-  El analizador semántico debe ser capaz de detectar si las expresiones pasadas como parámetros de un subprograma corresponden con
-  los tipos de los parámetros de entrada de dicha función.
-
- ERROR 3:
-   PROGRAMA
-   VARIABLES
-      ...
-   SUBPROGRAMAS
-       FUNCION esTrue(LOG v) dev (LOG loEs)
+  ERROR 3:
+        PROGRAMA
         VARIABLES
-           i:NUM;
+          ...
+        SUBPROGRAMAS
+           FUNCION esTrue(LOG v) dev (LOG loEs)
+            VARIABLES
+               i:NUM;
+            INSTRUCCIONES
+               i = 1;
+               dev i; //Error 3. Se está devolviendo la variable i en lugar de loEs.
+           FFUNCION
         INSTRUCCIONES
-           i = 1;
-           dev i; //Error 3. Se está devolviendo la variable i en lugar de loEs.
-       FFUNCION
-   INSTRUCCIONES
-       ...
+           ...
 
-    El analizador semántico deberá ser capaz de detectar que el tipo de la expresión/variable devuelta coincide con el tipo de devolución
-    indicado en la cabecera de la función.
-
- ERROR 4:
-     PROGRAMA
-     VARIABLES
-        i:NUM;
-        j:NUM;
-     SUBPROGRAMAS
-        ...
-     INSTRUCCIONES
-        j = i+2; //Error 4. i es indefinido.
-
-  El analizador semántico debe ser capaz de detectar variables indefinidas.
-  Se considera variable indefinida aquella a la que no se le ha asignado ninguna expresión, o en su defecto, se le ha asignado una
-  expresión indefinida.
-  Se considera una expresión indefinida a aquella que contiene una variable sin valor asignado.
+  ERROR 4:
+        PROGRAMA
+        VARIABLES
+            i:NUM;
+            j:NUM;
+        SUBPROGRAMAS
+            ...
+        INSTRUCCIONES
+            j = i+2; //Error 4. i es ambigua.
 
  ERROR 5:
-     PROGRAMA
-     VARIABLES
-        i:NUM;
-     SUBPROGRAMAS
-        ...
-     INSTRUCCIONES
-        j = 7; //Error 5. Se está asignando a una variable no declarada un valor.
-        prueba(k); //Error 5. Se está pasando como parámetro una variable no declarada. ¿Definir como errores distintos?
-                                                                           Hay que tener en cuenta tmb usos en otro tipo d expresiones.
-
-   El analizador semántico debe ser capaz de detectar usos de variables no declaradas.
+        PROGRAMA
+        VARIABLES
+            i:NUM;
+        SUBPROGRAMAS
+            ...
+        INSTRUCCIONES
+            j = 7; //Error 5. Se está asignando a una variable no declarada un valor.
+            prueba(k); //Error 5. Se está pasando como parámetro una variable no declarada. ¿Definir como errores distintos?
+                                                                               Hay que tener en cuenta tmb usos en otro tipo d expresiones.
 
  ERROR 6:
-     PROGRAMA
-     VARIABLES
+        PROGRAMA
+        VARIABLES
         i:NUM;
         i:NUM; //Error 6. Se está declarando una misma variable varias veces.
-     SUBPROGRAMAS
-         FUNCION esTrue(LOG v) dev (LOG loEs)
-          VARIABLES
-             i:LOG; //Error 6.
-          INSTRUCCIONES
-             ...
-         FFUNCION
-     INSTRUCCIONES
+        SUBPROGRAMAS
+        FUNCION esTrue(LOG v) dev (LOG loEs)
+        VARIABLES
+         i:LOG; //Error 6.
+        INSTRUCCIONES
+         ...
+        FFUNCION
+        INSTRUCCIONES
         ...
-
-   El analizador semántico debe ser capaz de detectar las declaraciones múltiples.
-
-//posible ERROR 7 -> BREAK fuera de bucle.
-//mirar asertos
 
  DECISIONES DE DISEÑO error 1 (error asignación):
  
@@ -341,7 +344,7 @@ OBJETIVO:
  
          (parámetro de salida PARAM o DEV)
           params: t=tipos r=variable {Almacena en PARAM o DEV t y r}
-                | t=tipos r=variable COMA params {Almacena en PARAM o DEV t y r} //recursividad revisar
+                | t=tipos r=variable COMA params {Almacena en PARAM o DEV t y r}
                 ; (obtención de m vista en la decisión de diseño del error 1)
  
           (parámetro de salida CUERPO)
