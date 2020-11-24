@@ -22,6 +22,10 @@ public class AlmacenFunciones extends AnasintBaseVisitor<Object> {
           func2:{PARAM:[[i,NUM],[s,SEQ(NUM)],[b,LOG]],DEV:[[i,NUM],[s,SEQ(NUM)],[b,LOG]],...},
           func3:{PARAM:[[i,NUM],[s,SEQ(NUM)],[b,LOG]],DEV:[[i,NUM],[s,SEQ(NUM)],[b,LOG]],...}}
     */
+    public Map<String,Map<String,Map<String, String>>> visitPrograma(Anasint.ProgramaContext ctx) {
+        return visitSubprogramas(ctx.subprogramas());
+    }
+
     public Map<String,Map<String,Map<String, String>>> visitSubprogramas(Anasint.SubprogramasContext ctx) {
         Map<String,Map<String,Map<String, String>>> almacenF = new HashMap<>();
         for(int i = 1; i<ctx.children.size(); i++) {
