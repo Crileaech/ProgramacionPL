@@ -52,10 +52,10 @@ expr: expr_integer
     | expr_bool
     | expr_seq
     | expr_func
-    | expr_sacar_elem
     ;
 
-expr_integer: PA expr_integer (POR|SUMA|RESTA) expr_integer PC
+expr_integer: expr_sacar_elem
+            | PA expr_integer (POR|SUMA|RESTA) expr_integer PC
             | expr_integer (POR|SUMA|RESTA) expr_integer
             | expr_func
             | NUM
@@ -64,6 +64,7 @@ expr_integer: PA expr_integer (POR|SUMA|RESTA) expr_integer PC
 
 expr_bool: T
          | F
+         | expr_sacar_elem
          | expr_bool (IGUALL|DISTINTO) expr_bool
          | expr_bool (AND|OR) expr_bool
          | PA expr_bool (AND|OR) expr_bool PC
@@ -92,13 +93,13 @@ declaracion_instrucciones: asignacion
                          | condicion
                          | iteracion
                          | BREAK PyC
-                         | RETURN expr PyC
+                         | RETURN (expr COMA)* expr PyC
                          | mostrar
                          | asertos
                          | expr_func PyC
                          ;
 
-asignacion: (variable COMA)* variable IGUAL ((variable|expr) COMA)* (variable|expr) PyC;
+asignacion: (variable COMA)* variable IGUAL (expr COMA)* (expr) PyC;
 
 condicion: IF PA expr_bool PC THEN (declaracion_instrucciones)+ (blq_sino)? ENDIF;
 
