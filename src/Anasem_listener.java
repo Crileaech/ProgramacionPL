@@ -1,3 +1,5 @@
+import org.antlr.v4.runtime.tree.ParseTreeListener;
+
 import java.util.HashMap;
 import java.util.Map;
 public class Anasem_listener extends AnasintBaseListener {
@@ -38,6 +40,13 @@ public class Anasem_listener extends AnasintBaseListener {
     /*
       (DECISIÓN 5.1)
      P no permite el uso de variables que no están declaradas. //resoluble en funcion tipoVariable de manera más eficiente.
+     Almacén de variables globales (programa): (en el caso de comprobar asignaciones de subprogramas tendremos que mirar el almacén correspon-
+                                                    diente en el almacén de subprogramas -> Ver decisión 2.1)
+            variables   |    tipos
+         --------------------------------------
+             seq        |    Secuencia numérica
+             i          |    Numérico
+             loEs       |    Lógico
 
      función compruebaDeclaración(identificador)
         si identificador en almacen de programa //significaría que es una variable global
@@ -51,22 +60,17 @@ public class Anasem_listener extends AnasintBaseListener {
         sino
             error //si no estamos en subprograma y se hace uso de una variable que no es global, error.
      */
-    public Map<Object,Object> variables=new HashMap<>();
-    
-    public void exitIdentificador(Anasint.IdentificadorContext ctx, String var, Anasint.TiposContext tiposContext) {
-        variables.put(var, tiposContext);
-    }
 
-    public void exitDeclaracion_subprogramas(Anasint.Declaracion_subprogramasContext ctx) {
 
-    }
     @Override
     public void exitDeclaracion_variables(Anasint.Declaracion_variablesContext ctx) {
-        if(ctx.exitRule(exitIdentificador((Anasint.IdentificadorContext) variables)){
+        Map<Object,Object> almacenPrograma =new HashMap<>();// {i:NUM,s:SEQ(NUM),b:LOG}
+        Integer subprograma = Anasint.SUBPROGRAMAS;
+        if(!almacenPrograma.containsKey(ctx.identificador().getChild(0).getChild(1).getText())){
             System.out.println("NO ERROR");
-        } else if (ctx.exitRule(exitDeclaracion_subprogramas())){
-            Map<Object,Object> f = new HashMap<>();
-            if(exitIdentificador){
+        } else if (subprograma!=null){
+            Map<String,Map<String,Map<String, String>>> almacenF = new HashMap<>();
+            if(!almacenF.containsKey(ctx.identificador().getChild(0).getChild(1).getText())){
                 System.out.println("NO ERROR");
             } else {
                 System.out.println("ERROR");
@@ -75,6 +79,5 @@ public class Anasem_listener extends AnasintBaseListener {
             System.out.println("ERROR");
         }
     }
-
 
 }
