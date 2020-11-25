@@ -3,6 +3,8 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
+
 import javax.swing.*;
 
 import java.util.Arrays;
@@ -13,6 +15,7 @@ public class Principal {
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         Anasint parser = new Anasint(tokens);
         ParseTree tree = parser.programa();
+        anasem a = new anasem(tree);
         JFrame frame = new JFrame("Antlr Árbol de Análisis");
         JPanel panel = new JPanel();
         TreeViewer viewr = new TreeViewer(Arrays.asList(
