@@ -2,19 +2,28 @@
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CompruebaDevolución extends AnasintBaseVisitor<Object> {
-    // TODO: 25/11/2020 COMPROBAR DEVOLUCION CON VARIABLES GLOBALES.
 
     public Object visitDeclaracion_subprogramas(Anasint.Declaracion_subprogramasContext ctx) {
-        String nombreFunc = ctx.funcion().variable().getText();
+        try {
+            return visit(ctx.funcion());
+        } catch(Exception e) {
+            //si es un procedimiento...
+            return null;
+        }
+    }
+
+    public Object visitFuncion(Anasint.FuncionContext ctx) {
+        String nombreFunc = ctx.variable().getText();
         System.out.println("COMPROBACIÓN DEVOLUCIÓN EN " + nombreFunc + ":");
         Map<String, String> varsADevolver = anasem.almacenF.get(nombreFunc).get("DEV");
         List<String> tiposADevolver = varsADevolver.values().stream().collect(Collectors.toList());
-        List<ParseTree> instrucciones = ctx.funcion().instrucciones().children;
+        List<ParseTree> instrucciones = ctx.instrucciones().children;
         try {
             List<String> variables = (List<String>) visit(instrucciones.get(instrucciones.size() - 1));
             if (variables.size() != tiposADevolver.size()) {
@@ -76,8 +85,14 @@ public class CompruebaDevolución extends AnasintBaseVisitor<Object> {
         }
     }
 
-    public List<String> visitDeclaracion_instrucciones (Anasint.Declaracion_instruccionesContext ctx){
-        return (List<String>) visit(ctx.devolucion());
+    public List<String> visitDeclaracion_instrucciones(Anasint.Declaracion_instruccionesContext ctx){
+        try {
+            return (List<String>) visit(ctx.devolucion());
+        } catch(Exception e) {
+            //si declaración de instrucciones no tiene hijo con devoluciones
+            return null;
+        }
+
     }
 
     public List<String> visitDevolucion (Anasint.DevolucionContext ctx){
