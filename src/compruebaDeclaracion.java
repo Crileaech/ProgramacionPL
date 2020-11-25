@@ -19,7 +19,7 @@ public class compruebaDeclaracion extends AnasintBaseListener {
      */
 
 
-    public void exitDeclaracion_variables(Anasint.Declaracion_variablesContext ctx)  {
+    public void cumpruebaDeclarada(Anasint.Declaracion_variablesContext ctx)  {
         Map<String, String> almacenPrograma = Almacenes.almacenGlobal;// {i:NUM,s:SEQ(NUM),b:LOG}
         Map<String,Map<String,Map<String, String>>> almacenF = Almacenes.almacenF;  //{PARAM:{i:NUM,s:SEQ(NUM),b:LOG},DEV:{i:NUM,s:SEQ(NUM),b:LOG}}
         Integer subprograma = Anasint.SUBPROGRAMAS;
