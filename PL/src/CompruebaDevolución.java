@@ -9,13 +9,14 @@ import java.util.function.ToDoubleBiFunction;
 import java.util.stream.Collectors;
 
 public class CompruebaDevolución extends AnasintBaseVisitor<Object>{
-
+    // TODO: 25/11/2020 COMPROBAR DEVOLUCION CON VARIABLES GLOBALES. 
     public Object visitDeclaracion_subprogramas(Anasint.Declaracion_subprogramasContext ctx) {
         String nombreFunc = ctx.funcion().variable().getText();
         System.out.println("COMPROBACIÓN DEVOLUCIÓN EN "+nombreFunc + ":");
         Map<String,String> varsADevolver = anasem.almacenF.get(nombreFunc).get("DEV");
         Map<String,String> params = anasem.almacenF.get(nombreFunc).get("PARAM");
         Map<String,String> cuerpo = anasem.almacenF.get(nombreFunc).get("CUERPO");
+        Map<String,String> global = anasem.almacenGlobal;
         List<String> tiposADevolver = varsADevolver.values().stream().collect(Collectors.toList());
         List<ParseTree> instrucciones = ctx.funcion().instrucciones().children;
         try {
@@ -44,10 +45,17 @@ public class CompruebaDevolución extends AnasintBaseVisitor<Object>{
                     } else if(!cuerpo.isEmpty() && cuerpo.containsKey(var)) {
                         //compruebo que el tipo de la variable coincida con el que se desea devolver
                         String tipo = cuerpo.get(var);
-                        if(tipo.equals(tiposADevolver.get(i))) {
-                            System.out.println("    " +var + " (" + tipo + ") en CUERPO coincide con " + tipo + " en DEV --> OK");
+                        if (tipo.equals(tiposADevolver.get(i))) {
+                            System.out.println("    " + var + " (" + tipo + ") en CUERPO coincide con " + tipo + " en DEV --> OK");
                         } else {
-                            System.out.println("    ERROR: Se esperaba " + tiposADevolver.get(i) + " y se recibió " + var + " ("+tipo+")");
+                            System.out.println("    ERROR: Se esperaba " + tiposADevolver.get(i) + " y se recibió " + var + " (" + tipo + ")");
+                        }
+                    } else if(!global.isEmpty() && global.containsKey(var)) {
+                        String tipo = global.get(var);
+                        if (tipo.equals(tiposADevolver.get(i))) {
+                            System.out.println("    " + var + " (" + tipo + ") en GLOBAL coincide con " + tipo + " en DEV --> OK");
+                        } else {
+                            System.out.println("    ERROR: Se esperaba " + tiposADevolver.get(i) + " y se recibió " + var + " (" + tipo + ")");
                         }
                     } else {
                         System.out.println("    ERROR: Devolución de variable no declarada");
