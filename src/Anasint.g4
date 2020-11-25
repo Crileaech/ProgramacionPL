@@ -51,15 +51,15 @@ expr: expr_integer
     | expr_bool
     | expr_seq
     | expr_func
-    | expr_sacar_elem
     ;
 
 op_integer: (POR|SUMA|RESTA) ;
 
-expr_integer: NUM
+expr_integer:  expr_sacar_elem
+            | PA expr_integer op_integer expr_integer PC
             | expr_integer op_integer expr_integer
-            | variable CA expr_integer CC // variable que almacena una secuencia de enteros
             | expr_func // en caso de que devuelva un entero
+            | NUM
             | variable
             ;
 op_bool: (AND|OR);
@@ -74,24 +74,27 @@ comp_integer: MENORIGUAL
             ;
 expr_bool: T
          | F
+         | expr_sacar_elem
          | expr_bool comp_bool expr_bool
          | PA expr_bool comp_bool expr_bool PC
          | expr_seq comp_bool expr_seq
          | expr_integer comp_integer expr_integer
          | NO expr_bool
          | expr_bool op_bool expr_bool
+         | expr_func
          | variable
          ;
 
 expr_seq: CA CC // []
         | CA (expr COMA)* expr CC
+        | expr_func
         | variable
         ;
 
 expr_avanza: LA AVANZA DOSPTOS expr_func LC;
 
 //antes: VAR PA (VAR) (COMA var)* PC
-expr_func: VAR PA (VAR|expr) (COMA VAR|expr)* PC;
+expr_func: variable PA (variable|expr) (COMA variable|expr)* PC;
 
 expr_sacar_elem: variable CA expr_integer CC;
 
@@ -108,7 +111,7 @@ declaracion_instrucciones: asignacion
                          ;
 
 //antes: (VAR COMA)* VAR IGUAL (expr COMA)* (expr) PyC;
-asignacion: (variable COMA)* variable IGUAL ((variable|expr) COMA)* (variable|expr) PyC;
+asignacion: (variable COMA)* variable IGUAL (expr COMA)* (expr) PyC;
 
 condicion: IF PA expr_bool PC THEN (declaracion_instrucciones)+ (blq_sino)? ENDIF;
 
@@ -118,7 +121,7 @@ iteracion: WHILE PA expr_bool PC DO (expr_avanza)? (declaracion_instrucciones)+ 
 
 ruptura: BREAK PyC;
 
-devolucion_resultados: RETURN expr PyC;
+devolucion_resultados: RETURN (expr COMA)* expr PyC;
 
 mostrar: MOSTRAR PA (expr COMA)* expr PC PyC;
 

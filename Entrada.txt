@@ -5,7 +5,6 @@ s:SEQ(NUM);
 SUBPROGRAMAS
 FUNCION mayor(SEQ(NUM) s) dev (NUM i, NUM max)
 VARIABLES
-j: NUM;
 INSTRUCCIONES
 j=0;
 max=s[j];
