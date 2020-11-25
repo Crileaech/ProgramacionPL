@@ -89,14 +89,14 @@ expr_func: variable PA (variable|expr) (COMA variable|expr)* PC;
 
 //---INSTRUCCIONES---
 
-declaracion_instrucciones: asignacion #asig
-                         | condicion #cond
-                         | iteracion #it
-                         | BREAK PyC #break
-                         | devolucion #dev
-                         | mostrar #show
-                         | asertos #asert
-                         | expr_func PyC #func
+declaracion_instrucciones: asignacion
+                         | condicion
+                         | iteracion
+                         | BREAK PyC
+                         | devolucion
+                         | mostrar
+                         | asertos
+                         | expr_func PyC
                          ;
 
 devolucion: RETURN (expr COMA)* expr PyC;
