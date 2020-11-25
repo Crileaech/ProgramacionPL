@@ -35,7 +35,7 @@ public class CompruebaDevolución extends AnasintBaseVisitor<Object> {
         } catch (Exception e) {
             String inst = instrucciones.get(instrucciones.size() - 1).getText();
             if (!inst.startsWith("dev")) {
-                System.out.println("ERROR: La última instrucción de una función debe ser la devolución");
+                System.out.println("ERROR: La última instrucción de una función debe ser la devolución\n");
             }
         }
         return null;
@@ -83,6 +83,7 @@ public class CompruebaDevolución extends AnasintBaseVisitor<Object> {
                 System.out.println("    ERROR: Devolución de variable no declarada");
             }
         }
+        System.out.println("");
     }
 
     public List<String> visitDeclaracion_instrucciones(Anasint.Declaracion_instruccionesContext ctx){
