@@ -75,10 +75,10 @@ expr_bool: T                                                    #true
          | variable                                             #varBool
          ;
 
-expr_seq: CA CC #vaciaSeq // []
-        | CA (expr COMA)* expr CC #seq
-        | expr_func #exprFuncSeq
-        | variable #varSeq
+expr_seq: CA CC                             #vaciaSeq // []
+        | CA (expr COMA)* expr CC           #seq
+        | expr_func                         #exprFuncSeq
+        | variable                          #varSeq
         ;
 
 expr_sacar_elem: variable CA expr_integer CC ;
@@ -89,14 +89,14 @@ expr_func: variable PA (expr) (COMA expr)* PC;
 
 //---INSTRUCCIONES---
 
-declaracion_instrucciones: asignacion
-                         | condicion
-                         | iteracion
-                         | BREAK PyC
-                         | devolucion
-                         | mostrar
-                         | asertos
-                         | expr_func PyC
+declaracion_instrucciones: asignacion   #asig
+                         | condicion    #cond
+                         | iteracion    #it
+                         | BREAK PyC    #break
+                         | devolucion   #dev
+                         | mostrar      #show
+                         | asertos      #aserto
+                         | expr_func PyC #exprfun
                          ;
 
 devolucion: RETURN (expr COMA)* expr PyC;
