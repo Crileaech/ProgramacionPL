@@ -18,6 +18,7 @@ public class CompruebaDevolución extends AnasintBaseVisitor<Object> {
         }
     }
     public static String nombreFunc;
+    public static String[] ruleNames;
 
     public Object visitFuncion(Anasint.FuncionContext ctx) {
         nombreFunc = ctx.variable().getText();
@@ -55,18 +56,17 @@ public class CompruebaDevolución extends AnasintBaseVisitor<Object> {
     }
 
     public List<String> visitDeclaracion_instrucciones(Anasint.Declaracion_instruccionesContext ctx){
-        try {
-            return (List<String>) visit(ctx.devolucion());
-        } catch(Exception e) {
-            //si declaración de instrucciones no tiene hijo con devoluciones
-            return null;
+        for(int i = 0; i<ctx.children.size(); i++) {
+            if(ctx.getChild(i).getText().substring(0,3).equals("dev")) {
+                return (List<String>) visit(ctx.getChild(i));
+            }
         }
-
+        return null;
     }
 
-    public List<String> visitDevolucion (Anasint.DevolucionContext ctx){
+    public List<String> visitDev(Anasint.DevContext ctx){
         List<String> devs = new ArrayList<>();
-        for (Anasint.ExprContext hijo : ctx.expr()) {
+        for (Anasint.ExprContext hijo : ctx.devolucion().expr()) {
             devs.add((String) visit(hijo));
         }
         return devs;
@@ -91,8 +91,7 @@ public class CompruebaDevolución extends AnasintBaseVisitor<Object> {
         return "NUM";
     }
     public String visitExprFuncInt(Anasint.ExprFuncIntContext ctx) {
-        System.out.println("ERROR: No se permite la introducción de una función como parámetro a función");
-        throw new IllegalArgumentException("ERROR: No se permite la introducción de una función como parámetro a función");
+            return "NO PERMITIDO";
     }
     public String visitNum(Anasint.NumContext ctx) {
         return "NUM";
@@ -135,8 +134,7 @@ public class CompruebaDevolución extends AnasintBaseVisitor<Object> {
         return "LOG";
     }
     public String ExprFuncBool(Anasint.ExprFuncBoolContext ctx) {
-        System.out.println("ERROR: No se permite la introducción de una función como parámetro a función");
-        throw new IllegalArgumentException("ERROR: No se permite la introducción de una función como parámetro a función");
+        return "NO PERMITIDO";
     }
     public String VarBool(Anasint.VarBoolContext ctx) {
         return "LOG";
@@ -155,8 +153,7 @@ public class CompruebaDevolución extends AnasintBaseVisitor<Object> {
         }
     }
     public String visitExprFuncSeq(Anasint.ExprFuncSeqContext ctx) {
-        System.out.println("ERROR: No se permite la introducción de una función como parámetro a función");
-        throw new IllegalArgumentException("ERROR: No se permite la introducción de una función como parámetro a función");
+        return "NO PERMITIDO";
     }
     public String visitVarSeq(Anasint.VarSeqContext ctx) {
         return extraeTipo(ctx.getText());

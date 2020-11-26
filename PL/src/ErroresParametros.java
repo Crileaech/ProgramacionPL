@@ -23,7 +23,7 @@ public class ErroresParametros extends AnasintBaseVisitor<Object>{
         } else {
             System.out.println("El subprograma " +nombreSub+ " no existe.\n");
         }
-        return null;
+        return "";
     }
 
     public List<String> obtencionTipos(List<ParseTree> hijos) {
@@ -54,9 +54,22 @@ public class ErroresParametros extends AnasintBaseVisitor<Object>{
         return "NUM";
     }
     public String visitExprFuncInt(Anasint.ExprFuncIntContext ctx) {
-        System.out.println("ERROR: No se permite la introducción de una función como parámetro a función");
-        throw new IllegalArgumentException("ERROR: No se permite la introducción de una función como parámetro a función");
+        return "NO PERMITIDO";
     }
+
+    public Object visitAsig(Anasint.AsigContext ctx) {
+        for(int i = 0; i<ctx.asignacion().expr().size(); i++) {
+            try {
+                String nombreFunc = ctx.asignacion().expr(i).getChild(0).getChild(0).getChild(0).getText();
+                if(anasem.almacenF.containsKey(nombreFunc)) {
+                    return visit(ctx.asignacion().expr(i).getChild(0).getChild(0));
+                }
+            } catch(Exception e) {
+            }
+        }
+        return "";
+    }
+
     public String visitNum(Anasint.NumContext ctx) {
         return "NUM";
     }
@@ -89,26 +102,25 @@ public class ErroresParametros extends AnasintBaseVisitor<Object>{
     public String visitCompararBool(Anasint.CompararBoolContext ctx) {
         return "LOG";
     }
-    public String ParentesisOpBool(Anasint.ParentesisOpBoolContext ctx) {
+    public String visitParentesisOpBool(Anasint.ParentesisOpBoolContext ctx) {
         return "LOG";
     }
-    public String OpBool(Anasint.OpBoolContext ctx) {
+    public String visitOpBool(Anasint.OpBoolContext ctx) {
         return "LOG";
     }
-    public String CompararSeq(Anasint.CompararSeqContext ctx) {
+    public String visitCompararSeq(Anasint.CompararSeqContext ctx) {
         return "LOG";
     }
-    public String CompararInteger(Anasint.CompararIntegerContext ctx) {
+    public String visitCompararInteger(Anasint.CompararIntegerContext ctx) {
         return "LOG";
     }
-    public String NegacionBool(Anasint.NegacionBoolContext ctx) {
+    public String visitNegacionBool(Anasint.NegacionBoolContext ctx) {
         return "LOG";
     }
-    public String ExprFuncBool(Anasint.ExprFuncBoolContext ctx) throws IllegalAccessException {
-        System.out.println("ERROR: No se permite la introducción de una función como parámetro a función");
-        throw new IllegalArgumentException("ERROR: No se permite la introducción de una función como parámetro a función");
+    public String visitExprFuncBool(Anasint.ExprFuncBoolContext ctx) throws IllegalArgumentException {
+        return "NO PERMITIDO";
     }
-    public String VarBool(Anasint.VarBoolContext ctx) {
+    public String visitVarBool(Anasint.VarBoolContext ctx) {
         String nombreFunc = null;
         if(!ctx.getParent().getParent().getParent().getParent().getParent().getChild(0).getText().equals("PROGRAMA")) {
             nombreFunc = ctx.getParent().getParent().getParent().getParent().getParent().getChild(1).getText();
@@ -129,8 +141,7 @@ public class ErroresParametros extends AnasintBaseVisitor<Object>{
         }
     }
     public String visitExprFuncSeq(Anasint.ExprFuncSeqContext ctx) {
-        System.out.println("ERROR: No se permite la introducción de una función como parámetro a función");
-        throw new IllegalArgumentException("ERROR: No se permite la introducción de una función como parámetro a función");
+        return "NO PERMITIDO";
     }
     public String visitVarSeq(Anasint.VarSeqContext ctx) {
         String nombreFunc = null;
@@ -174,34 +185,6 @@ public class ErroresParametros extends AnasintBaseVisitor<Object>{
         }
         return tipo;
     }
-
-    public String obtencionTipoVar(String var,Anasint.Expr_integerContext ctx) {
-        Map<String,String> almacenGlobal = anasem.almacenGlobal;
-        Boolean estamosEnFuncion = !ctx.getParent().getParent().getParent()
-                .getParent().getParent().getChild(0).getText().equals("PROGRAMA");
-        String tipo;
-        if(almacenGlobal.containsKey(var)) {
-            tipo = almacenGlobal.get(var);
-        } else if(estamosEnFuncion) {
-            String nombreFunc = ctx.getParent().getParent().getParent().getParent().getParent().getChild(1).getText();
-            Map<String,Map<String,String>> m = anasem.almacenF.get(nombreFunc);
-            if(m.get("PARAM").containsKey(var)) {
-                tipo = m.get("PARAM").get(var);
-            } else if(m.get("DEV").containsKey(var)) {
-                tipo = m.get("DEV").get(var);
-            } else if(m.get("CUERPO").containsKey(var)) {
-                tipo = m.get("CUERPO").get(var);
-            } else {
-                System.out.println("EXCEPCIÓN: La variable " + var + " no ha sido declarada.");
-                throw new IllegalArgumentException("ERROR: La variable introducida no ha sido declarada");
-            }
-        } else {
-            System.out.println("EXCEPCIÓN: La variable " + var + " no ha sido declarada.");
-            throw new IllegalArgumentException("ERROR: La variable introducida no ha sido declarada");
-        }
-        return tipo;
-    }
-
     //DECISIÓN DE DISEÑO 2.2
     /*
       función comprobarAsignacionesAParámetros(tipo_parametros, tipo_exprs)
@@ -222,15 +205,19 @@ public class ErroresParametros extends AnasintBaseVisitor<Object>{
 
      */
     public void comprobarAsignacionesAParámetros(List<String> tiposEntradaNecesita, List<String> tiposDadas) {
+        System.out.println(tiposDadas);
         for(int i = 0; i < tiposDadas.size(); i++) {
             if(!tiposDadas.get(i).equals(tiposEntradaNecesita.get(i))) {
-                System.out.println("    ERROR: Se esperaba " + tiposEntradaNecesita.get(i)
-                        + " y se dió " + tiposDadas.get(i));
+                if(tiposDadas.get(i).equals("NO PERMITIDO")) {
+                    System.out.println("    ERROR: No se permite la introducción de subprogramas como parámetros");
+                } else {
+                    System.out.println("    ERROR: Se esperaba " + tiposEntradaNecesita.get(i)
+                            + " y se dió " + tiposDadas.get(i));
+                }
             } else {
                 System.out.println("    Se introdujo " +tiposDadas.get(i) + " y se esperaba " + tiposEntradaNecesita.get(i) + " --> OK");
             }
         }
         System.out.println("");
     }
-
 }
