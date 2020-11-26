@@ -7,9 +7,11 @@ public class AlmacenGlobal extends AnasintBaseVisitor<Object>{
     /*(parámetro de salida n)
         variables: VARIABLES (m=declaracion_variables {almacenar m en n})*;
          */
-    public static Map<String,String> almacenGlobal = new LinkedHashMap<String, String>();
+    public static  Map<String,String> almacenGlobal = new LinkedHashMap<String, String>();
 
-    public static Map<String, String> getAlmacenGlobal() {
+    public static List<String> variablesUsadas = new ArrayList<String>();
+
+    public static  Map<String, String> getAlmacenGlobal() {
         return almacenGlobal;
     }
 
@@ -19,6 +21,11 @@ public class AlmacenGlobal extends AnasintBaseVisitor<Object>{
         //System.out.println(res.toString());
         return res;
     }
+
+    //Decisión de diseño 6: error por declaración múltiple de una variable
+    // si ident se encuentra ya en almacén del subprograma error
+    // sino añade ident al almacén del subprograma
+
     public Map<String,String> visitVariables(Anasint.VariablesContext ctx){
         Map<String, String> n = new LinkedHashMap<>();
         for (int i=1;i<ctx.children.size();i++) {
@@ -47,9 +54,14 @@ public class AlmacenGlobal extends AnasintBaseVisitor<Object>{
         return ctx.getText();
     }
 
-    public String visitVariable(Anasint.VariableContext ctx) {
-        return ctx.getText();
-    }
+
+
+    //Decisión de diseño 6: error por declaración múltiple de una variable
+        // si al declarar varias varibles en una sola línea (es decir cuelgan de la misma rama del árbol), alguna está repetida ERROR
+            // sino se añade al almacén varYTipo
+
+    // Ejemplo: i,j,i:NUM;  -----> ERROR
+    // Almacén: {i,j}
 
     public Map<String, String> visitElementales(Anasint.ElementalesContext ctx) {
         Map<String, String> varYTipo = new LinkedHashMap<>();
@@ -64,6 +76,13 @@ public class AlmacenGlobal extends AnasintBaseVisitor<Object>{
         }
         return varYTipo;
     }
+
+    //Decisión de diseño 6: error por declaración múltiple de una variable
+    // si al declarar varias varibles en una sola línea (es decir cuelgan de la misma rama del árbol), alguna está repetida ERROR
+    // sino se añade al almacén varYTipo
+
+    // Ejemplo: i,j,i:SEQ(NUM);  -----> ERROR
+    // Almacén: {i,j}
 
     public Map<String, String> visitSecuencias(Anasint.SecuenciasContext ctx) {
         Map<String, String> varYTipo = new LinkedHashMap<>();
@@ -83,6 +102,10 @@ public class AlmacenGlobal extends AnasintBaseVisitor<Object>{
 
     public Map<String, String> visitIdentificador(Anasint.IdentificadorContext ctx) {
         return (Map<String, String>) visit(ctx.getChild(0));
+    }
+
+    public String visitVariable(Anasint.VariableContext ctx) {
+        return ctx.getText();
     }
 }
 

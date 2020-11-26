@@ -1,4 +1,4 @@
-PROGRAMA
+/*PROGRAMA
 VARIABLES
  i,max,min,g,i:LOG;
  g:NUM;
@@ -40,7 +40,7 @@ FUNCION bucle_1_avance(SEQ(NUM) seq, NUM pos) dev (NUM r)
    FFUNCION
 
 INSTRUCCIONES
-/* a = !i&&j;
+ a = !i&&j;
  mostrar(i);
  a = i*7+9;
  b = [i,j,k,l];
@@ -65,3 +65,20 @@ INSTRUCCIONES
  i=i+1;
  fmientras
 { PARATODO(p:[0,ultima_posicion(s)],s[p]<=max && s[p]>=min) }*/
+
+PROGRAMA
+VARIABLES
+i:NUM;
+j:LOG;
+s:SEQ(NUM);
+SUBPROGRAMAS
+
+INSTRUCCIONES
+sdhjf=cierto;
+mientras(j<=ultima_posicion(s)) hacer
+  si (s[j]>max) entonces
+  max=s[j];
+  i=j;
+  fsi
+  j=j+1;
+  fmientras
