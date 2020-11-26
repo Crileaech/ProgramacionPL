@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
          no error
 */
 
-public class compruebaDeclarados {
+public class compruebaYaDeclarados {
     public static void main(String[] args) throws Exception{
         // Función main usada para pruebas
         Map<String,String> almacen = new HashMap<String, String>();
