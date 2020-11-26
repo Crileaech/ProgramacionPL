@@ -1,4 +1,4 @@
-// Generated from C:/Users/Enrique/Desktop/PL/src\Anasint.g4 by ANTLR 4.8
+// Generated from C:/Users/Juan/IdeaProjects/ProgramacionPL-enrfercor/PL/src\Anasint.g4 by ANTLR 4.8
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
 /**
@@ -46,17 +46,19 @@ public interface AnasintVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitIdentificador(Anasint.IdentificadorContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link Anasint#elementales}.
+	 * Visit a parse tree produced by the {@code decVarElem}
+	 * labeled alternative in {@link Anasint#elementales}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitElementales(Anasint.ElementalesContext ctx);
+	T visitDecVarElem(Anasint.DecVarElemContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link Anasint#secuencias}.
+	 * Visit a parse tree produced by the {@code decVarSeq}
+	 * labeled alternative in {@link Anasint#secuencias}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitSecuencias(Anasint.SecuenciasContext ctx);
+	T visitDecVarSeq(Anasint.DecVarSeqContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link Anasint#tipos}.
 	 * @param ctx the parse tree
@@ -75,6 +77,12 @@ public interface AnasintVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitTipos_no_elementales(Anasint.Tipos_no_elementalesContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link Anasint#variable}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitVariable(Anasint.VariableContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link Anasint#declaracion_subprogramas}.
 	 * @param ctx the parse tree
@@ -106,23 +114,158 @@ public interface AnasintVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitExpr(Anasint.ExprContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link Anasint#expr_integer}.
+	 * Visit a parse tree produced by the {@code opInteger}
+	 * labeled alternative in {@link Anasint#expr_integer}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitExpr_integer(Anasint.Expr_integerContext ctx);
+	T visitOpInteger(Anasint.OpIntegerContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link Anasint#expr_bool}.
+	 * Visit a parse tree produced by the {@code exprFuncInt}
+	 * labeled alternative in {@link Anasint#expr_integer}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitExpr_bool(Anasint.Expr_boolContext ctx);
+	T visitExprFuncInt(Anasint.ExprFuncIntContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link Anasint#expr_seq}.
+	 * Visit a parse tree produced by the {@code sacarElemInteger}
+	 * labeled alternative in {@link Anasint#expr_integer}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitExpr_seq(Anasint.Expr_seqContext ctx);
+	T visitSacarElemInteger(Anasint.SacarElemIntegerContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code num}
+	 * labeled alternative in {@link Anasint#expr_integer}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNum(Anasint.NumContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code parentesisOpInteger}
+	 * labeled alternative in {@link Anasint#expr_integer}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitParentesisOpInteger(Anasint.ParentesisOpIntegerContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code varInt}
+	 * labeled alternative in {@link Anasint#expr_integer}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitVarInt(Anasint.VarIntContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code negacionBool}
+	 * labeled alternative in {@link Anasint#expr_bool}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNegacionBool(Anasint.NegacionBoolContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code parentesisOpBool}
+	 * labeled alternative in {@link Anasint#expr_bool}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitParentesisOpBool(Anasint.ParentesisOpBoolContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code true}
+	 * labeled alternative in {@link Anasint#expr_bool}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTrue(Anasint.TrueContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code false}
+	 * labeled alternative in {@link Anasint#expr_bool}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFalse(Anasint.FalseContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code opBool}
+	 * labeled alternative in {@link Anasint#expr_bool}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOpBool(Anasint.OpBoolContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code compararInteger}
+	 * labeled alternative in {@link Anasint#expr_bool}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCompararInteger(Anasint.CompararIntegerContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code sacarElemBool}
+	 * labeled alternative in {@link Anasint#expr_bool}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSacarElemBool(Anasint.SacarElemBoolContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code varBool}
+	 * labeled alternative in {@link Anasint#expr_bool}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitVarBool(Anasint.VarBoolContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code exprFuncBool}
+	 * labeled alternative in {@link Anasint#expr_bool}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExprFuncBool(Anasint.ExprFuncBoolContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code compararBool}
+	 * labeled alternative in {@link Anasint#expr_bool}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCompararBool(Anasint.CompararBoolContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code compararSeq}
+	 * labeled alternative in {@link Anasint#expr_bool}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCompararSeq(Anasint.CompararSeqContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code vaciaSeq}
+	 * labeled alternative in {@link Anasint#expr_seq}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitVaciaSeq(Anasint.VaciaSeqContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code seq}
+	 * labeled alternative in {@link Anasint#expr_seq}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSeq(Anasint.SeqContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code exprFuncSeq}
+	 * labeled alternative in {@link Anasint#expr_seq}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExprFuncSeq(Anasint.ExprFuncSeqContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code varSeq}
+	 * labeled alternative in {@link Anasint#expr_seq}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitVarSeq(Anasint.VarSeqContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link Anasint#expr_sacar_elem}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpr_sacar_elem(Anasint.Expr_sacar_elemContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link Anasint#expr_avanza}.
 	 * @param ctx the parse tree
@@ -141,6 +284,12 @@ public interface AnasintVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitDeclaracion_instrucciones(Anasint.Declaracion_instruccionesContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link Anasint#devolucion}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDevolucion(Anasint.DevolucionContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link Anasint#asignacion}.
 	 * @param ctx the parse tree

@@ -1,0 +1,14 @@
+PROGRAMA
+VARIABLES
+ max,min:LOG;
+ i,j:NUM;
+ s:SEQ(NUM);
+SUBPROGRAMAS
+INSTRUCCIONES
+ s=[4,2,7,9,0,11];
+ i=0;
+ j=5;
+ min=s[i];
+ max=s[i];
+ prueba = sum(i)+suma(382);
+ i=j;

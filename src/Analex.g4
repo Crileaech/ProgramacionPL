@@ -21,7 +21,7 @@ DEF: 'DEF';
 NUMERO : 'NUM';
 BOOL: 'LOG';
 SEQ_NUM: 'SEQ(NUM)';
-SEQ_BOOL: 'SEQ(LOG)';
+SEQ_BOOL: 'SEQ(BOOL)';
 SEQ: 'SEQ';
 T: 'T' | 'cierto';
 F: 'F' | 'falso';
