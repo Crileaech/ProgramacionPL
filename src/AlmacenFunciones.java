@@ -1,6 +1,7 @@
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class AlmacenFunciones extends AnasintBaseVisitor<Object> {
     //DECISIÓN DE DISEÑO 2
@@ -22,14 +23,31 @@ public class AlmacenFunciones extends AnasintBaseVisitor<Object> {
           func2:{PARAM:[[i,NUM],[s,SEQ(NUM)],[b,LOG]],DEV:[[i,NUM],[s,SEQ(NUM)],[b,LOG]],...},
           func3:{PARAM:[[i,NUM],[s,SEQ(NUM)],[b,LOG]],DEV:[[i,NUM],[s,SEQ(NUM)],[b,LOG]],...}}
     */
+
+
+
     public Map<String,Map<String,Map<String, String>>> visitPrograma(Anasint.ProgramaContext ctx) {
         return visitSubprogramas(ctx.subprogramas());
     }
 
+    //Decisión de diseño 6: error por declaración múltiple de un nombre de función o procedimiento
+    // si ident se encuentra ya en almacén del subprograma error
+    // sino añade ident al almacén del subprograma
+
     public Map<String,Map<String,Map<String, String>>> visitSubprogramas(Anasint.SubprogramasContext ctx) {
         Map<String,Map<String,Map<String, String>>> almacenF = new HashMap<>();
+        Map<String,Map<String,Map<String, String>>> aux = new HashMap<>();
+        //System.out.println(ctx.children.size());
         for(int i = 1; i<ctx.children.size(); i++) {
-            almacenF.putAll((Map<String,Map<String,Map<String, String>>>) visit(ctx.getChild(i)));
+            aux = (Map<String,Map<String,Map<String, String>>>) visit(ctx.getChild(i));
+            String ident = aux.keySet().toString(); // ----------------------------------------------------------------------
+            int k = ident.length();                 // Hace falta para quitar los corchetes con los que se devuelve el keySet
+            String ident2 = ident.substring(1,k-1); // ----------------------------------------------------------------------
+            if(compruebaYaDeclarados.compruebaNombreFuncion(ident2,almacenF)){
+                System.out.println("Error "+ident2+" ya está usado como nombre de función o procedimiento");
+            }else{
+                almacenF.putAll((Map<String,Map<String,Map<String, String>>>) visit(ctx.getChild(i)));
+            }
 
         }
         System.out.println(almacenF);
@@ -83,31 +101,54 @@ public class AlmacenFunciones extends AnasintBaseVisitor<Object> {
         return ctx.getText();
     }
 
-    public String visitVariable(Anasint.VariableContext ctx) {
-        return ctx.getText();
-    }
+
+
     /*
     (parámetro de salida (r,t))
     elementales: (VAR {incluir VAR en r} COMA)* VAR {incluir VAR en r} DOSPTOS t=tipos_elementales {incluir r y t en (r,t)};
+
+     Decisión de diseño 6: error por declaración múltiple de una variable
+     si al declarar varias varibles en una sola línea (es decir cuelgan de la misma rama del árbol), alguna está repetida ERROR
+     sino se añade al almacén varYTipo
+
+     Ejemplo: i,j,i:NUM;  -----> ERROR
+     Almacén: {i,j}
      */
     public Map<String, String> visitElementales(Anasint.ElementalesContext ctx) {
         Map<String, String> varYTipo = new HashMap<>();
         String tipo = ctx.getChild(ctx.children.size()-1).getText(); //el último hijo es tipo_elementales o tipo_no_elementales
         for(int i = 0; i<ctx.children.size()-1;i=i+2) { //de dos en dos para saltarme , y :
             String r = ctx.getChild(i).getText();
-            varYTipo.put(r,tipo);
+            if(compruebaYaDeclarados.compruebaYaDeclarados(r,varYTipo)){
+                System.out.println("Error: Variable "+r+" ya declarada en la línea de código");
+            }else{
+                varYTipo.put(r,tipo);
+            }
         }
         return varYTipo;
     }
     /*
     (parámetro de salida (r,t))
     secuencias: VAR {incluir VAR en r} DOSPTOS t=tipos_no_elementales {incluir r_y_t en (r,t)};
+
+
+    Decisión de diseño 6: error por declaración múltiple de una variable
+     si al declarar varias varibles en una sola línea (es decir cuelgan de la misma rama del árbol), alguna está repetida ERROR
+     sino se añade al almacén varYTipo
+
+     Ejemplo: i,j,i:NUM;  -----> ERROR
+     Almacén: {i,j}
      */
+
     public Map<String, String> visitSecuencias(Anasint.SecuenciasContext ctx) {
         Map<String, String> varYTipo = new HashMap<>();
         String tipo = ctx.getChild(2).getText();
         String r = ctx.getChild(0).getText();
-        varYTipo.put(r,tipo);
+        if(compruebaYaDeclarados.compruebaYaDeclarados(r,varYTipo)){
+            System.out.println("Error: Variable "+r+" ya declarada en la línea de código");
+        }else{
+            varYTipo.put(r,tipo);
+        }
         return varYTipo;
     }
 
@@ -124,8 +165,19 @@ public class AlmacenFunciones extends AnasintBaseVisitor<Object> {
     */
     public Map<String, String> visitVariables(Anasint.VariablesContext ctx) {
         Map<String, String> n = new HashMap<>();
+        Map<String, String> g = AlmacenGlobal.getAlmacenGlobal();
         for(int i = 1; i<ctx.children.size();i++) {
             Map<String, String> m = (Map<String, String>) visit(ctx.getChild(i));
+            List<String> aux = m.keySet().stream().collect(Collectors.toList());
+            for (int j = 0; j < aux.size(); j++) {
+                if (compruebaYaDeclarados.compruebaYaDeclarados(aux.get(j), n)) {
+                    System.out.println("Error: Variable " + aux.get(j) + " ya declarada en Almacén Funciones");
+                    m.remove(aux.get(j));
+                }else if(compruebaYaDeclarados.compruebaYaDeclarados(aux.get(j),g)){
+                    System.out.println("Error: Variable " + aux.get(j) + " ya declarada en Almacén Principal");
+                    m.remove(aux.get(j));
+                }
+            }
             n.putAll(m);
         }
         return n;
@@ -146,6 +198,17 @@ public class AlmacenFunciones extends AnasintBaseVisitor<Object> {
             params.putAll(params2);
         }
         return params;
+    }
+
+
+    /*public  visitInstrucciones(Anasint.InstruccionesContext ctx) {
+
+        return super.visitInstrucciones(ctx);
+    }*/
+
+    public String visitVariable(Anasint.VariableContext ctx) {
+
+        return ctx.getText();
     }
 
     //COMPROBACIÓN DE ERRORES EN LA DEVOLUCIÓN.
