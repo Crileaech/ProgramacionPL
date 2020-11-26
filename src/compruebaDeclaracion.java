@@ -1,7 +1,41 @@
 import java.util.Map;
 public class compruebaDeclaracion extends AnasintBaseListener {
+    /*(DECISIÓN 1.2)
+     Una asignación está bien tipada sí y solo sí el tipo de la variable coincide con el tipo de la expresión asignada.
+
+     funcion comprobarTiposAsignación(tipo_var, tipo_expr)
+         si tipo expr es igual a tipo invalido
+             error
+         sino
+             si tipo_var es igual a tipo_expr entonces
+                 no error
+             sino
+                 error
+
+     funcion comprobaciónTiposAsignaciones(tipo_vars, tipo_exprs) //para asignaciones múltiples.
+         almacen n
+         pares = pares_var_expr(tipo_vars, tipo_exprs)
+         para cada par en pares:
+             añado en n comprobarTiposAsignación(tipo_var en par, tipo_expr en par)
+         si en n no error entonces
+             no error
+         sino
+             error*/
+    private void comprobarTiposAsignación(Integer tipo_var, Integer tipo_expr) {
+        if(tipo_expr==null){
+            System.out.println("ERROR EN EL TIPO DE EXPRESION");
+        }else {
+            if(tipo_var==tipo_expr) {
+                System.out.println("NO ERROR");
+            }else {
+
+            }
+        }
+    }
 
     /*
+
+
       (DECISIÓN 5.1)
      P no permite el uso de variables que no están declaradas. //resoluble en funcion tipoVariable de manera más eficiente.
 
@@ -19,7 +53,7 @@ public class compruebaDeclaracion extends AnasintBaseListener {
      */
 
 
-    public void cumpruebaDeclarada(Anasint.Declaracion_variablesContext ctx)  {
+    public void exitDeclaracion_variables(Anasint.Declaracion_variablesContext ctx)  {
         Map<String, String> almacenPrograma = Almacenes.almacenGlobal;// {i:NUM,s:SEQ(NUM),b:LOG}
         Map<String,Map<String,Map<String, String>>> almacenF = Almacenes.almacenF;  //{PARAM:{i:NUM,s:SEQ(NUM),b:LOG},DEV:{i:NUM,s:SEQ(NUM),b:LOG}}
         Integer subprograma = Anasint.SUBPROGRAMAS;
