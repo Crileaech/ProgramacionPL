@@ -17,20 +17,21 @@ public class CompruebaDevolución extends AnasintBaseVisitor<Object> {
             return null;
         }
     }
+    public static String nombreFunc;
 
     public Object visitFuncion(Anasint.FuncionContext ctx) {
-        String nombreFunc = ctx.variable().getText();
+        nombreFunc = ctx.variable().getText();
         System.out.println("COMPROBACIÓN DEVOLUCIÓN EN " + nombreFunc + ":");
-        Map<String, String> varsADevolver = anasem.almacenF.get(nombreFunc).get("DEV");
+        Map<String,String> varsADevolver = anasem.almacenF.get(nombreFunc).get("DEV");
         List<String> tiposADevolver = varsADevolver.values().stream().collect(Collectors.toList());
         List<ParseTree> instrucciones = ctx.instrucciones().children;
         try {
-            List<String> variables = (List<String>) visit(instrucciones.get(instrucciones.size() - 1));
-            if (variables.size() != tiposADevolver.size()) {
+            List<String> tiposDevueltos = (List<String>) visit(instrucciones.get(instrucciones.size() - 1));
+            if (tiposDevueltos.size() != tiposADevolver.size()) {
                 System.out.println("    ERROR: Se esperaba devolver "
-                        + tiposADevolver.size() + ". Han sido devueltos " + variables.size() + ".");
+                        + tiposADevolver.size() + ". Han sido devueltos " + tiposDevueltos.size() + ".");
             } else {
-                compruebaDevoluciones(variables, tiposADevolver, nombreFunc);
+                compruebaDevoluciones(tiposDevueltos, tiposADevolver, nombreFunc);
             }
         } catch (Exception e) {
             String inst = instrucciones.get(instrucciones.size() - 1).getText();
@@ -42,45 +43,12 @@ public class CompruebaDevolución extends AnasintBaseVisitor<Object> {
     }
     //DECISIÓN DE DISEÑO 3.1. Aunque en la implementación recibe las variables en lugar del tipo de variables,
     //por temas de eficiencia.
-    public void compruebaDevoluciones(List<String> variables, List<String> tiposADevolver, String nombreFunc) {
-        Map<String, String> varsADevolver = anasem.almacenF.get(nombreFunc).get("DEV");
-        Map<String, String> params = anasem.almacenF.get(nombreFunc).get("PARAM");
-        Map<String, String> cuerpo = anasem.almacenF.get(nombreFunc).get("CUERPO");
-        Map<String, String> global = anasem.almacenGlobal;
-        for (int i = 0; i < variables.size(); i++) {
-            String var = variables.get(i);
-            if (varsADevolver.containsKey(var)) { //si la variable que se devuelve está en dev y el tipo coincide -> ok
-                String tipo = varsADevolver.get(var);
-                if (tipo.equals(tiposADevolver.get(i))) {
-                    System.out.println("    " + var + " (" + tipo + ") en DEV coincide con " + tipo + " en DEV --> OK");
-                } else {
-                    System.out.println("    ERROR: Se esperaba " + tiposADevolver.get(i) + " y se recibió " + var + " (" + tipo + ")");
-                }
-            } else if (!params.isEmpty() && params.containsKey(var)) {
-                //compruebo que el tipo de la variable coincida con el que se desea devolver
-                String tipo = params.get(var);
-                if (tipo.equals(tiposADevolver.get(i))) {
-                    System.out.println("    " + var + " (" + tipo + ") en PARAM coincide con " + tipo + " en DEV --> OK");
-                } else {
-                    System.out.println("    ERROR: Se esperaba " + tiposADevolver.get(i) + " y se recibió " + var + " (" + tipo + ")");
-                }
-            } else if (!cuerpo.isEmpty() && cuerpo.containsKey(var)) {
-                //compruebo que el tipo de la variable coincida con el que se desea devolver
-                String tipo = cuerpo.get(var);
-                if (tipo.equals(tiposADevolver.get(i))) {
-                    System.out.println("    " + var + " (" + tipo + ") en CUERPO coincide con " + tipo + " en DEV --> OK");
-                } else {
-                    System.out.println("    ERROR: Se esperaba " + tiposADevolver.get(i) + " y se recibió " + var + " (" + tipo + ")");
-                }
-            } else if (!global.isEmpty() && global.containsKey(var)) {
-                String tipo = global.get(var);
-                if (tipo.equals(tiposADevolver.get(i))) {
-                    System.out.println("    " + var + " (" + tipo + ") en GLOBAL coincide con " + tipo + " en DEV --> OK");
-                } else {
-                    System.out.println("    ERROR: Se esperaba " + tiposADevolver.get(i) + " y se recibió " + var + " (" + tipo + ")");
-                }
+    public void compruebaDevoluciones(List<String> tiposDevueltos, List<String> tiposADevolver, String nombreFunc) {
+        for (int i = 0; i < tiposDevueltos.size(); i++) {
+            if(!tiposDevueltos.get(i).equals(tiposADevolver.get(i))) {
+                System.out.println("    ERROR: Se esperaba " + tiposADevolver.get(i) + " y se recibió (" + tiposDevueltos.get(i) + ")");
             } else {
-                System.out.println("    ERROR: Devolución de variable no declarada");
+                System.out.println("    Se esperaba " + tiposADevolver.get(i) + " y se recibió " + tiposDevueltos.get(i) + " --> OK");
             }
         }
         System.out.println("");
@@ -104,8 +72,116 @@ public class CompruebaDevolución extends AnasintBaseVisitor<Object> {
         return devs;
     }
 
-    public String visitExpr (Anasint.ExprContext ctx){
-        return (String) visit(ctx.expr_integer().variable());
+    public String visitExpr(Anasint.ExprContext ctx){
+        return (String) visit(ctx.getChild(0));
+    }
+
+    public String visitSacarElemInteger(Anasint.SacarElemIntegerContext ctx) {
+        String tipo = extraeTipo(ctx.getChild(0).getChild(0).getText());
+        if(tipo.equals("SEQ(NUM)")) {
+            return "NUM";
+        } else {
+            return "LOG";
+        }
+    }
+    public String visitParentesisOpInteger(Anasint.ParentesisOpIntegerContext ctx) {
+        return "NUM";
+    }
+    public String visitOpInteger(Anasint.OpIntegerContext ctx) {
+        return "NUM";
+    }
+    public String visitExprFuncInt(Anasint.ExprFuncIntContext ctx) {
+        System.out.println("ERROR: No se permite la introducción de una función como parámetro a función");
+        throw new IllegalArgumentException("ERROR: No se permite la introducción de una función como parámetro a función");
+    }
+    public String visitNum(Anasint.NumContext ctx) {
+        return "NUM";
+    }
+    public String visitVarInt(Anasint.VarIntContext ctx) {
+        String var = ctx.getText();
+        return extraeTipo(var);
+    }
+
+    public String visitTrue(Anasint.TrueContext ctx) {
+        return "LOG";
+    }
+    public String visitFalse(Anasint.FalseContext ctx) {
+        return "LOG";
+    }
+    public String visitSacarElemBool(Anasint.SacarElemBoolContext ctx) {
+        String tipo = extraeTipo(ctx.getChild(0).getChild(0).getText());
+        if(tipo.equals("SEQ(NUM)")) {
+            return "NUM";
+        } else {
+            return "LOG";
+        }
+    }
+    public String visitCompararBool(Anasint.CompararBoolContext ctx) {
+        return "LOG";
+    }
+    public String ParentesisOpBool(Anasint.ParentesisOpBoolContext ctx) {
+        return "LOG";
+    }
+    public String OpBool(Anasint.OpBoolContext ctx) {
+        return "LOG";
+    }
+    public String CompararSeq(Anasint.CompararSeqContext ctx) {
+        return "LOG";
+    }
+    public String CompararInteger(Anasint.CompararIntegerContext ctx) {
+        return "LOG";
+    }
+    public String NegacionBool(Anasint.NegacionBoolContext ctx) {
+        return "LOG";
+    }
+    public String ExprFuncBool(Anasint.ExprFuncBoolContext ctx) {
+        System.out.println("ERROR: No se permite la introducción de una función como parámetro a función");
+        throw new IllegalArgumentException("ERROR: No se permite la introducción de una función como parámetro a función");
+    }
+    public String VarBool(Anasint.VarBoolContext ctx) {
+        return "LOG";
+    }
+
+    public String visitVaciaSeq(Anasint.VaciaSeqContext ctx) {
+        //por defecto una secuencia vacía será SEQ(NUM)
+        return "SEQ(NUM)";
+    }
+    public String visitSeq(Anasint.SeqContext ctx) {
+        String tipoInt = (String) visit(ctx.getChild(1));
+        if(tipoInt.equals("NUM")) {
+            return "SEQ(NUM)";
+        } else {
+            return "SEQ(LOG)";
+        }
+    }
+    public String visitExprFuncSeq(Anasint.ExprFuncSeqContext ctx) {
+        System.out.println("ERROR: No se permite la introducción de una función como parámetro a función");
+        throw new IllegalArgumentException("ERROR: No se permite la introducción de una función como parámetro a función");
+    }
+    public String visitVarSeq(Anasint.VarSeqContext ctx) {
+        return extraeTipo(ctx.getText());
+    }
+
+    public String extraeTipo(String var) {
+        Map<String, String> varsADevolver = anasem.almacenF.get(nombreFunc).get("DEV");
+        Map<String, String> params = anasem.almacenF.get(nombreFunc).get("PARAM");
+        Map<String, String> cuerpo = anasem.almacenF.get(nombreFunc).get("CUERPO");
+        Map<String,String> global = anasem.almacenGlobal;
+        String tipo = "no declarada";
+        if (varsADevolver.containsKey(var)) { //si la variable que se devuelve está en dev y el tipo coincide -> ok
+            tipo = varsADevolver.get(var);
+        } else if (!params.isEmpty() && params.containsKey(var)) {
+            //compruebo que el tipo de la variable coincida con el que se desea devolver
+            tipo = params.get(var);
+        } else if (!cuerpo.isEmpty() && cuerpo.containsKey(var)) {
+            //compruebo que el tipo de la variable coincida con el que se desea devolver
+            tipo = cuerpo.get(var);
+        } else if (!global.isEmpty() && global.containsKey(var)) {
+            tipo = global.get(var);
+        } else {
+            System.out.println("    ERROR: Devolución de variable no declarada");
+        }
+        return tipo;
     }
 
     public String visitVariable (Anasint.VariableContext ctx){
