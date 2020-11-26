@@ -1,5 +1,8 @@
 import java.util.Map;
 public class compruebaDeclaracion extends AnasintBaseListener {
+    Map<String, String> almacenPrograma = Almacenes.almacenGlobal;// {i:NUM,s:SEQ(NUM),b:LOG}
+    Map<String,Map<String,Map<String, String>>> almacenF = Almacenes.almacenF;  //{PARAM:{i:NUM,s:SEQ(NUM),b:LOG},DEV:{i:NUM,s:SEQ(NUM),b:LOG}}
+
     /*(DECISIÓN 1.2)
      Una asignación está bien tipada sí y solo sí el tipo de la variable coincide con el tipo de la expresión asignada.
 
@@ -54,8 +57,6 @@ public class compruebaDeclaracion extends AnasintBaseListener {
 
 
     public void exitDeclaracion_variables(Anasint.Declaracion_variablesContext ctx)  {
-        Map<String, String> almacenPrograma = Almacenes.almacenGlobal;// {i:NUM,s:SEQ(NUM),b:LOG}
-        Map<String,Map<String,Map<String, String>>> almacenF = Almacenes.almacenF;  //{PARAM:{i:NUM,s:SEQ(NUM),b:LOG},DEV:{i:NUM,s:SEQ(NUM),b:LOG}}
         Integer subprograma = Anasint.SUBPROGRAMAS;
         if(!almacenPrograma.containsKey(ctx.identificador().getChild(0).getChild(1).getText()) && almacenPrograma.isEmpty()){
             System.out.println("NO ERROR");

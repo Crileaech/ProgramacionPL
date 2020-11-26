@@ -109,7 +109,7 @@ declaracion_instrucciones: asignacion
                          | condicion
                          | iteracion
                          | ruptura
-                         | devolucion_resultados
+                         | devolucion
                          | mostrar
                          | asertos
                          | expr_func PyC
@@ -125,7 +125,7 @@ iteracion: WHILE PA expr_bool PC DO (expr_avanza)? (declaracion_instrucciones)+ 
 
 ruptura: BREAK PyC;
 
-devolucion_resultados: RETURN (expr COMA)* expr PyC;
+devolucion: RETURN (expr COMA)* expr PyC;
 
 mostrar: MOSTRAR PA (expr COMA)* expr PC PyC;
 
