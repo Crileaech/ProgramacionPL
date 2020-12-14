@@ -1,0 +1,130 @@
+DISEÑO COMPILADOR PROGRAMACION P --> Java
+-----------------------------
+
+(1) Definir la esquema de traducción de un programa P
+
+    import java.io.*;
+    public class _Programa
+    {
+       public static void main(String[] args) {
+
+          generar codigo para declaracion de variables
+          generar codigo para declaracion de subprogramas
+          generar codigo para cada instrucción
+       }
+    }
+
+   (b) generar codigo para declaracion de variables y
+       almacenar definiciones por defecto para cada variable.
+       (necesario para generar código de subprogramas)
+        VARIABLES
+            i,max,min:NUM;
+            b:LOG;
+            s:SEQ(NUM);
+       estado=[(i,0),(max,0),(min,0),(b,true),(s,0))]
+   (c) generar codigo para declaracion de subprogramas y
+          almacenar funciones o procedimientos .
+   (d) generar codigo para cada instrucción
+
+      (d.1) No se genera código para la definición.
+            Almacenar cada definición.
+           (necesario para generar código de evaluación)
+
+    a DEF -1;    estado=[(x,0),(y,0),(z,0),(a,-1),(b,0))]
+    b DEF (a+1); estado=[(x,0),(y,0),(z,0),(a,-1),(b,(a+1))]
+
+       (c.2) generar codigo para evaluación de variables
+
+            (a) Las variables con definición cíclica hay que
+                detectarlas y simular en Java su evaluación en LF .
+
+            (b) Las variables con definición no cíclica hay que
+                simular en Java su evaluación en LF. La definición no cíclica obliga
+                a secuenciar las variables de las que depende las variables evaluadas.
+
+
+                si (test(VAR)=CICLO) entonces
+   	               generar codigo para evaluación de
+   	               variable indefinida
+   	            si no
+   	               generar codigo para evaluación de
+   	               variable definida
+
+
+
+   	Gramática atribuida resultante:
+   	------------------------------
+    estado (global)
+
+    programa :  {generar codigo declaracion clase
+                 generar codigo cabecera main}
+                #(PROGRAMA  variables instrucciones)
+                {generar codigo fin main
+                 generar codigo fin clase}
+
+    variables : #(VARIABLES
+       (VAR {actualizar estado con una definicion
+             por defecto para VAR})*)
+       {generar codigo declaracion variables}
+
+    instrucciones : #(INSTRUCCIONES (declaracion_instrucciones)*)
+
+    definicion : #(DEF VAR expr)
+       {actualizar estado con una definicion expr para VAR}
+
+    evaluacion: #(EVAL VAR)
+       {
+   	       si (test(VAR)=CICLO) entonces
+   	          generar codigo para evaluación de
+   	          variable VAR indefinida
+   	       si no
+   	          generar codigo para evaluación de
+   	          variable VAR definida
+   	   }
+
+expr :  #(MAS expr expr)
+     | (#(MENOS expr expr)) => #(MENOS expr expr)
+     | #(MENOS expr)
+     | #(POR expr expr)
+     | NUMERO
+     | VAR
+
+----------------------------------------------------
+
+generar codigo declaracion clase:
+   escribir en fichero:
+         import java.io.*;
+         public class _Programa{
+
+generar codigo cabecera main:
+   escribir en fichero:   public static void main(String[] args) {
+
+generar codigo fin main:
+   escribir en fichero:   }
+
+generar codigo fin clase:
+   escribir en fichero: }
+
+generar codigo para evaluación de variable VAR indefinida:
+   escribir en fichero:
+         System.out.println("(Compilador) "+VAR+" ---> INDEF");
+
+generar codigo para evaluación de variable VAR definida:
+      dep = calcular las variables de las que depende VAR
+            por niveles
+      para cada nivel n en dep (de menor a mayor)
+        para cada variable v en el nivel n
+           def = consultar definicion de v en estado
+           cod = generar codigo para expresión def
+           escribir en fichero:
+             System.out.println("(Compilador) "+v+"="+cod+";");
+
+
+generar codigo para expresión:
+     si la expresion es un NUMERO entonces el código generado es el propio numero
+     si la expresion es una VAR entonces el código generado es la propia VAR
+     si la expresion es una suma entonces el código generado es la composición del
+        código generado para la subexpresión izquierda, el código + y
+        código generado para la subexpresión derecha
+    si la expresion es una resta,producto o división entonces el código generado es
+       similar al código de la suma salvo el operador aritmético.
