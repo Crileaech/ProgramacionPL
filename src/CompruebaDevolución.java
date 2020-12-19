@@ -2,12 +2,15 @@
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CompruebaDevolución extends AnasintBaseVisitor<Object> {
+
+    public CompruebaDevolución(ParseTree tree) {
+        super();
+    }
 
     public Object visitDeclaracion_subprogramas(Anasint.Declaracion_subprogramasContext ctx) {
         try {
@@ -23,7 +26,7 @@ public class CompruebaDevolución extends AnasintBaseVisitor<Object> {
     public Object visitFuncion(Anasint.FuncionContext ctx) {
         nombreFunc = ctx.variable().getText();
         System.out.println("COMPROBACIÓN DEVOLUCIÓN EN " + nombreFunc + ":");
-        Map<String,String> varsADevolver = Almacenes.almacenF.get(nombreFunc).get("DEV");
+        Map<String,String> varsADevolver = anasem.almacenF.get(nombreFunc).get("DEV");
         List<String> tiposADevolver = varsADevolver.values().stream().collect(Collectors.toList());
         List<ParseTree> instrucciones = ctx.instrucciones().children;
         try {
@@ -160,10 +163,10 @@ public class CompruebaDevolución extends AnasintBaseVisitor<Object> {
     }
 
     public String extraeTipo(String var) {
-        Map<String, String> varsADevolver = Almacenes.almacenF.get(nombreFunc).get("DEV");
-        Map<String, String> params = Almacenes.almacenF.get(nombreFunc).get("PARAM");
-        Map<String, String> cuerpo = Almacenes.almacenF.get(nombreFunc).get("CUERPO");
-        Map<String,String> global = Almacenes.almacenGlobal;
+        Map<String, String> varsADevolver = anasem.almacenF.get(nombreFunc).get("DEV");
+        Map<String, String> params = anasem.almacenF.get(nombreFunc).get("PARAM");
+        Map<String, String> cuerpo = anasem.almacenF.get(nombreFunc).get("CUERPO");
+        Map<String,String> global = anasem.almacenGlobal;
         String tipo = "no declarada";
         if (varsADevolver.containsKey(var)) { //si la variable que se devuelve está en dev y el tipo coincide -> ok
             tipo = varsADevolver.get(var);

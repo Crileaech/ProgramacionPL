@@ -1,45 +1,13 @@
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-public class compruebaDeclaracion extends AnasintBaseListener {
-    Map<String, String> almacenPrograma = Almacenes.almacenGlobal;// {i:NUM,s:SEQ(NUM),b:LOG}
-    Map<String,Map<String,Map<String, String>>> almacenF = Almacenes.almacenF;  //{PARAM:{i:NUM,s:SEQ(NUM),b:LOG},DEV:{i:NUM,s:SEQ(NUM),b:LOG}}
+import java.util.stream.Collectors;
 
-    /*(DECISIÓN 1.2)
-     Una asignación está bien tipada sí y solo sí el tipo de la variable coincide con el tipo de la expresión asignada.
-
-     funcion comprobarTiposAsignación(tipo_var, tipo_expr)
-         si tipo expr es igual a tipo invalido
-             error
-         sino
-             si tipo_var es igual a tipo_expr entonces
-                 no error
-             sino
-                 error
-
-     funcion comprobaciónTiposAsignaciones(tipo_vars, tipo_exprs) //para asignaciones múltiples.
-         almacen n
-         pares = pares_var_expr(tipo_vars, tipo_exprs)
-         para cada par en pares:
-             añado en n comprobarTiposAsignación(tipo_var en par, tipo_expr en par)
-         si en n no error entonces
-             no error
-         sino
-             error*/
-    private void comprobarTiposAsignación(Integer tipo_var, Integer tipo_expr) {
-        if(tipo_expr==null){
-            System.out.println("ERROR EN EL TIPO DE EXPRESION");
-        }else {
-            if(tipo_var==tipo_expr) {
-                System.out.println("NO ERROR");
-            }else {
-
-            }
-        }
-    }
-
+public class compruebaDeclaracion extends AnasintBaseVisitor<Object>{
     /*
+    * DECISIONES DE DISEÑO error 5 (error por uso de variable no declarada):
 
-
-      (DECISIÓN 5.1)
+     (DECISIÓN 5.1)
      P no permite el uso de variables que no están declaradas. //resoluble en funcion tipoVariable de manera más eficiente.
 
      función compruebaDeclaración(identificador)
@@ -53,20 +21,57 @@ public class compruebaDeclaracion extends AnasintBaseListener {
                 error
         sino
             error //si no estamos en subprograma y se hace uso de una variable que no es global, error.
-     */
 
-
-    public void exitDeclaracion_variables(Anasint.Declaracion_variablesContext ctx)  {
-        Integer subprograma = Anasint.SUBPROGRAMAS;
-        if(!almacenPrograma.containsKey(ctx.identificador().getChild(0).getChild(1).getText()) && almacenPrograma.isEmpty()){
-            System.out.println("NO ERROR");
-        }else if(subprograma !=null){
-            if(!almacenF.containsKey(ctx.identificador().getChild(0).getChild(1).getText())){
-                System.out.println("NO ERROR");
-            } else {
-                System.out.println("ERROR");
-            }
-        } else {System.out.println("ERROR");}
+     Por cada aparición de una variable deberemos hacer uso de esta función para asegurarnos que haya sido declarada.
+     * */
+    public static void main(String[] args) throws Exception{
+        // Función main usada para pruebas
+        Map<String,String> almacen = new HashMap<String, String>();
+        Map<String,Map<String,Map<String, String>>> almacenF = new HashMap<String,Map<String,Map<String, String>>>();
+        almacen.put("i","NUM");
+        if(compruebaDeclaracion("b",almacen, almacenF)){
+            System.out.println("Variables que no están declaradas");
+        }else{
+            System.out.println("Todo correcto");
+        }
+    }
+    public Object visitDeclaracion_subprogramas(Anasint.Declaracion_subprogramasContext ctx) {
+        try {
+            return visit(ctx.funcion());
+        } catch(Exception e) {
+            //si es un procedimiento...
+            return null;
+        }
     }
 
+    public static Boolean compruebaDeclaracion(String ident, Map<String, String> almacen, Map<String, Map<String, Map<String, String>>> almacenF) {
+        String aux = almacen.get(ident);
+        Boolean res = false;
+        if (!(aux == null)) {
+            res = true;
+        } else if (this.visitDeclaracion_subprogramas()!= null){
+           aux = String.valueOf(almacenF.get(ident));
+           if(aux != null){
+               res= true;
+           }else{
+              res=true;
+           }
+
+        }else {
+            res = false;
+        }
+        return res;
+    }
+
+    public static Boolean compruebaNombreFuncion(String ident, Map<String,Map<String,Map<String, String>>> almacen){
+        List<String> aux = almacen.keySet().stream().collect(Collectors.toList());
+        //System.out.println(ident2);
+        Boolean res = false;
+        for(int i=0;i< aux.size();i++){
+            if(aux.get(i).equals(ident)){
+                res=true;
+            }
+        }
+        return res;
+    }
 }

@@ -109,7 +109,7 @@ public class Anasem_visitor extends AnasintBaseVisitor<Object>{
                      tipo = tipo inválido
 
      */
-    public Integer visitOp_integer(Anasint.Op_integerContext ctx) {
+    public Integer visitOp_integer(Anasint.OpIntegerContext ctx) {
         Integer t1 = (Integer) visit(ctx.POR());
         Integer t2 = (Integer) visit(ctx.RESTA());
         if (t1==null || t2==null) return null;
@@ -128,7 +128,7 @@ public class Anasem_visitor extends AnasintBaseVisitor<Object>{
                  sino
                      tipo = tipo inválido*/
 
-    public Integer visitComp_integer(Anasint.Comp_integerContext ctx) {
+    public Integer visitComp_integer(Anasint.CompararIntegerContext ctx) {
         Integer t1 = (Integer) visit(ctx.MAYOR());
         Integer t2 = (Integer) visit(ctx.MENOR());
         if (t1==null || t2==null) return null;
@@ -143,7 +143,7 @@ public class Anasem_visitor extends AnasintBaseVisitor<Object>{
           sino
                  tipo = lógico
     */
-    public Integer visitComp_bool(Anasint.Comp_boolContext ctx) {
+    public Integer visitComp_bool(Anasint.CompararBoolContext ctx) {
         Integer t1 = (Integer) visit(ctx.DISTINTO());
         Integer t2 = (Integer) visit(ctx.IGUALL());
         if (t1==null || t2==null) return null;
@@ -160,7 +160,7 @@ public class Anasem_visitor extends AnasintBaseVisitor<Object>{
                   sino
                       tipo = tipo inválido
      */
-    public Integer visitOp_bool(Anasint.Op_boolContext ctx) {
+    public Integer visitOp_bool(Anasint.OpBoolContext ctx) {
         Integer t1 = (Integer) visit(ctx.AND());
         Integer t2 = (Integer) visit(ctx.OR());
         if (t1==null || t2==null) return null;

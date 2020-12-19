@@ -19,6 +19,7 @@ otra dedicada a  la  declaración  de subprogramas(secciónSUBPROGRAMAS)
 y  otra  dedicada al  uso  devariables  y  subprogramas (secciónINSTRUCCIONES).
 
 ========================================================
+
 programa: PROGRAMA variables subprogramas instrucciones EOF;
 
 variables: VARIABLES (declaracion_variables)*;
@@ -33,9 +34,9 @@ identificador: elementales
              | secuencias
              ;
 
-elementales: (variable COMA)* variable DOSPTOS tipos_elementales;
+elementales: (VAR COMA)* VAR DOSPTOS tipos_elementales;
 
-secuencias: variable DOSPTOS tipos_no_elementales;
+secuencias: VAR DOSPTOS tipos_no_elementales;
 
 tipos: tipos_elementales
      | tipos_no_elementales
@@ -50,7 +51,6 @@ tipos_no_elementales: SEQ_NUM
                     ;
 
 //---SUBPROGRAMAS---
-
 variable: VAR;
 
 declaracion_subprogramas: funcion
@@ -73,65 +73,52 @@ expr: expr_integer
     | expr_func
     ;
 
-op_integer: (POR|SUMA|RESTA) ;
-
-expr_integer:  expr_sacar_elem                              #sacarElemInteger
-            | PA expr_integer op_integer expr_integer PC    #parentesisOpInteger
-            | expr_integer op_integer expr_integer          #opInteger
-            | expr_func                                     #exprFuncInt
-            | NUM                                           #num
-            | variable                                      #varInt
+expr_integer: expr_sacar_elem                                                 #sacarElemInteger
+            | PA expr_integer (POR|SUMA|RESTA) expr_integer PC                #parentesisOpInteger
+            | expr_integer (POR|SUMA|RESTA) expr_integer                      #opInteger
+            | expr_func                                                       #exprFuncInt
+            | NUM                                                             #num
+            | variable                                                        #varInt
             ;
 
-op_bool: AND
-       | OR
-       ;
-
-comp_bool: IGUALL
-         | DISTINTO
-         ;
-comp_integer: MENORIGUAL
-            | MAYORIGUAL
-            | MENOR
-            | MAYOR
-            | comp_bool
-            ;
-expr_bool: T                                            #true
-         | F                                            #false
-         | expr_sacar_elem                              #sacarElemBool
-         | expr_bool comp_bool expr_bool                #compararBool
-         | PA expr_bool op_bool expr_bool PC            #parentesisOpBool
-         | expr_bool op_bool expr_bool                  #opBool
-         | expr_seq comp_bool expr_seq                  #compararSeq
-         | expr_integer comp_integer expr_integer       #compararInteger
-         | NO expr_bool                                 #negacionBool
-         | expr_func                                    #exprFuncBool
-         | variable                                     #varBool
+expr_bool: T                                                    #true
+         | F                                                    #false
+         | expr_sacar_elem                                      #sacarElemBool
+         | expr_bool (IGUALL|DISTINTO) expr_bool                #compararBool
+         | PA expr_bool (AND|OR) expr_bool PC                   #parentesisOpBool
+         | expr_bool (AND|OR) expr_bool                         #opBool
+         | expr_seq (IGUALL|DISTINTO) expr_seq                  #compararSeq
+         | expr_integer (MENORIGUAL|MAYORIGUAL|MENOR|MAYOR|IGUALL|DISTINTO) expr_integer #compararInteger
+         | NO expr_bool                                         #negacionBool
+         | expr_func                                            #exprFuncBool
+         | variable                                             #varBool
          ;
 
-expr_seq: CA CC                         #vaciaSeq
-        | CA (expr COMA)* expr CC       #seq
-        | expr_func                     #exprFuncSeq
-        | variable                      #varSeq
+expr_seq: CA CC                             #vaciaSeq // []
+        | CA (expr COMA)* expr CC           #seq
+        | expr_func                         #exprFuncSeq
+        | variable                          #varSeq
         ;
+
+expr_sacar_elem: variable CA expr_integer CC ;
 
 expr_avanza: LA AVANZA DOSPTOS expr_func LC;
 
 expr_func: variable PA (expr) (COMA expr)* PC;
 
-expr_sacar_elem: variable CA expr_integer CC;
-
 //---INSTRUCCIONES---
 
-declaracion_instrucciones: asignacion
-                         | condicion
-                         | iteracion
-                         | ruptura
-                         | devolucion
-                         | mostrar
-                         | asertos
-                         | expr_func PyC
+declaracion_instrucciones: asignacion   #asig
+                         | condicion    #cond
+                         | iteracion    #it
+                         | BREAK PyC    #break
+                         | devolucion   #dev
+                         | mostrar      #show
+                         | asertos      #aserto
+                         | expr_func PyC #exprfun
                          ;
+
+devolucion: RETURN (expr COMA)* expr PyC;
 
 asignacion: (variable COMA)* variable IGUAL (expr COMA)* (expr) PyC;
 
@@ -141,13 +128,9 @@ blq_sino: ELSE (declaracion_instrucciones)+;
 
 iteracion: WHILE PA expr_bool PC DO (expr_avanza)? (declaracion_instrucciones)+ ENDWHILE;
 
-ruptura: BREAK PyC;
-
-devolucion: RETURN (expr COMA)* expr PyC;
-
 mostrar: MOSTRAR PA (expr COMA)* expr PC PyC;
 
-asertos: LA ( expr | cuantificador ) LC;
+asertos: LA ( expr_bool | cuantificador ) LC;
 
 cuantificador: cuantificadorUniversal
              | cuantificadorExistencial

@@ -1,18 +1,19 @@
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class ErroresParametros extends AnasintBaseVisitor<Object>{
-    //DECISIÓN DE DISEÑO 2.2
+public class ErroresParámetros extends AnasintBaseVisitor<Object>{
+
     public Object visitExpr_func(Anasint.Expr_funcContext ctx) {
-        String nombreSub = ctx.children.get(0).getText();
-        Boolean existeSub = Almacenes.almacenF.containsKey(nombreSub);
+        String nombreSub = ctx.children.get(0).getChild(0).getText();
+        Boolean existeSub = anasem.almacenF.containsKey(nombreSub);
         if(existeSub) {
             System.out.println("COMPROBACIÓN DE PARÁMETROS INTRODUCIDOS EN " + nombreSub + ": ");
-            List<String> tiposEntradaNecesita = Almacenes.almacenF.get(nombreSub).get("PARAM")
+            List<String> tiposEntradaNecesita = anasem.almacenF.get(nombreSub).get("PARAM")
                     .values().stream().collect(Collectors.toList());
             List<ParseTree> elementosDados = new LinkedList<>();
             for(int i = 2; i < ctx.getChildCount(); i=i+2) {
@@ -23,8 +24,12 @@ public class ErroresParametros extends AnasintBaseVisitor<Object>{
         } else {
             System.out.println("El subprograma " +nombreSub+ " no existe.\n");
         }
+        yaComprobados.put(nombreSub,1);
         return "";
     }
+
+    //para evitar comprobaciones múltiples.
+    Map<String,Integer> yaComprobados = new HashMap<>();
 
     public List<String> obtencionTipos(List<ParseTree> hijos) {
         List<String> tipos = new LinkedList<>();
@@ -33,6 +38,21 @@ public class ErroresParametros extends AnasintBaseVisitor<Object>{
             tipos.add(tipo);
         }
         return tipos;
+    }
+    public void comprobarAsignacionesAParámetros(List<String> tiposEntradaNecesita, List<String> tiposDadas) {
+        for(int i = 0; i < tiposDadas.size(); i++) {
+            if(!tiposDadas.get(i).equals(tiposEntradaNecesita.get(i))) {
+                if(tiposDadas.get(i).equals("NO PERMITIDO")) {
+                    System.out.println("    ERROR: No se permite la introducción de subprogramas como parámetros");
+                } else {
+                    System.out.println("    ERROR: Se esperaba " + tiposEntradaNecesita.get(i)
+                            + " y se dió " + tiposDadas.get(i));
+                }
+            } else {
+                System.out.println("    Se introdujo " +tiposDadas.get(i) + " y se esperaba " + tiposEntradaNecesita.get(i) + " --> OK");
+            }
+        }
+        System.out.println("");
     }
 
     public String visitSacarElemInteger(Anasint.SacarElemIntegerContext ctx) {
@@ -51,24 +71,17 @@ public class ErroresParametros extends AnasintBaseVisitor<Object>{
         return "NUM";
     }
     public String visitOpInteger(Anasint.OpIntegerContext ctx) {
-        return "NUM";
-    }
-    public String visitExprFuncInt(Anasint.ExprFuncIntContext ctx) {
-        return "NO PERMITIDO";
-    }
-
-    public Object visitAsig(Anasint.AsignacionContext ctx) {
-        for(int i = 0; i<ctx.expr().size(); i++) {
+        for(int i = 0; i < ctx.children.size(); i++) {
             try {
-                String nombreFunc = ctx.expr(i).getChild(0).getChild(0).getChild(0).getText();
-                if(Almacenes.almacenF.containsKey(nombreFunc)) {
-                    return visit(ctx.expr(i).getChild(0).getChild(0));
+                if(anasem.almacenF.containsKey(ctx.children.get(i).getChild(0).getChild(0).getText())){
+                    visitExpr_func((Anasint.Expr_funcContext) ctx.getChild(i).getChild(0));
                 }
             } catch(Exception e) {
             }
         }
-        return "";
+        return "NUM";
     }
+    //necesito comprobar también que expr_func tenga parámetros correctos en una asignación.
 
     public String visitNum(Anasint.NumContext ctx) {
         return "NUM";
@@ -100,21 +113,71 @@ public class ErroresParametros extends AnasintBaseVisitor<Object>{
         }
     }
     public String visitCompararBool(Anasint.CompararBoolContext ctx) {
+        for(int i = 0; i < ctx.children.size(); i++) {
+            try {
+                if(anasem.almacenF.containsKey(ctx.children.get(i).getChild(0).getChild(0).getText())){
+                    visitExpr_func((Anasint.Expr_funcContext) ctx.getChild(i).getChild(0));
+                }
+            } catch(Exception e) {
+            }
+        }
         return "LOG";
     }
     public String visitParentesisOpBool(Anasint.ParentesisOpBoolContext ctx) {
+        for(int i = 0; i < ctx.children.size(); i++) {
+            try {
+                if(anasem.almacenF.containsKey(ctx.children.get(i).getChild(0).getChild(0).getText())){
+                    visitExpr_func((Anasint.Expr_funcContext) ctx.getChild(i).getChild(0));
+                }
+            } catch(Exception e) {
+            }
+        }
         return "LOG";
     }
     public String visitOpBool(Anasint.OpBoolContext ctx) {
+        for(int i = 0; i < ctx.children.size(); i++) {
+            try {
+                String nombreFunc = ctx.children.get(i).getChild(0).getChild(0).getText();
+                if(anasem.almacenF.containsKey(ctx.children.get(i).getChild(0).getChild(0).getText())
+                        &&yaComprobados.get(nombreFunc)!=1){
+                    visitExpr_func((Anasint.Expr_funcContext) ctx.getChild(i).getChild(0));
+                }
+            } catch(Exception e) {
+            }
+        }
         return "LOG";
     }
     public String visitCompararSeq(Anasint.CompararSeqContext ctx) {
+        for(int i = 0; i < ctx.children.size(); i++) {
+            try {
+                if(anasem.almacenF.containsKey(ctx.children.get(i).getChild(0).getChild(0).getText())){
+                    visitExpr_func((Anasint.Expr_funcContext) ctx.getChild(i).getChild(0));
+                }
+            } catch(Exception e) {
+            }
+        }
         return "LOG";
     }
     public String visitCompararInteger(Anasint.CompararIntegerContext ctx) {
+        for(int i = 0; i < ctx.children.size(); i++) {
+            try {
+                if(anasem.almacenF.containsKey(ctx.children.get(i).getChild(0).getChild(0).getText())){
+                    visitExpr_func((Anasint.Expr_funcContext) ctx.getChild(i).getChild(0));
+                }
+            } catch(Exception e) {
+            }
+        }
         return "LOG";
     }
     public String visitNegacionBool(Anasint.NegacionBoolContext ctx) {
+        for(int i = 0; i < ctx.children.size(); i++) {
+            try {
+                if(anasem.almacenF.containsKey(ctx.children.get(i).getChild(0).getChild(0).getText())){
+                    visitExpr_func((Anasint.Expr_funcContext) ctx.getChild(i).getChild(0));
+                }
+            } catch(Exception e) {
+            }
+        }
         return "LOG";
     }
     public String visitExprFuncBool(Anasint.ExprFuncBoolContext ctx) throws IllegalArgumentException {
@@ -140,9 +203,7 @@ public class ErroresParametros extends AnasintBaseVisitor<Object>{
             return "SEQ(LOG)";
         }
     }
-    public String visitExprFuncSeq(Anasint.ExprFuncSeqContext ctx) {
-        return "NO PERMITIDO";
-    }
+
     public String visitVarSeq(Anasint.VarSeqContext ctx) {
         String nombreFunc = null;
         if(!ctx.getParent().getParent().getParent().getParent().getParent().getChild(0).getText().equals("PROGRAMA")) {
@@ -161,14 +222,13 @@ public class ErroresParametros extends AnasintBaseVisitor<Object>{
             return "SEQ(LOG)";
         }
     }
-
     public String extraeTipo(String var, String nombreFunc) {
-        Map<String,String> almacenGlobal = Almacenes.almacenGlobal;
+        Map<String,String> almacenGlobal = anasem.almacenGlobal;
         String tipo;
         if(almacenGlobal.containsKey(var)) {
             tipo = almacenGlobal.get(var);
         } else if(nombreFunc!=null) {
-            Map<String,Map<String,String>> m = Almacenes.almacenF.get(nombreFunc);
+            Map<String,Map<String,String>> m = anasem.almacenF.get(nombreFunc);
             if(m.get("PARAM").containsKey(var)) {
                 tipo = m.get("PARAM").get(var);
             } else if(m.get("DEV").containsKey(var)) {
@@ -184,40 +244,5 @@ public class ErroresParametros extends AnasintBaseVisitor<Object>{
             throw new IllegalArgumentException("ERROR: La variable introducida no ha sido declarada");
         }
         return tipo;
-    }
-    //DECISIÓN DE DISEÑO 2.2
-    /*
-      función comprobarAsignacionesAParámetros(tipo_parametros, tipo_exprs)
-         almacen n
-         pares = pares_var_expr(tipo_parametros, tipo_exprs)
-         para cada par en pares:
-             añado en n comprobarAsignaciónAParámetro(tipo_param en par, tipo_expr en par)
-         si en n no error entonces
-             no error
-         sino
-             error
-
-     función comprobarAsignaciónAParámetro(tipo_parametro, tipo_expr)
-        si tipo_parametro es igual a tipo_expr entonces
-            no error
-        sino
-            error
-
-     */
-    public void comprobarAsignacionesAParámetros(List<String> tiposEntradaNecesita, List<String> tiposDadas) {
-        System.out.println(tiposDadas);
-        for(int i = 0; i < tiposDadas.size(); i++) {
-            if(!tiposDadas.get(i).equals(tiposEntradaNecesita.get(i))) {
-                if(tiposDadas.get(i).equals("NO PERMITIDO")) {
-                    System.out.println("    ERROR: No se permite la introducción de subprogramas como parámetros");
-                } else {
-                    System.out.println("    ERROR: Se esperaba " + tiposEntradaNecesita.get(i)
-                            + " y se dió " + tiposDadas.get(i));
-                }
-            } else {
-                System.out.println("    Se introdujo " +tiposDadas.get(i) + " y se esperaba " + tiposEntradaNecesita.get(i) + " --> OK");
-            }
-        }
-        System.out.println("");
     }
 }
