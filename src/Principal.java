@@ -9,12 +9,16 @@ import javax.swing.*;
 
 import java.util.Arrays;
 public class Principal {
+    public static flujoInstrucciones asig = new flujoInstrucciones();
     public static void main(String[] args) throws Exception{
         CharStream input = CharStreams.fromFileName(args[0]);
         Analex lexer = new Analex(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         Anasint parser = new Anasint(tokens);
         ParseTree tree = parser.programa();
+        ParseTreeWalker walker = new ParseTreeWalker();
+        walker.walk(asig,tree);
+
         JFrame frame = new JFrame("Antlr Árbol de Análisis");
         JPanel panel = new JPanel();
         TreeViewer viewr = new TreeViewer(Arrays.asList(
