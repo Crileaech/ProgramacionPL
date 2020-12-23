@@ -1,0 +1,24 @@
+  PROGRAMA
+  VARIABLES
+  i : NUM;
+  b, b2: LOG;
+  s: SEQ(NUM);
+  SUBPROGRAMAS
+  FUNCION mayor(NUM yyyyyy) dev (SEQ(NUM) e)
+  VARIABLES
+  e: SEQ(NUM);
+  n1, n2: NUM;
+  b1, b2: LOG;
+  INSTRUCCIONES
+  e = [];
+  n1 = e[2];
+  n2 = 3*2;
+  b = T;
+  b2 = T;
+  FFUNCION
+
+  INSTRUCCIONES
+  i = 5;
+  s = [1,2,3,4,5];
+  j = mayor(i);
+
