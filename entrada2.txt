@@ -14,8 +14,7 @@ c=1;
 b=5+c;
 b=3+b;
 t=0;
-si(b>5) entonces
-    ruptura;
+si(b<5) entonces
     c=2;
 sino
     c=1;
@@ -25,7 +24,6 @@ mientras(c<10) hacer
     mostrar(c);
     mientras(b>7) hacer
         b=b-1;
-        ruptura;
     fmientras
 fmientras
 mostrar(a);

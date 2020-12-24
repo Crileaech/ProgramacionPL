@@ -15,9 +15,9 @@ identificador: elementales
              | secuencias
              ;
 
-elementales: (VAR COMA)* VAR DOSPTOS tipos_elementales #decVarElem;
+elementales: (VAR COMA)* VAR DOSPTOS tipos_elementales;
 
-secuencias: VAR DOSPTOS tipos_no_elementales #decVarSeq;
+secuencias: VAR DOSPTOS tipos_no_elementales;
 
 tipos: tipos_elementales
      | tipos_no_elementales
@@ -54,49 +54,49 @@ expr: expr_integer
     | expr_func
     ;
 
-expr_integer: expr_sacar_elem                                   #sacarElemInteger
-            | PA expr_integer (POR|SUMA|RESTA) expr_integer PC  #parentesisOpInteger
-            | expr_integer (POR|SUMA|RESTA) expr_integer        #opInteger
-            | expr_func                                         #exprFuncInt
-            | NUM                                               #num
-            | variable                                          #varInt
+expr_integer: expr_sacar_elem                                                 #sacarElemInteger
+            | PA expr_integer (POR|SUMA|RESTA) expr_integer PC                #parentesisOpInteger
+            | expr_integer (POR|SUMA|RESTA) expr_integer                      #opInteger
+            | expr_func                                                       #exprFuncInt
+            | NUM                                                             #num
+            | variable                                                        #varInt
             ;
 
-expr_bool: T                                                                                #true
-         | F                                                                                #false
-         | expr_sacar_elem                                                                  #sacarElemBool
-         | expr_bool (IGUALL|DISTINTO) expr_bool                                            #compararBool
-         | PA expr_bool (AND|OR) expr_bool PC                                               #parentesisOpBool
-         | expr_bool (AND|OR) expr_bool                                                     #opBool
-         | expr_seq (IGUALL|DISTINTO) expr_seq                                              #compararSeq
-         | expr_integer (MENORIGUAL|MAYORIGUAL|MENOR|MAYOR|IGUALL|DISTINTO) expr_integer    #compararInteger
-         | NO expr_bool                                                                     #negacionBool
-         | expr_func                                                                        #exprFuncBool
-         | variable                                                                         #varBool
+expr_bool: T                                                    #true
+         | F                                                    #false
+         | expr_sacar_elem                                      #sacarElemBool
+         | expr_bool (IGUALL|DISTINTO) expr_bool                #compararBool
+         | PA expr_bool (AND|OR) expr_bool PC                   #parentesisOpBool
+         | expr_bool (AND|OR) expr_bool                         #opBool
+         | expr_seq (IGUALL|DISTINTO) expr_seq                  #compararSeq
+         | expr_integer (MENORIGUAL|MAYORIGUAL|MENOR|MAYOR|IGUALL|DISTINTO) expr_integer #compararInteger
+         | NO expr_bool                                         #negacionBool
+         | expr_func                                            #exprFuncBool
+         | variable                                             #varBool
          ;
 
-expr_seq: CA CC /* [] */                   #vaciaSeq
-        | CA (expr COMA)* expr CC          #seq
-        | expr_func                        #exprFuncSeq
-        | variable                         #varSeq
+expr_seq: CA CC                             #vaciaSeq // []
+        | CA (expr COMA)* expr CC           #seq
+        | expr_func                         #exprFuncSeq
+        | variable                          #varSeq
         ;
 
 expr_sacar_elem: variable CA expr_integer CC ;
 
 expr_avanza: LA AVANZA DOSPTOS expr_func LC;
 
-expr_func: variable PA (variable|expr) (COMA variable|expr)* PC;
+expr_func: variable PA (expr) (COMA expr)* PC;
 
 //---INSTRUCCIONES---
 
-declaracion_instrucciones: asignacion
-                         | condicion
-                         | iteracion
-                         | BREAK PyC
-                         | devolucion
-                         | mostrar
-                         | asertos
-                         | expr_func PyC
+declaracion_instrucciones: asignacion   #asig
+                         | condicion    #cond
+                         | iteracion    #it
+                         | BREAK PyC    #break
+                         | devolucion   #dev
+                         | mostrar      #show
+                         | asertos      #aserto
+                         | expr_func PyC #exprfun
                          ;
 
 devolucion: RETURN (expr COMA)* expr PyC;

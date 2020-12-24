@@ -5,6 +5,10 @@ public class iterador extends AnasintBaseVisitor<Object>{
     ParseTreeWalker walker = new ParseTreeWalker();
     private final evaluaExpr evalua = new evaluaExpr();
 
+    public Object visitIt(Anasint.ItContext ctx) {
+        return visit(ctx.iteracion());
+    }
+
     public Object visitIteracion(Anasint.IteracionContext ctx) {
         Boolean cond = (Boolean) evalua.visit(ctx.expr_bool());
         if(cond) System.out.println("(iteración)");

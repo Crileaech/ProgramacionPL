@@ -10,11 +10,6 @@ public class flujoInstrucciones extends AnasintBaseListener{
     private iterador it = new iterador();
     private evaluaExpr evalua = new evaluaExpr();
 
-    // Función para establecer un mapa asig ya definido
-    public static void setMap(Map<String,Object> m) {
-        asig = m;
-    }
-
     public void enterPrograma(Anasint.ProgramaContext ctx) {
         System.out.println("INTÉRPRETE");
         pila.push(true);
@@ -25,14 +20,14 @@ public class flujoInstrucciones extends AnasintBaseListener{
     public void enterVariables(Anasint.VariablesContext ctx) {
         pila.push(pila.peek());
     }
-    public void enterDecVarElem(Anasint.DecVarElemContext ctx) {
+    public void enterElementales(Anasint.ElementalesContext ctx) {
         if(pila.peek()) {
             for(int i = 0; i<ctx.getChildCount()-1; i+=2) {
                 asig.put(ctx.getChild(i).getText(), null);
             }
         }
     }
-    public void enterDecVarSeq(Anasint.DecVarSeqContext ctx) {
+    public void enterSecuencias(Anasint.SecuenciasContext ctx) {
         if(pila.peek()) {
             asig.put(ctx.getChild(0).getText(), null);
         }
@@ -51,9 +46,6 @@ public class flujoInstrucciones extends AnasintBaseListener{
     public void enterInstrucciones(Anasint.InstruccionesContext ctx) {
         pila.push(pila.peek());
     }
-    public void enterDeclaracion_instrucciones(Anasint.Declaracion_instruccionesContext ctx) {
-        pila.push(pila.peek());
-    }
     public void enterAsignacion(Anasint.AsignacionContext ctx) {
         if(pila.peek()) {
             List<String> vars = ctx.variable().stream().map(v -> v.getText()).collect(Collectors.toList());
@@ -69,15 +61,6 @@ public class flujoInstrucciones extends AnasintBaseListener{
     }
     public void exitInstrucciones(Anasint.InstruccionesContext ctx) {
         pila.pop();
-    }
-    public void exitDeclaracion_instrucciones(Anasint.Declaracion_instruccionesContext ctx) {
-        if(pila.peek()&&ctx.BREAK()!=null) {
-            pila.pop();
-            pila.push(false);
-            System.out.println("(ruptura)");
-        } else {
-            pila.pop();
-        }
     }
 
     public void enterCondicion(Anasint.CondicionContext ctx) {
@@ -107,20 +90,29 @@ public class flujoInstrucciones extends AnasintBaseListener{
     public void exitBlq_sino(Anasint.Blq_sinoContext ctx) {
         pila.pop();
     }
-    public void enterMostrar(Anasint.MostrarContext ctx) {
+    public void enterShow(Anasint.ShowContext ctx) {
         if(pila.peek()) {
-            for(Anasint.ExprContext expr :ctx.expr()) {
+            for(Anasint.ExprContext expr :ctx.mostrar().expr()) {
                 System.out.println("(mostrar) " + evalua.visit(expr));
             }
         }
     }
-    public void enterIteracion(Anasint.IteracionContext ctx) {
+    public void enterIt(Anasint.ItContext ctx)  {
         if(pila.peek()) {
             pila.push(true);
             it.visit(ctx);
         }
     }
-    public void exitIteracion(Anasint.IteracionContext ctx) {
+    public void exitIt(Anasint.ItContext ctx) {
         pila.pop();
+    }
+    public void exitBreak(Anasint.BreakContext ctx) {
+        if(pila.peek()) {
+            pila.pop();
+            pila.push(false);
+            System.out.println("(ruptura)");
+        } else {
+            pila.pop();
+        }
     }
 }
