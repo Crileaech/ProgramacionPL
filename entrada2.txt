@@ -3,7 +3,7 @@ VARIABLES
 a, c, b: LOG;
 s: SEQ(NUM);
 SUBPROGRAMAS
-  FUNCION mayor(NUM yyyyyy) dev (SEQ(NUM) e)frfrgdfcr
+  FUNCION mayor(NUM yyyyyy) dev (SEQ(NUM) e)
   VARIABLES
   INSTRUCCIONES
   t=3;
@@ -22,8 +22,12 @@ fsi
 mientras(c<10) hacer
     c = c+1;
     mostrar(c);
-    mientras(b>7) hacer
+    /*mientras(b>7) hacer
         b=b-1;
-    fmientras
+        mientras(t<3) hacer
+            t=t+1;
+        fmientras
+    fmientras */
 fmientras
 mostrar(a);
+

@@ -9,7 +9,12 @@ import javax.swing.*;
 
 import java.util.Arrays;
 public class Principal {
+
+    //se trata como un atributo. EL motivo es para que cuando llamemos a iterador, las modificaciones que se hagan
+    //en dicho while se apliquen sobre el programa general. La única manera conocida de hacer esto es llamar al
+    //walker sobre el mismo objeto. Para acceder fácilmente a este mismo objeto desde el iterador -> Principal.asig.
     public static flujoInstrucciones asig = new flujoInstrucciones();
+
     public static void main(String[] args) throws Exception{
         CharStream input = CharStreams.fromFileName(args[0]);
         Analex lexer = new Analex(input);

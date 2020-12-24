@@ -42,9 +42,9 @@ LA=41
 LC=42
 PyC=43
 COMA=44
-SUMA=45
-RESTA=46
-POR=47
+POR=45
+SUMA=46
+RESTA=47
 IGUAL=48
 IGUALL=49
 DISTINTO=50
@@ -73,7 +73,7 @@ COMENTARIO_LINEA=59
 'NUM'=15
 'LOG'=16
 'SEQ(NUM)'=17
-'SEQ(BOOL)'=18
+'SEQ(LOG)'=18
 'SEQ'=19
 'ruptura'=22
 'si'=23
@@ -96,9 +96,9 @@ COMENTARIO_LINEA=59
 '}'=42
 ';'=43
 ','=44
-'+'=45
-'-'=46
-'*'=47
+'*'=45
+'+'=46
+'-'=47
 '='=48
 '=='=49
 '!='=50
