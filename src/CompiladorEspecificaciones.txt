@@ -4,6 +4,7 @@ DISEÑO COMPILADOR PROGRAMACION P --> Java
 DISEÑO
 ------
 OBJETIVO:
+
  Compilador de lenguaje P a lenguaje Java
  P es un lenguaje de programación secuencial con asertos.
  La idea es usar asertos para verificar la corrección del programa.
@@ -31,7 +32,29 @@ OBJETIVO:
  la expresión asociada a x mostrando por pantalla el
  resultado.
 
-(1) Definir la esquema de traducción de un programa P
+=============================================================================
+
+EJEMPLOS DE COMPILACIONES: proponer un conjunto de ejemplos de traducción.
+Es que dicho conjunto sea válido y razonablemente completo.
+// EJEMPLO 1
+//        VARIABLES
+//            x:NUM;
+//        INSTRUCCIONES
+//            {ERROR DE COMPILACION DECLARACION DE INSTRUCCION}
+//            x=x+1 //error x+1 no tiene valor porque x no tiene valor
+// EJEMPLO 2
+//        {Error de Compilacion si no llamamos a declaracion de instrucciones ruptura bucle infinito}
+//        i=0;
+//        mientras (i<=9) hacer
+//           x=3;
+//        ruptura;
+//        i=i+1;
+//        fmientras
+
+=================================================================================
+DECISIÓN 1
+
+ Definir la esquema de traducción de un programa P
 
     import java.io.*;
     public class _Programa
@@ -53,6 +76,7 @@ OBJETIVO:
        alamacen_variables=[(i,0),(max,0),(min,0),(s,[i+1]))]
    (c) generar codigo para declaracion de subprogramas que en P
        pueden ser funciones o procedimientos.
+
    (d) generar codigo para cada instrucción
 
       (d.1) No se genera código para la definición de subprogramas
@@ -73,18 +97,19 @@ OBJETIVO:
    	            si no
    	               generar codigo para evaluación de
    	               variable definida
-   	        (c)
+   	        (c) La evaluacion de las expresiones y sus prioridades
+=============================================================================
 
-
-//DECISIÓN 3:
+DECISIÓN 2:
  Teniendo en cuenta las decisiones anteriores, el programa Java resultante
  de la compilación será la composición secuencial del código
  correspondiente a cada secuencia.
  El estado inicial sólo se genera una vez y se comparte por todas
  las secuencias.
 
+=============================================================================
 
-   	Gramática atribuida resultante:
+//GRAMÁTICA ATRIBUIDA: resultante:
    	------------------------------
     almacen_variables (global)
 
@@ -183,7 +208,7 @@ expr_func: variable PA (expr) (COMA expr)* PC;
 
   //---INSTRUCCIONES---
 
-  declaracion_instrucciones: asignacion   #asig
+  declaracion_instrucciones: asignacion   #asig {generar codigo para el tipo de declaracion de instrucciones asignacion}
                            | condicion    #cond
                            | iteracion    #it
                            | BREAK PyC    #break
@@ -193,9 +218,9 @@ expr_func: variable PA (expr) (COMA expr)* PC;
                            | expr_func PyC #exprfun
                            ; {generar codigo para el tipo de declaracion de instrucciones};
 
-  devolucion: RETURN (expr COMA)* expr PyC;
+  devolucion: RETURN (expr{generar codigo para expresión} COMA)* expr PyC;
 
-  asignacion: (variable COMA)* variable IGUAL (expr COMA)* (expr) PyC;
+  asignacion: (variable COMA)* variable IGUAL (expr{generar codigo para expresión} COMA)* (expr) PyC;
 
   condicion: IF PA expr_bool PC THEN (declaracion_instrucciones)+ (blq_sino)? ENDIF;
 
@@ -203,7 +228,7 @@ expr_func: variable PA (expr) (COMA expr)* PC;
 
   iteracion: WHILE PA expr_bool PC DO (expr_avanza)? (declaracion_instrucciones)+ ENDWHILE;
 
-  mostrar: MOSTRAR PA (expr COMA)* expr PC PyC;
+  mostrar: MOSTRAR PA (expr{generar codigo para expresión} COMA)* expr PC PyC;
 
   asertos: LA ( expr_bool | cuantificador ) LC;
 
@@ -250,8 +275,12 @@ generar codigo para evaluación de variable VAR definida:
 generar codigo para expresión:
      si la expresion es un NUMERO entonces el código generado es el propio numero
      si la expresion es una VAR entonces el código generado es la propia VAR
-     si la expresion es una suma entonces el código generado es la composición del
+     si la expresion es un PRODUCTO entonces el código generado es la composición del
+       código generado para la subexpresión izquierda, el código * y
+       código generado para la subexpresión derecha en funcion donde encontramos los tokens PA y PC
+     si la expresion es una SUMA entonces el código generado es la composición del
         código generado para la subexpresión izquierda, el código + y
         código generado para la subexpresión derecha
-    si la expresion es una resta,producto o división entonces el código generado es
-       similar al código de la suma salvo el operador aritmético.
+    si la expresion es una RESTA entonces el código generado es la composición del
+        código generado para la subexpresión izquierda, el código - y
+        código generado para la subexpresión derecha
