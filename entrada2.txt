@@ -3,7 +3,7 @@ VARIABLES
 a, c, b: LOG;
 s: SEQ(NUM);
 SUBPROGRAMAS
-  FUNCION mayor(NUM yyyyyy) dev (SEQ(NUM) e)
+  FUNCION mayor(NUM yyyyyy) dev (SEQ(NUM) e)frfrgdfcr
   VARIABLES
   INSTRUCCIONES
   t=3;
