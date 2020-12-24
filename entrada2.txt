@@ -19,15 +19,19 @@ si(b<5) entonces
 sino
     c=1;
 fsi
-mientras(c<10) hacer
+mientras(c<3) hacer
     c = c+1;
-    mostrar(c);
-    /*mientras(b>7) hacer
+    /*si ( t-1 == 0 ) entonces
+        b=b+1;
+    fsi
+    mientras(b>7) hacer
         b=b-1;
-        mientras(t<3) hacer
+        mientras(t<2) hacer
             t=t+1;
+            ruptura;
         fmientras
-    fmientras */
+        ruptura;
+    fmientras*/
 fmientras
 mostrar(a);
 

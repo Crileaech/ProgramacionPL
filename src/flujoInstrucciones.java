@@ -1,7 +1,4 @@
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class flujoInstrucciones extends AnasintBaseListener{
@@ -28,7 +25,7 @@ public class flujoInstrucciones extends AnasintBaseListener{
         pila.push(true);
     }
     public void exitPrograma(Anasint.ProgramaContext ctx) {
-        //pila.pop();
+        pila.pop();
     }
     public void enterVariables(Anasint.VariablesContext ctx) {
         pila.push(pila.peek());
@@ -73,7 +70,10 @@ public class flujoInstrucciones extends AnasintBaseListener{
                 //Object res = evalua.visit(asign.get(i));
                 asig.put(vars.get(i), evalua.visit(asign.get(i)));
                 String exprAsignada = asig.get(vars.get(i)).toString();
-                if (!asign.get(i).getText().equals(exprAsignada)) exprAsignada+= " (" + asign.get(i).getText() + ")";
+                //si una asignación es una expresión compuesta, quiero que se observe a la
+                //dcha de donde viene el resultado.
+                if (!asign.get(i).getText().equals(exprAsignada)&&!asig.get(vars.get(i)).getClass().equals(ArrayList.class))
+                    exprAsignada+= " (" + asign.get(i).getText() + ")";
                 System.out.println("(asignación) " + vars.get(i) + " <- " + exprAsignada);
             }
         }
@@ -114,14 +114,15 @@ public class flujoInstrucciones extends AnasintBaseListener{
             }
         }
     }
-    public void enterIt(Anasint.ItContext ctx)  {
+    public void enterIt(Anasint.ItContext ctx) {
+        pila.push(pila.peek());
         if(pila.peek()) {
-            pila.push(true);
-            it.visit(ctx);
+            it.visit(ctx); //si en la cima true se procesa el iterador
         }
     }
     public void exitIt(Anasint.ItContext ctx) {
         pila.pop();
+        System.out.println(pila);
     }
     public void exitBreak(Anasint.BreakContext ctx) {
         if(pila.peek()) {
