@@ -66,10 +66,12 @@ public class flujoInstrucciones extends AnasintBaseListener{
         if(pila.peek()) {
             List<String> vars = ctx.variable().stream().map(v -> v.getText()).collect(Collectors.toList());
             List<Anasint.ExprContext> asign = ctx.expr();
+            List<Object> asignEvaluadas = asign.stream().map(x -> evalua.visit(x))
+                    .collect(Collectors.toList());
             for(int i=0; i<vars.size(); i++) {
-                //Object res = evalua.visit(asign.get(i));
-                asig.put(vars.get(i), evalua.visit(asign.get(i)));
-                String exprAsignada = asig.get(vars.get(i)).toString();
+                Object evaluacion = asignEvaluadas.get(i);
+                asig.put(vars.get(i), evaluacion);
+                String exprAsignada = evaluacion.toString();
                 //si una asignación es una expresión compuesta, quiero que se observe a la
                 //dcha de donde viene el resultado.
                 if (!asign.get(i).getText().equals(exprAsignada)&&!asig.get(vars.get(i)).getClass().equals(ArrayList.class))
@@ -122,7 +124,6 @@ public class flujoInstrucciones extends AnasintBaseListener{
     }
     public void exitIt(Anasint.ItContext ctx) {
         pila.pop();
-        System.out.println(pila);
     }
     public void exitBreak(Anasint.BreakContext ctx) {
         if(pila.peek()) {

@@ -19,7 +19,7 @@ public class iterador extends AnasintBaseVisitor<Object>{
     public Object visitIteracion(Anasint.IteracionContext ctx) {
         //miro si se cumple la condición del while
         Boolean cond = (Boolean) evalua.visit(ctx.expr_bool());
-        if(cond) System.out.println("(iteración)");
+        if(cond) System.out.println("(iteración) mientras " + ctx.expr_bool().getText());
         Boolean entra = cond; //centinela para ver si ha entrado al menos una vez.
         //si es así pongo mensaje de fin de iteración
 
@@ -39,9 +39,12 @@ public class iterador extends AnasintBaseVisitor<Object>{
         }
         if(entra) System.out.println("(fin iteración)");
 
-        //no recuerdo por qué puse esto así pero debe ser así, cuando lo recuerde lo pongo.
-        //si no se pone se ejecuta el cuerpo de la iteración una vez más, pero... por qué?
-        //lo pienso mañana.
+        //si no se pone se ejecuta el cuerpo de la iteración una vez más, pero... ¿por qué?
+        //Cuando hacemos enterIt, posteriormente el walker caminará sobre los hijos de dicha
+        //it. Lo que sucede es que nosotros hemos controlado la ejecución de dichos hijos mediante
+        //un visitor. Cuando se concluye el it.visit, si en la pila hay true, entrará de nuevo
+        //en declaración de instrucciones y ejecutará una vez más las instrucciones de la iteración.
+        //por ello debemos poner en la cima de la pila un false.
         Principal.asig.pila.pop();
         Principal.asig.pila.push(false);
         return null;

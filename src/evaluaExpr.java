@@ -73,6 +73,10 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
     public Object visitExpr_sacar_elem(Anasint.Expr_sacar_elemContext ctx) {
         List<Object> elems = (List<Object>) flujoInstrucciones.asig.get(ctx.variable().getText());
         Integer index = (Integer) visit(ctx.expr_integer());
+        if(index>elems.size()) {
+            System.out.println("ERROR: El índice excede la secuencia. (" + ctx.getText() + ").");
+            throw new IllegalArgumentException("índice mayor a secuencia.");
+        }
         return elems.get(index);
     }
     public Object visitVaciaSeq(Anasint.VaciaSeqContext ctx) {

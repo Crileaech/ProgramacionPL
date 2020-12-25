@@ -10,9 +10,14 @@ SUBPROGRAMAS
   FFUNCION
 INSTRUCCIONES
 a=[5,4,3,2];
+bol = !cierto;
+x=1;
+y=2;
+x,y = y,x+2;
 c=1;
 b=5+c;
 b=3+b;
+i,j = 4+2,5;
 t=0;
 si(b<5) entonces
     c=2;
@@ -21,17 +26,13 @@ sino
 fsi
 mientras(c<3) hacer
     c = c+1;
-    /*si ( t-1 == 0 ) entonces
-        b=b+1;
-    fsi
     mientras(b>7) hacer
         b=b-1;
         mientras(t<2) hacer
             t=t+1;
             ruptura;
         fmientras
-        ruptura;
-    fmientras*/
+    fmientras
 fmientras
 mostrar(a);
 
