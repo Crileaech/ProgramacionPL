@@ -19,7 +19,7 @@ public class iterador extends AnasintBaseVisitor<Object>{
     public Object visitIteracion(Anasint.IteracionContext ctx) {
         //miro si se cumple la condición del while
         Boolean cond = (Boolean) evalua.visit(ctx.expr_bool());
-        if(cond) System.out.println("(iteración) mientras " + ctx.expr_bool().getText());
+        if(cond) flujoInstrucciones.muestraConIdentación("(iteración) mientras " + ctx.expr_bool().getText(), 1);
         Boolean entra = cond; //centinela para ver si ha entrado al menos una vez.
         //si es así pongo mensaje de fin de iteración
 
@@ -37,7 +37,7 @@ public class iterador extends AnasintBaseVisitor<Object>{
             }
             cond = (Boolean) evalua.visit(ctx.expr_bool());
         }
-        if(entra) System.out.println("(fin iteración)");
+        if(entra) flujoInstrucciones.muestraConIdentación("(fin iteración)", 1);
 
         //si no se pone se ejecuta el cuerpo de la iteración una vez más, pero... ¿por qué?
         //Cuando hacemos enterIt, posteriormente el walker caminará sobre los hijos de dicha

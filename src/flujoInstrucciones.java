@@ -81,7 +81,7 @@ public class flujoInstrucciones extends AnasintBaseListener{
                 //dcha de donde viene el resultado.
                 if (!asign.get(i).getText().equals(exprAsignada)&&!asig.get(vars.get(i)).getClass().equals(ArrayList.class))
                     exprAsignada+= " (" + asign.get(i).getText() + ")";
-                System.out.println("(asignación) " + vars.get(i) + " <- " + exprAsignada);
+                muestraConIdentación("(asignación) " + vars.get(i) + " <- " + exprAsignada);
             }
         }
     }
@@ -93,10 +93,10 @@ public class flujoInstrucciones extends AnasintBaseListener{
             Boolean cond = (Boolean) evalua.visit(ctx.expr_bool());
             //si se cumple cond debe asignarse a la pila para que las instrucciones del
             //if sean ejecutadas. Sino se añadirá false
-            System.out.print("(condicional) " + ctx.expr_bool().getText());
+            muestraConIdentación("(condicional) " + ctx.expr_bool().getText(), false);
             if(cond) System.out.print(" se satisface ");
             else System.out.print(" no se satisface ");
-            if(!cond&&tieneElse) System.out.println("ejecutando else:");
+            if(!cond&&tieneElse) muestraConIdentación("ejecutando else:");
             else System.out.println("");
             pila.add(cond);
         } else {
@@ -106,7 +106,7 @@ public class flujoInstrucciones extends AnasintBaseListener{
     public void exitCondicion(Anasint.CondicionContext ctx) {
         pila.pop();
         if(pila.peek()) { //pila.peek en el enterCondicion. Solo si fue true se ejecutó el if.
-            System.out.println("(fin condicional)");
+            muestraConIdentación("(fin condicional)");
         }
     }
     public void enterBlq_sino(Anasint.Blq_sinoContext ctx) {
@@ -131,7 +131,7 @@ public class flujoInstrucciones extends AnasintBaseListener{
     public void enterShow(Anasint.ShowContext ctx) {
         if(pila.peek()) {
             for(Anasint.ExprContext expr :ctx.mostrar().expr()) {
-                System.out.println("(mostrar) " + evalua.visit(expr));
+                muestraConIdentación("(mostrar) " + evalua.visit(expr));
             }
         }
     }
@@ -148,19 +148,18 @@ public class flujoInstrucciones extends AnasintBaseListener{
         if(pila.peek()) {
             pila.pop();
             pila.push(false);
-            System.out.println("(ruptura)");
+            muestraConIdentación("(ruptura)");
         }
     }
 
     public void enterAserto(Anasint.AsertoContext ctx) {
-        pila.push(pila.peek());
         if(pila.peek()) {
             if(ctx.asertos().expr_bool()!=null) { //en este caso es simple {cierto} {falso} o equivalente.
                 Boolean eval = (Boolean) evalua.visit(ctx.asertos().expr_bool());
                 if(eval) {
-                    System.out.println("(aserto) la ejecución del programa está siendo correcta.");
+                    muestraConIdentación("(aserto) la ejecución del programa está siendo correcta.");
                 } else {
-                    System.out.println("(aserto) el programa es incorrecto. La ejecución del programa ha sido finalizada.");
+                    muestraConIdentación("(aserto) el programa es incorrecto. La ejecución del programa ha sido finalizada.");
                     int tam = pila.size();
                     pila.empty();
                     for(int i = 0; i<tam; i++) { pila.push(false); }
@@ -168,16 +167,50 @@ public class flujoInstrucciones extends AnasintBaseListener{
             } else {
                 Boolean eval = evaluaAsert.visitAserto(ctx);
                 if(eval) {
-                    System.out.println("(aserto) la ejecución del programa está siendo correcta.");
+                    muestraConIdentación("(aserto) la ejecución del programa está siendo correcta.");
                 } else {
                     int tam = pila.size();
                     pila.empty();
                     for(int i = 0; i<tam; i++) { pila.push(false); }
-                    System.out.println("(aserto) el programa es incorrecto. La ejecución del programa ha sido finalizada.");
+                    muestraConIdentación("(aserto) el programa es incorrecto. La ejecución del programa ha sido finalizada.");
                 }
             }
         }
+        pila.push(pila.peek());
+    }
+    public void exitAserto(Anasint.AsertoContext ctx) { pila.pop(); }
+
+    //dado un mensaje lo muestra con la identación adecuada. La identación base es pila tam 2.
+    public static void muestraConIdentación(String mens) {
+        int identacion = pila.size()-2;
+        String r = "";
+        for(int j = 0; j<identacion; j++)  {
+            r+="\t";
+        }
+        System.out.println(r + mens);
     }
 
-    public void exitAserto(Anasint.AsertoContext ctx) { pila.pop(); }
+    //hace exactamente lo mismo que la anterior pero si recibe false no añade salto de línea.
+    public static void muestraConIdentación(String mens, Boolean saltoLinea) {
+        int identacion = pila.size()-2;
+        String r = "";
+        for(int j = 0; j<identacion; j++)  {
+            r+="\t";
+        }
+        if(saltoLinea) {
+            System.out.println(r + mens);
+        } else {
+            System.out.print(r + mens);
+        }
+    }
+
+    //igual que la primera. Pero para retirar las identaciones que se deseen mediante reductor.
+    public static void muestraConIdentación(String mens, int reductor) {
+        int identacion = pila.size()-2-reductor;
+        String r = "";
+        for(int j = 0; j<identacion; j++)  {
+            r+="\t";
+        }
+        System.out.println(r + mens);
+    }
 }
