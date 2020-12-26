@@ -75,7 +75,13 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
         Integer index = (Integer) visit(ctx.expr_integer());
         if(index>elems.size()) {
             System.out.println("ERROR: El índice excede la secuencia. (" + ctx.getText() + ").");
-            throw new IllegalArgumentException("índice mayor a secuencia.");
+            System.out.println("Ejecución finalizada.");
+            int tam = flujoInstrucciones.pila.size();
+            flujoInstrucciones.pila.empty();
+            for(int i=0; i<tam; i++) {
+                flujoInstrucciones.pila.push(false);
+            }
+            return null;
         }
         return elems.get(index);
     }

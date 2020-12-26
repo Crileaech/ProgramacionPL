@@ -13,6 +13,8 @@ public class flujoInstrucciones extends AnasintBaseListener{
     private iterador it = new iterador();
     //evaluaExpr es una clase que dado un Anasint.ExprContext retorna su valor. Si le pasas 3+c -> lo calcula.
     private evaluaExpr evalua = new evaluaExpr();
+    //clase que dado un Anasint.AsertoContext te dice si la ejecución del programa es correcta(true) o incorrecta(false)
+    private asertos evaluaAsert = new asertos();
 
     //Los enter se usaran usualmente para ver si debemos ejecutar o no la instrucciones del ctx, y ejecutarlas.
     //Se añadirá true (si se puede ejecutar) o false si no. Los exit se encargarán de una vez que el walker haya
@@ -70,6 +72,9 @@ public class flujoInstrucciones extends AnasintBaseListener{
                     .collect(Collectors.toList());
             for(int i=0; i<vars.size(); i++) {
                 Object evaluacion = asignEvaluadas.get(i);
+                if(evaluacion==null) {
+                   break;
+                }
                 asig.put(vars.get(i), evaluacion);
                 String exprAsignada = evaluacion.toString();
                 //si una asignación es una expresión compuesta, quiero que se observe a la
@@ -146,4 +151,33 @@ public class flujoInstrucciones extends AnasintBaseListener{
             System.out.println("(ruptura)");
         }
     }
+
+    public void enterAserto(Anasint.AsertoContext ctx) {
+        pila.push(pila.peek());
+        if(pila.peek()) {
+            if(ctx.asertos().expr_bool()!=null) { //en este caso es simple {cierto} {falso} o equivalente.
+                Boolean eval = (Boolean) evalua.visit(ctx.asertos().expr_bool());
+                if(eval) {
+                    System.out.println("(aserto) la ejecución del programa está siendo correcta.");
+                } else {
+                    System.out.println("(aserto) el programa es incorrecto. La ejecución del programa ha sido finalizada.");
+                    int tam = pila.size();
+                    pila.empty();
+                    for(int i = 0; i<tam; i++) { pila.push(false); }
+                }
+            } else {
+                Boolean eval = evaluaAsert.visitAserto(ctx);
+                if(eval) {
+                    System.out.println("(aserto) la ejecución del programa está siendo correcta.");
+                } else {
+                    int tam = pila.size();
+                    pila.empty();
+                    for(int i = 0; i<tam; i++) { pila.push(false); }
+                    System.out.println("(aserto) el programa es incorrecto. La ejecución del programa ha sido finalizada.");
+                }
+            }
+        }
+    }
+
+    public void exitAserto(Anasint.AsertoContext ctx) { pila.pop(); }
 }
