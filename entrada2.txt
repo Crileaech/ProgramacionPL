@@ -10,17 +10,16 @@ SUBPROGRAMAS
   FFUNCION
 INSTRUCCIONES
 a=[5,4,3,2];
-bol = !cierto;
-x=1;
-y=2;
-x,y = y,x+2;
 c=1;
 b=5+c;
 b=3+b;
-i,j = 4+2,5;
 t=0;
-si(b<5) entonces
+si(b>5) entonces
     c=2;
+    si(t==0) entonces
+        ruptura;
+        c=3;
+    fsi
 sino
     c=1;
 fsi

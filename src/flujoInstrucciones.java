@@ -82,28 +82,42 @@ public class flujoInstrucciones extends AnasintBaseListener{
     }
 
     public void enterCondicion(Anasint.CondicionContext ctx) {
-        Boolean tieneElse = ctx.getChildCount()==8;
-        Boolean cond = (Boolean) evalua.visit(ctx.expr_bool());
-        //si se cumple cond debe asignarse a la pila para que las instrucciones del
-        //if sean ejecutadas. Sino se añadirá false
-        System.out.print("(condicional) " + ctx.expr_bool().getText());
-        if(cond) System.out.print(" se satisface ");
-        else System.out.print(" no se satisface ");
-        if(!cond&&tieneElse) System.out.println("ejecutando else:");
-        else System.out.println("");
-        pila.add(cond);
+        if(pila.peek()) {
+            Anasint.Blq_sinoContext blqSino = ctx.blq_sino();
+            Boolean tieneElse = blqSino!=null;
+            Boolean cond = (Boolean) evalua.visit(ctx.expr_bool());
+            //si se cumple cond debe asignarse a la pila para que las instrucciones del
+            //if sean ejecutadas. Sino se añadirá false
+            System.out.print("(condicional) " + ctx.expr_bool().getText());
+            if(cond) System.out.print(" se satisface ");
+            else System.out.print(" no se satisface ");
+            if(!cond&&tieneElse) System.out.println("ejecutando else:");
+            else System.out.println("");
+            pila.add(cond);
+        } else {
+            pila.push(pila.peek());
+        }
     }
     public void exitCondicion(Anasint.CondicionContext ctx) {
         pila.pop();
-        System.out.println("(fin condicional)");
+        if(pila.peek()) { //pila.peek en el enterCondicion. Solo si fue true se ejecutó el if.
+            System.out.println("(fin condicional)");
+        }
     }
     public void enterBlq_sino(Anasint.Blq_sinoContext ctx) {
-        Boolean cumpleSi = (Boolean) evalua.visit(ctx.getParent().getChild(2));
         //¿Se cumplió la condición del if?
         //si se cumplió no se debe ejecutar el else. En caso contrario sí se deberá ejecutar.
         //pudiera parecer que cumpleSi coincide con pila.peek(). Desafortunadamente esto no
         //es del to do cierto -> si hay ruptura en la cima habrá false aunque se cumpla if.
-        pila.push(!cumpleSi);
+        // pila: [ejecutando condición, no se debe ejecutar condicional,...] -> mirando los dos primeros
+        //elementos de la cima podemos saber si se debe de ejecutar el sino o no.
+        //Si false,true,... -> No se ha ejecutado cond pero pila.peek en el enterIt era true -> Se debe de ejecutar sino.
+        //Si false,false,... -> No se ha ejecutado cond porque pila.peek en enterIt fue false -> No se debe de ejecutar sino.
+        //Si true,true,... -> Se ejecutó cond. Luego no debe ser así con sino.
+        //Si true,false,... -> Imposible su ejecución.
+        Stack<Boolean> pilaCopia = (Stack<Boolean>) pila.clone();
+        pilaCopia.pop();
+        pila.push(!pila.peek()&&pilaCopia.peek());
     }
     public void exitBlq_sino(Anasint.Blq_sinoContext ctx) {
         pila.pop();
