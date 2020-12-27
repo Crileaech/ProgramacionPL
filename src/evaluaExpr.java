@@ -105,43 +105,16 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
         return (Integer) visit(ctx.expr_sacar_elem());
     }
     public Integer visitParentesisOpInteger(Anasint.ParentesisOpIntegerContext ctx) {
-        // TODO: 12/12/20
-        return 0;
+        //(2-4)*5
+        intOp op = new intOp(ctx,flujoInstrucciones.asig);
+        return op.resultado();
     }
 
     //solucionar prioridad
     public Integer visitOpInteger(Anasint.OpIntegerContext ctx) {
-        Integer n1 = (Integer) visit(ctx.getChild(0));
-        Integer n2 = (Integer) visit(ctx.getChild(2));
-        String op = ctx.getChild(1).getText();
-        if(op.equals("*")) return n1*n2;
-        else if(op.equals("+")) return n1+n2;
-
-        else return n1-n2;
+        intOp operador = new intOp(ctx,flujoInstrucciones.asig);
+        return operador.resultado();
     }
-    /*
-    public Integer visitOpInteger(Anasint.OpIntegerContext ctx) {
-        String opS = ctx.getText();
-        Set<String> vars = asignaciones.asig.keySet();
-        for(String var: vars) {
-            if(opS.contains(var)) {
-                opS = opS.replace(var, visit(asignaciones.asig.get(var)).toString());
-            }
-        }
-        return (Integer) resolutorNum(opS);
-    }
-
-    public Object resolutorNum(String ops) throws IllegalArgumentException {
-        System.out.println(ops);/home/enrfercor/Escritorio/PL/ProgramacionPL-enrfercor
-        try {
-            ScriptEngineManager mgr = new ScriptEngineManager(null);
-            ScriptEngine engine = mgr.getEngineByName("JavaScript");
-            System.out.println(engine.eval("2+2"));
-            return engine.eval(ops);
-        } catch(Exception e){
-            throw new IllegalArgumentException("Error con el resolutor numerico");
-        }
-    }*/
 
     public Integer visitNum(Anasint.NumContext ctx) {
         return Integer.parseInt(ctx.getText());
