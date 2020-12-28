@@ -1,4 +1,4 @@
-// Generated from /home/enrfercor/Escritorio/PL/ProgramacionPL-juatosfer1/src/Anasint.g4 by ANTLR 4.9
+// Generated from /home/enrfercor/Escritorio/PL/ProgramacionPL (1)/src/Anasint.g4 by ANTLR 4.9
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 /**
@@ -129,6 +129,13 @@ public class AnasintBaseVisitor<T> extends AbstractParseTreeVisitor<T> implement
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitExpr(Anasint.ExprContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitMenosNum(Anasint.MenosNumContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -10,11 +10,13 @@ SUBPROGRAMAS
   FFUNCION
 INSTRUCCIONES
 a=[5,4,3,2];
+c=a[0];
+f=(-2-3)*4;
 {PARATODO(p:[0,3],a[p]!=1)}
 {EXISTE(p:[0,3],a[p]==2)}
-c=a[0];
 d=T&&!((F||(T&&!F))||(F&&F))||(T&&F);
-b=(a[0]+2)*c*(2-1);
+k=5*4-3-2-2-6*3;
+b=(a[0]+2)*c*(-3*2+3);
 t=(2-1);
 si(b>5) entonces
     c=2;

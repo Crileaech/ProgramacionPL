@@ -1,4 +1,4 @@
-// Generated from /home/enrfercor/Escritorio/PL/ProgramacionPL-juatosfer1/src/Anasint.g4 by ANTLR 4.9
+// Generated from /home/enrfercor/Escritorio/PL/ProgramacionPL (1)/src/Anasint.g4 by ANTLR 4.9
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
@@ -214,6 +214,18 @@ public class AnasintBaseListener implements AnasintListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitExpr(Anasint.ExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterMenosNum(Anasint.MenosNumContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMenosNum(Anasint.MenosNumContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

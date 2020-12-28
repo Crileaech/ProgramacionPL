@@ -112,6 +112,11 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
         return operador.resultado();
     }
 
+    public Integer visitMenosNum(Anasint.MenosNumContext ctx) {
+        intOp op = new intOp(ctx, flujoInstrucciones.asig);
+        return op.resultado();
+    }
+
     public Integer visitNum(Anasint.NumContext ctx) {
         return Integer.parseInt(ctx.getText());
     }

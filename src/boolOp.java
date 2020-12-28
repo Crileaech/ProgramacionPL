@@ -1,12 +1,9 @@
 import org.antlr.v4.runtime.misc.Pair;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 
 public class boolOp extends AnasintBaseVisitor<Object>{
     private String boolOp;

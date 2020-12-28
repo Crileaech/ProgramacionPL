@@ -1,4 +1,4 @@
-// Generated from /home/enrfercor/Escritorio/PL/ProgramacionPL-juatosfer1/src/Anasint.g4 by ANTLR 4.9
+// Generated from /home/enrfercor/Escritorio/PL/ProgramacionPL (1)/src/Anasint.g4 by ANTLR 4.9
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
 /**
@@ -111,6 +111,13 @@ public interface AnasintVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitExpr(Anasint.ExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code menosNum}
+	 * labeled alternative in {@link Anasint#expr_integer}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMenosNum(Anasint.MenosNumContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code opInteger}
 	 * labeled alternative in {@link Anasint#expr_integer}.

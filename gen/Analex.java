@@ -1,4 +1,4 @@
-// Generated from /home/enrfercor/Escritorio/PL/ProgramacionPL-juatosfer1/src/Analex.g4 by ANTLR 4.9
+// Generated from /home/enrfercor/Escritorio/PL/ProgramacionPL (1)/src/Analex.g4 by ANTLR 4.9
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;

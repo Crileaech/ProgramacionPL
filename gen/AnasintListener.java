@@ -1,4 +1,4 @@
-// Generated from /home/enrfercor/Escritorio/PL/ProgramacionPL-juatosfer1/src/Anasint.g4 by ANTLR 4.9
+// Generated from /home/enrfercor/Escritorio/PL/ProgramacionPL (1)/src/Anasint.g4 by ANTLR 4.9
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
 /**
@@ -176,6 +176,18 @@ public interface AnasintListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExpr(Anasint.ExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code menosNum}
+	 * labeled alternative in {@link Anasint#expr_integer}.
+	 * @param ctx the parse tree
+	 */
+	void enterMenosNum(Anasint.MenosNumContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code menosNum}
+	 * labeled alternative in {@link Anasint#expr_integer}.
+	 * @param ctx the parse tree
+	 */
+	void exitMenosNum(Anasint.MenosNumContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code opInteger}
 	 * labeled alternative in {@link Anasint#expr_integer}.

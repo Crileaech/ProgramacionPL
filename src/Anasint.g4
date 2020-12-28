@@ -59,6 +59,7 @@ expr_integer: expr_sacar_elem                                                 #s
             | expr_integer (POR|SUMA|RESTA) expr_integer                      #opInteger
             | expr_func                                                       #exprFuncInt
             | NUM                                                             #num
+            | RESTA expr_integer                                              #menosNum
             | variable                                                        #varInt
             ;
 
