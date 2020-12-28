@@ -30,17 +30,12 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
         }
     }
     public Boolean visitParentesisOpBool(Anasint.ParentesisOpBoolContext ctx) {
-        // TODO: 12/12/20
-        return true;
+        boolOp opBool = new boolOp(ctx, flujoInstrucciones.asig);
+        return opBool.resultado();
     }
     public Boolean visitOpBool(Anasint.OpBoolContext ctx) {
-        Boolean primero = (Boolean) visit(ctx.getChild(0));
-        Boolean segundo = (Boolean) visit(ctx.getChild(2));
-        if(ctx.getChild(1).getText().equals("&&")) {
-            return primero&&segundo;
-        } else {
-            return primero||segundo;
-        }
+        boolOp opBool = new boolOp(ctx, flujoInstrucciones.asig);
+        return opBool.resultado();
     }
 
     public Boolean visitCompararSeq(Anasint.CompararSeqContext ctx) {
@@ -105,13 +100,14 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
         return (Integer) visit(ctx.expr_sacar_elem());
     }
     public Integer visitParentesisOpInteger(Anasint.ParentesisOpIntegerContext ctx) {
-        //(2-4)*5
+        //(2-4)
         intOp op = new intOp(ctx,flujoInstrucciones.asig);
         return op.resultado();
     }
 
-    //solucionar prioridad
     public Integer visitOpInteger(Anasint.OpIntegerContext ctx) {
+        //si se desea que se resuelvan las variables mirando otro almacén introducir otro en el
+        //constructor como segundo parámetro.
         intOp operador = new intOp(ctx,flujoInstrucciones.asig);
         return operador.resultado();
     }

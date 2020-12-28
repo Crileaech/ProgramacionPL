@@ -8,8 +8,8 @@ import java.util.stream.Collectors;
 
 //clase que se encarga de realizar las operaciones matematicas en el orden adecuado.
 public class intOp extends AnasintBaseVisitor<Object>{
-    private String stringOp = null;
-    private Map<String,Object> asig = null;
+    private String stringOp;
+    private Map<String,Object> asig;
 
     private final evaluaExpr evalua = new evaluaExpr();
 
@@ -54,7 +54,8 @@ public class intOp extends AnasintBaseVisitor<Object>{
             String res = stringOp;
             while(m.find()) {
                 String dentroParentesis = m.group(1);
-                res.replace(dentroParentesis, calcula(dentroParentesis).toString());
+                String calculo = calcula(dentroParentesis).toString();
+                res = res.replace(dentroParentesis, calculo);
             }
             res = res.replace("(","");
             res = res.replace(")","");
@@ -82,6 +83,8 @@ public class intOp extends AnasintBaseVisitor<Object>{
                 String[] parts = cad.split(elem2);
                 List<String> partsLs = Arrays.asList(parts.clone());
                 acum.addAll(partsLs);
+            } else {
+                acum.add(cad);
             }
         }
         return acum;
