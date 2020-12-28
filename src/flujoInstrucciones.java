@@ -1,5 +1,7 @@
 import java.util.*;
 import java.util.stream.Collectors;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 public class flujoInstrucciones extends AnasintBaseListener{
     //Clase que gestiona el flujo de instrucciones y contiene un almacén de asignaciones.
@@ -12,9 +14,20 @@ public class flujoInstrucciones extends AnasintBaseListener{
     //no permite hacerlo los listener.
     private iterador it = new iterador();
     //evaluaExpr es una clase que dado un Anasint.ExprContext retorna su valor. Si le pasas 3+c -> lo calcula.
-    private evaluaExpr evalua = new evaluaExpr();
+    private evaluaExpr evalua;
     //clase que dado un Anasint.AsertoContext te dice si la ejecución del programa es correcta(true) o incorrecta(false)
     private asertos evaluaAsert = new asertos();
+
+    flujoInstrucciones(){}
+
+    flujoInstrucciones(Map<String,Object> funcParams){
+        asig.putAll(funcParams);
+
+        //evaluaExpr no necesita parámetros si el objeto flujoInstrucciones se crea desde la
+        //evaluación de un subprograma
+        evalua = new evaluaExpr();
+    }
+
 
     //Los enter se usaran usualmente para ver si debemos ejecutar o no la instrucciones del ctx, y ejecutarlas.
     //Se añadirá true (si se puede ejecutar) o false si no. Los exit se encargarán de una vez que el walker haya
@@ -25,10 +38,15 @@ public class flujoInstrucciones extends AnasintBaseListener{
     public void enterPrograma(Anasint.ProgramaContext ctx) {
         System.out.println("INTÉRPRETE");
         pila.push(true);
+
+        //evaluaExpr tiene un constructor al que se le pasan los subprogramas para que a la hora de asignar una función
+        //a una variable, podamos comprobar el subprograma al que nos estamos refiriendo y visitarlo
+        evalua = new evaluaExpr(ctx.subprogramas());
     }
     public void exitPrograma(Anasint.ProgramaContext ctx) {
         pila.pop();
     }
+
     public void enterVariables(Anasint.VariablesContext ctx) {
         pila.push(pila.peek());
     }
@@ -59,6 +77,7 @@ public class flujoInstrucciones extends AnasintBaseListener{
 
     public void enterInstrucciones(Anasint.InstruccionesContext ctx) {
         pila.push(pila.peek());
+
     }
     public void exitInstrucciones(Anasint.InstruccionesContext ctx) {
         pila.pop();
@@ -66,14 +85,20 @@ public class flujoInstrucciones extends AnasintBaseListener{
 
     public void enterAsignacion(Anasint.AsignacionContext ctx) {
         if(pila.peek()) {
+            //añade los nombres de las variables a una lista
             List<String> vars = ctx.variable().stream().map(v -> v.getText()).collect(Collectors.toList());
+
+            //añade las expresiones sin evaluar a una lista
             List<Anasint.ExprContext> asign = ctx.expr();
+
+            //añade las expresiones una vez evaluadas a una lista
             List<Object> asignEvaluadas = asign.stream().map(x -> evalua.visit(x))
                     .collect(Collectors.toList());
+
             for(int i=0; i<vars.size(); i++) {
                 Object evaluacion = asignEvaluadas.get(i);
                 if(evaluacion==null) {
-                   break;
+                    break;
                 }
                 asig.put(vars.get(i), evaluacion);
                 String exprAsignada = evaluacion.toString();

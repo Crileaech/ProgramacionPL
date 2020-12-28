@@ -13,18 +13,18 @@ public class asertos extends AnasintBaseVisitor<Boolean>{
 
     public Boolean visitAsertos(Anasint.AsertosContext ctx) {
         Boolean r;
-         if(ctx.cuantificador().cuantificadorExistencial()!=null) {
-             r = existencial(ctx);
-         } else {
-             r = universal(ctx);
-         }
-         return r;
+        if(ctx.cuantificador().cuantificadorExistencial()!=null) {
+            r = existencial(ctx);
+        } else {
+            r = universal(ctx);
+        }
+        return r;
     }
 
     //si uno cumple la condición el aserto es cierto.
     public Boolean existencial(Anasint.AsertosContext ctx) {
         Anasint.CuantificacionContext cuant = ctx.cuantificador()
-                                    .cuantificadorExistencial().cuantificacion();
+                .cuantificadorExistencial().cuantificacion();
         String var = cuant.variable().getText();
         Integer comienzo = (Integer) evalua.visit(cuant.expr_integer(0));
         Integer fin = (Integer) evalua.visit(cuant.expr_integer(1));
