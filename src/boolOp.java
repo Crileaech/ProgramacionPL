@@ -1,3 +1,8 @@
+import org.antlr.v4.runtime.misc.Pair;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
@@ -52,24 +57,26 @@ public class boolOp extends AnasintBaseVisitor<Object>{
     public String visitVarBool(Anasint.VarBoolContext ctx) { return evalua.visit(ctx).toString(); }
 
     public Boolean resultado() {
-        System.out.println("hola " + boolOp);
+        return calcula(reduce(boolOp));
+    }
+
+    //Dada una expresión booleana compleja con paréntesis, reduce los paréntesis a true o false,
+    //trasnformando dicha expresión a una sin paréntesis pero equivalente que sí puede ser procesada
+    //por calcula(aCalc)
+    public String reduce(String boolOp) {
         if(boolOp.contains("(")) {
-            Matcher m = Pattern.compile("\\((.*?)\\)").matcher(boolOp);
-            String res = boolOp;
-            while(m.find()) {
-                String dentroParentesis = m.group(1);
-                String calculo = calcula(dentroParentesis).toString();
-                res = res.replace(dentroParentesis, calculo);
+            List<String> dentroParentesis = entreParentesis(boolOp);
+            for(String enParent:dentroParentesis) {
+                String sinParent = enParent.substring(1,enParent.length()-1);
+                boolOp = boolOp.replace(enParent, calcula(reduce(sinParent)).toString());
             }
-            res = res.replace("(","");
-            res = res.replace(")","");
-            System.out.println(res);
-            return calcula(res);
+            return boolOp;
         } else {
-            return calcula(boolOp);
+            return calcula(boolOp).toString();
         }
     }
 
+    //Dado T&&F||T -> Retorna el resultado
     public Boolean calcula(String aCalc) {
         //prioridad 1: ! -> Fácil con replace.
         aCalc = aCalc.replace("!false","true");
@@ -110,5 +117,35 @@ public class boolOp extends AnasintBaseVisitor<Object>{
             resultado = opera(aCalc);
         }
         return resultado;
+    }
+
+    //Retorna en forma de lista las cosas que están entre paréntesis -> T&&!(T&&!F)||(T&&F) ->
+    //[(T&&!F),(T&&F)]
+    public List<String> entreParentesis(String cad) {
+        int nvl = 0;
+        List<String> ls = new ArrayList<>();
+        if(cad.contains("(")) {
+            int comienzo = cad.indexOf('(');
+            nvl = 1;
+            for(int i = comienzo+1; i < cad.length(); i++) {
+                if(cad.charAt(i)=='(') {
+                    if(nvl==0) {
+                        comienzo=i;
+                    }
+                    nvl+=1;
+                } else if(cad.charAt(i)==')') {
+                    if(nvl==1) {
+                        ls.add(cad.substring(comienzo,i+1));
+                        nvl-=1;
+                    } else {
+                        nvl-=1;
+                    }
+                }
+            }
+            return ls;
+        } else {
+            ls.add(cad);
+            return ls;
+        }
     }
 }
