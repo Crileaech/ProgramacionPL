@@ -52,29 +52,7 @@ public class Compilador extends AnasintBaseListener {
         }catch(IOException e)
         {System.out.println("gencode_espacios (exception): "+e.toString());}
     }
-    //Calcular dependencias de variables por niveles
-    //Necesario para generar código de la evaluación de una variable definida.
 
-    //nivel representa el conjunto de variables al que se le calcula las dependencias
-            // r representa las dependencias organizadas por niveles,
-            // p.e. r=[[b], [a], [x, y]] representa b depende de a y a depende de x e  y
-    public void calcular_dependencias_por_niveles(Set<String> nivel, List<Set<String>> r){
-        ExtraerVarsExpr extractor = new ExtraerVarsExpr();
-        if (!nivel.isEmpty()){
-            Set<String>nivel_sig=new HashSet<String>();
-            //nivel_sig representa las variables de las que dependen directamente las variables de nivel
-            for(String v:nivel){
-                Anasint.ExprContext def =
-                        almacen_definiciones.get(v);
-                Set<String>aux=new HashSet<>();
-                if (def!=null)
-                    aux=extractor.visit(def);
-                nivel_sig.addAll(aux);
-            }
-            if (!nivel_sig.isEmpty()) r.add(nivel_sig); //actualización  de niveles de dependencia con nuevo nivel
-            calcular_dependencias_por_niveles(nivel_sig,r);
-        }
-    }
     //Generar código para v = exp
     public void gencodigo_asignacion(String v, Anasint.AsigContext exp){
         String txt_exp="0";
@@ -147,39 +125,7 @@ public class Compilador extends AnasintBaseListener {
                     var+" ---> \""+"+"+var+");\n");
         }catch(IOException e){}
     }
-    // Test de evaluaciones indefinidas.
-    boolean test(String v){
-        Anasint.ExprContext d = almacen_definiciones.get(v);
-        Set<String> S = extractor.visit(d);
-        if (S.isEmpty()) return false;
-        else {
-            List<String>aux=new LinkedList<String>();
-            aux.add(v);
-            return ciclo(aux,S);
-        }
-    }
-    //Comprobar si algún elemento en S está en V
-    boolean contiene_algun_elemento(List<String> V,Set<String> S){
-        return S.stream().anyMatch((e)->V.contains(e));
-    }
-    //Testar ciclicidad en la definición de una variable v
-    //V representa una secuencia de dependencias entre variables
-    //S representa un conjunto de variables
-    //Hay que comprobar si al anadir alguna variable de S en V se alcanza un ciclo
-    boolean ciclo(List<String> V,Set<String> S){
-        if (contiene_algun_elemento(V,S))
-            return true;
-        else
-            for (String z:S){
-                Anasint.ExprContext d = almacen_definiciones.get(z);
-                Set<String> K = new HashSet<String>();
-                if (d!=null) K=extractor.visit(d);
-                List<String> aux = new LinkedList<String>();
-                aux.addAll(V);aux.add(z);
-                if (ciclo(aux,K)) return true;
-            }
-        return false;
-    }
+
     /////////////////////////
     // REGLAS. ATRIBUCIONES.
     /////////////////////////

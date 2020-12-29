@@ -40,20 +40,68 @@ DECISIÓN DISEÑO
 
 EJEMPLOS DE COMPILACIONES: proponer un conjunto de ejemplos de traducción.
 Es que dicho conjunto sea válido y razonablemente completo.
-// EJEMPLO 1
+
+// EJEMPLO 1 -> Instrucción de asiganacón errónea
 //        VARIABLES
 //            x:NUM;
 //        INSTRUCCIONES
 //            {ERROR DE COMPILACION DECLARACION DE INSTRUCCION}
 //            x=x+1 //error x+1 no tiene valor porque x no tiene valor
-// EJEMPLO 2
-//        {Error de Compilacion si no llamamos a declaracion de instrucciones ruptura bucle infinito}
-//        i=0;
-//        mientras (i<=9) hacer
-//           x=3;
-//        ruptura;
-//        i=i+1;
-//        fmientras
+
+// EJEMPLO 2 -> Instrucción de condición con error no evalua ni cierto, falso o indefinido
+//    si (s[i]>i) entonces //condicion
+//        max=s[i]; //bloque
+//    fsi
+
+// EJEMPLO 3 -> Instrucción de itración en P errónea si valores devueltos por su función de avance
+// no decrecen en cada iteración sucesiva.
+// Por ejemplo, la función bucle_1_avance devuelve
+// la siguiente secuencia de valores para la iteración asociada: 6,5,4,3,2,1,0
+// i=0;
+// max=s[i];
+// mientras (i<=ultima_posicion(s)) hacer {avance: bucle_1_avance(s, i)}
+//      si (s[i]>max) entonces
+//          max=s[i];
+//      fsi
+//      i=i+1;
+//  fmientras
+
+//  EJEMPLO4 -> La instruccion llamada a funcion (declaración de subprogramas en P)
+//  errónea si no coincide en número y tipo con la correspondiente secuencia de parámetros declarados
+//      x,y = mayor(1); // llamada a función con un parámetro tipo NUM.
+                        // Se requiere un parámetro tipo SEQ en su declaración
+
+// EJEMPLO 5 -> Instrucción de mostrar será errónea si no pasamos por parámetros
+//  que lista de variables queremos mostrar por consola
+// mostrar()
+
+// EJEMPLO 6 -> La última de las instrucciones es el aserto se considera erróneo
+// si este se evalua como idefinido
+// PROGRAMA
+// VARIABLES
+//    i,max,min:NUM;
+//    s:SEQ(NUM);
+//  SUBPROGRAMAS
+//  INSTRUCCIONES
+//      {  }
+//      s=[3,4,2,7,9,0,11];
+//      i=0;
+//      mostrar(i);
+//      min=s[i];
+//      max=s[i];
+//      mientras (i<=ultima_posicion(s)) hacer
+//          si (s[i]>max) entonces
+//              max=s[i];
+//          fsi
+//          si (s[i]<min) entonces
+//              min=s[i];
+//          fsi
+//          mostrar(min,max);
+//          { PARATODO() }
+//          i=i+1;
+//      fmientras
+//      { PARATODO() }
+
 
 =================================================================================
 DECISIÓN 1
@@ -77,32 +125,26 @@ DECISIÓN 1
         VARIABLES
             i,max,min:NUM;
             s:SEQ(NUM);
-       Map<String,Integer> almacen_variables = new HashMap<>();
+       Map<String,Object> almacen_variables = new HashMap<>();
+       List<Object> secuencias = new ArrayList<>();
        alamacen_variables=[(i,NUM),(max,NUM),(min,NUM),(s,[i+1]))]
+
    (c) generar codigo para declaracion de subprogramas que en P
        pueden ser funciones o procedimientos.
 
-   (d) generar codigo para cada instrucción
+   (d) generar codigo para cada instrucción:
 
-      (d.1) No se genera código para la definición de subprogramas
-           (aunque sea necesario para generar código de instrucciones)
+      (d.1) Generar código para evaluar la instrucción de La asignación en P puede ser simple o múltiple
+      (d.2) Generar código para evaluar la instrucción de Las condiciones en P
+      (d.3) Generar código para evaluar la instrucción de La iteración en P
+      (d.4) Generar código para evaluar la instrucción de ruptura de control en P
+      (d.5) No se genera código para la definición de subprogramas
+            (aunque sea necesario para generar código de instrucciones)
+      (d.6) Generar código para evaluar la instrucción de mostrar en P
+      (d.7) Generar código para evaluar la instrucción de asertos
 
-      (d.2) generar codigo para evaluación de variables
 
-            (a) Las variables con definición cíclica hay que
-                detectarlas y simular en Java su evaluación en P.
 
-            (b) Las variables con definición no cíclica hay que
-                simular en Java su evaluación en P. La definición no cíclica obliga
-                a secuenciar las variables de las que depende las variables evaluadas.
-
-                si (test(VAR)=CICLO) entonces
-   	               generar codigo para evaluación de
-   	               variable indefinida
-   	            si no
-   	               generar codigo para evaluación de
-   	               variable definida
-   	        (c) La evaluacion de las expresiones y sus prioridades
 
 =============================================================================
 
