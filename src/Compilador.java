@@ -12,7 +12,7 @@ public class Compilador extends AnasintBaseListener {
     ExtraerVarsExpr extractor = new ExtraerVarsExpr(); //extractor de variables de una expresión
     FileWriter fichero; //Fichero para escribir el resultado de la compilación
 
-    String EntradaCompilador = new String(); //Nombre del fichero compilador
+    String EntradaCompilador = null; //Nombre del fichero compilador
     int espacios = 0; //Contador de espacios en blanco. Sirve para indentarel código generado.
     Map<String, Anasint.ExprContext> almacen_definiciones = new HashMap<>(); //almacen de las definiciones de variables
 
@@ -21,11 +21,11 @@ public class Compilador extends AnasintBaseListener {
     //////////////////////////
     //Nombre del fichero sin la extensión
     public void init(String f){
-        this.EntradaCompilador= f.substring(0, f.length() - 4); }
+        EntradaCompilador=new String(f.substring(0,f.length()-4)); }
     //Abrir fichero
     private void open_file(){
         try{
-            fichero = new FileWriter("src/"+this.EntradaCompilador+".java");
+            fichero = new FileWriter("src/"+EntradaCompilador+".java");
         }catch(IOException e)
         {System.out.println("open_file (exception): "+e.toString());}
     }
@@ -76,7 +76,7 @@ public class Compilador extends AnasintBaseListener {
         }
     }
     //Generar código para v = exp
-    public void gencodigo_asignacion(String v, Anasint.ExprContext exp){
+    public void gencodigo_asignacion(String v, Anasint.AsigContext exp){
         String txt_exp="0";
         if (exp!=null)
             txt_exp = generador.visit(exp);
@@ -183,13 +183,23 @@ public class Compilador extends AnasintBaseListener {
     /////////////////////////
     // REGLAS. ATRIBUCIONES.
     /////////////////////////
-    public void enterProg(Anasint.ProgramaContext ctx) { open_file();
+    public void enterPrograma(Anasint.ProgramaContext ctx) {
+        init("EntradaCompilador.java");
+        open_file();
         gencode_begin_class(); }
-    public void enterVars(Anasint.VariableContext ctx) { gencode_begin_main(); }
-    public void enterInstrs(Anasint.InstruccionesContext ctx) {
-        gencode_declarar_variables(); }
-    public void exitProg(Anasint.ProgramaContext ctx) { gencode_end_main();
-        gencode_end_class(); close_file(); }
+    public void enterVariable(Anasint.VariableContext ctx) {
+        gencode_begin_main();
+        gencode_declarar_variables();
+        gencode_evaluar_variable("VAR");
+    }
+    public void enterInstrs(Anasint.Declaracion_instruccionesContext ctx) {
+//        gencodigo_asignacion("",ctx.getChildCount(Anasint.IGUAL));
+    }
+    public void exitPrograma(Anasint.ProgramaContext ctx) {
+        gencode_end_main();
+        gencode_end_class();
+        close_file();
+    }
 }
 
 
