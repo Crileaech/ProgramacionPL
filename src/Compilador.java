@@ -21,7 +21,7 @@ public class Compilador extends AnasintBaseListener {
     //////////////////////////
     //Nombre del fichero sin la extensión
     public void init(String f){
-        EntradaCompilador=new String(f.substring(0,f.length()-4)); }
+        EntradaCompilador=new String(f.substring(0,17)); }
     //Abrir fichero
     private void open_file(){
         try{
@@ -58,7 +58,7 @@ public class Compilador extends AnasintBaseListener {
         String txt_exp="0";
         if (exp!=null)
             txt_exp = generador.visit(exp);
-            gencode_espacios();
+        gencode_espacios();
         try{
             fichero.write(v+"="+txt_exp+";\n"); //código de una asignación
         }catch(IOException e){e.getMessage();}
@@ -134,23 +134,23 @@ public class Compilador extends AnasintBaseListener {
     private String convertir(String tipo,Anasint.Tipos_elementalesContext ctx){
         String resultado = new String();
         switch(tipo){
-            case ctx.BOOL().toString(): resultado=new String("boolean");
-                break;
+//            case ctx.BOOL().toString(): resultado=new String("boolean");
+//                break;
         }
         return resultado;
     }
-    
+
     //Generar codigo mostrar por pantalla
     Set<String>vars=new HashSet<String>();
 
-   public  void gencodigo_mostrar(Anasint.ExprContext exprs){
+    public  void gencodigo_mostrar(Anasint.ExprContext exprs){
         Anasint.ExprContext expr = exprs;
         String s = new String(" System.out.println()");
         while (expr!=null){
-           if (!vars.contains(expr.getText()))
-                 s+="\"indefinido\"";
-           else
-                    s+=expr.getText();
+            if (!vars.contains(expr.getText()))
+                s+="\"indefinido\"";
+            else
+                s+=expr.getText();
         }
         s+=");\n";
         gencode_espacios();
@@ -168,7 +168,7 @@ public class Compilador extends AnasintBaseListener {
     public void enterVariable(Anasint.VariableContext ctx) {
         gencode_begin_main();
         gencode_declarar_variables();
-        gencode_evaluar_variable("VAR");
+        gencode_evaluar_variable(ctx.VAR().getText());
     }
     public void enterInstrs(Anasint.Declaracion_instruccionesContext ctx) {
 //        gencodigo_asignacion(v.getText(),exp);
@@ -186,5 +186,4 @@ public class Compilador extends AnasintBaseListener {
         close_file();
     }
 }
-
 
