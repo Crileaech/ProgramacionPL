@@ -264,9 +264,6 @@ generar codigo fin main:
 generar codigo fin clase:
    escribir en fichero: }
 
-generar codigo para evaluación de variable VAR indefinida:
-   escribir en fichero:
-         System.out.println("(Compilador) "+VAR+" ---> INDEF");
 
 generar codigo para evaluación de variable VAR definida:
       dep = calcular las variables de las que depende VAR

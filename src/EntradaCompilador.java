@@ -46,10 +46,9 @@ public class EntradaCompilador
         secuenciaInteger[0] = 3;
         secuenciaInteger[1] = 4;
         Boolean [] secuenciaBoolean = new Boolean[]{Boolean.TRUE, Boolean.FALSE};
+        Boolean [] b =new Boolean[]{true, false};
 
         i=0+j;
-//        mostrar(i);
-        System.out.println(i);
         min=secuenciaInteger[i];
         max=secuenciaInteger[i];
         Integer[] ultima_posicion = new Integer[];
@@ -60,9 +59,7 @@ public class EntradaCompilador
             if(secuenciaInteger[i] > max){
                 max=secuenciaInteger[i];
             }break;
-            if(secuenciaInteger[i]<min){
-                min = secuenciaBoolean[Boolean.FALSE];
-            }
+            if(secuenciaInteger[i]<min) min = secuenciaBoolean[b];
             System.out.println("Valor de: "+min+ ", Valor de max:" +max);
             i = i+1;
         }

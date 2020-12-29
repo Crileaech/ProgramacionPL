@@ -12,7 +12,7 @@ public class Compilador extends AnasintBaseListener {
     ExtraerVarsExpr extractor = new ExtraerVarsExpr(); //extractor de variables de una expresión
     FileWriter fichero; //Fichero para escribir el resultado de la compilación
 
-    private String EntradaCompilador= new String(); //Nombre del fichero compilador
+    String EntradaCompilador = new String(); //Nombre del fichero compilador
     int espacios = 0; //Contador de espacios en blanco. Sirve para indentarel código generado.
     Map<String, Anasint.ExprContext> almacen_definiciones = new HashMap<>(); //almacen de las definiciones de variables
 
@@ -52,16 +52,6 @@ public class Compilador extends AnasintBaseListener {
         }catch(IOException e)
         {System.out.println("gencode_espacios (exception): "+e.toString());}
     }
-    //Generar código para evaluación de variable indefinida
-    public void gencode_evaluacion_variable_indefinida(String var){
-        try{
-            gencode_espacios();
-            fichero.write(var+" = null;\n"); //código de una asignación
-            gencode_espacios();
-            fichero.write("System.out.println(\"(Compilador) "+
-                    var+" ---> \""+"+"+var+");\n");
-        }catch(IOException e){}
-    }
     //Calcular dependencias de variables por niveles
     //Necesario para generar código de la evaluación de una variable definida.
 
@@ -95,32 +85,7 @@ public class Compilador extends AnasintBaseListener {
             fichero.write(v+"="+txt_exp+";\n"); //código de una asignación
         }catch(IOException e){}
     }
-    //Generar código desde dependencias por niveles
-    // e.g. desde var=x y r=[[x], [y, z], [r, t, z], [r, t], [t]] se generará  la secuencia de asignaciones:
-    // t= ...
-    // r= ...
-    // z = ...
-    // y = ...
-    // x = ...
-    public void gencode_desde_dependencias(String var, List<Set<String>>r){
-        Set<String> visitados=new HashSet<String>(); //Evitar código repetido
-        for (int i=r.size()-1;i>=0;i--) //primero las variables que no dependen de otras y luego las restantes por niveles
-        for(String v:r.get(i)) //asignaciones correspondientes a  variables de un nivel
-        if (!visitados.contains(v)){
-            visitados.add(v);
-            Anasint.ExprContext exp =
-                    almacen_definiciones.get(v);
-            gencodigo_asignacion(v, exp);
-        }
-        gencode_evaluar_variable(var); //Código para mostrar por pantalla el valor de la variable var evaluada
-    }
-    //Generar código evaluación variable definida
-    public void gencode_evaluacion_variable_definida(String var){
-        Set<String>n=new HashSet<String>(); n.add(var);
-        List<Set<String>>r=new LinkedList<Set<String>>(); r.add(n);
-        calcular_dependencias_por_niveles(n,r); //Calcular dependencias
-        gencode_desde_dependencias(var,r); // Generar código desde  dependencias
-    }
+
     //Generar código comienzo clase
     private void gencode_begin_class(){
         try{
