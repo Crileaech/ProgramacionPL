@@ -268,7 +268,9 @@ instrucciones : #(INSTRUCCIONES (declaracion_instrucciones)*)
 
   devolucion: RETURN (expr{generar codigo para expresión} COMA)* expr PyC;
 
-  asignacion: (variable COMA)* variable IGUAL (expr{generar codigo para expresión} COMA)* (expr) PyC;
+  asignacion: (variable COMA)* variable IGUAL (expr{generar codigo para expresión} COMA)* (expr) PyC
+            {generar codigo para el tipo de declaracion de instrucciones asignacion}
+            ;
 
   condicion: IF PA expr_bool PC THEN (declaracion_instrucciones)+ (blq_sino)? ENDIF;
 

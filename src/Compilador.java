@@ -54,14 +54,14 @@ public class Compilador extends AnasintBaseListener {
     }
 
     //Generar código para v = exp
-    public void gencodigo_asignacion(String v, Anasint.AsigContext exp){
+    public void gencodigo_asignacion(String v, Anasint.ExprContext exp){
         String txt_exp="0";
         if (exp!=null)
             txt_exp = generador.visit(exp);
-        gencode_espacios();
+            gencode_espacios();
         try{
             fichero.write(v+"="+txt_exp+";\n"); //código de una asignación
-        }catch(IOException e){}
+        }catch(IOException e){e.getMessage();}
     }
 
     //Generar código comienzo clase
@@ -126,6 +126,21 @@ public class Compilador extends AnasintBaseListener {
         }catch(IOException e){}
     }
 
+    // Generar código condicional
+    public void gencodigo_condicional(String tipo, Anasint.Tipos_elementalesContext ctx){
+        if (tipo!=ctx.BOOL().getText())
+            System.out.println("Condicion mal tipada: "+" "+convertir(tipo,ctx));
+    }
+    private String convertir(String tipo,Anasint.Tipos_elementalesContext ctx){
+        String resultado = new String();
+        switch(tipo){
+            case ctx.BOOL().toString(): resultado=new String("boolean");
+                break;
+        }
+        return resultado;
+    }
+
+
     /////////////////////////
     // REGLAS. ATRIBUCIONES.
     /////////////////////////
@@ -140,6 +155,13 @@ public class Compilador extends AnasintBaseListener {
     }
     public void enterInstrs(Anasint.Declaracion_instruccionesContext ctx) {
 //        gencodigo_asignacion("",ctx.getChildCount(Anasint.IGUAL));
+//        gencodigo_condicional();
+//        gencodigo_iteracion
+//        gencodigo_ruptura
+//        gencodigo_declaracionSubprograma
+//        gencodigo_retorno
+//        gencodigo_mostrar
+//        gencodigo_aserto
     }
     public void exitPrograma(Anasint.ProgramaContext ctx) {
         gencode_end_main();
