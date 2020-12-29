@@ -1,10 +1,14 @@
 DISEÑO COMPILADOR PROGRAMACION P --> Java
 -----------------------------
+Compilar un lenguaje significa compilar cada sentencia del lenguaje.
+Compilar una sentencia de un lenguaje es traducirla a otro lenguaje
+preservando en lo posible el significado de la sentencia original.
 
-DISEÑO
-------
 OBJETIVO:
+    Construir un compilador para el lenguaje P que traduzca a Java
 
+DECISIÓN DISEÑO
+-----------------
  Compilador de lenguaje P a lenguaje Java
  P es un lenguaje de programación secuencial con asertos.
  La idea es usar asertos para verificar la corrección del programa.
@@ -73,7 +77,8 @@ DECISIÓN 1
         VARIABLES
             i,max,min:NUM;
             s:SEQ(NUM);
-       alamacen_variables=[(i,0),(max,0),(min,0),(s,[i+1]))]
+       Map<String,Integer> almacen_variables = new HashMap<>();
+       alamacen_variables=[(i,NUM),(max,NUM),(min,NUM),(s,[i+1]))]
    (c) generar codigo para declaracion de subprogramas que en P
        pueden ser funciones o procedimientos.
 
@@ -98,6 +103,7 @@ DECISIÓN 1
    	               generar codigo para evaluación de
    	               variable definida
    	        (c) La evaluacion de las expresiones y sus prioridades
+
 =============================================================================
 
 DECISIÓN 2:
@@ -204,19 +210,19 @@ expr_avanza: LA AVANZA DOSPTOS expr_func LC;
 
 expr_func: variable PA (expr) (COMA expr)* PC;
 
-    instrucciones : #(INSTRUCCIONES (declaracion_instrucciones)*)
+instrucciones : #(INSTRUCCIONES (declaracion_instrucciones)*)
 
   //---INSTRUCCIONES---
 
-  declaracion_instrucciones: asignacion   #asig {generar codigo para el tipo de declaracion de instrucciones asignacion}
-                           | condicion    #cond
-                           | iteracion    #it
-                           | BREAK PyC    #break
-                           | devolucion   #dev
-                           | mostrar      #show
-                           | asertos      #aserto
-                           | expr_func PyC #exprfun
-                           ; {generar codigo para el tipo de declaracion de instrucciones};
+  declaracion_instrucciones: asignacion   #asig  {generar codigo para el tipo de declaracion de instrucciones asignacion}
+                           | condicion    #cond  {generar codigo para el tipo de declaracion de instrucciones condicional}
+                           | iteracion    #it    {generar codigo para el tipo de declaracion de instrucciones iteracion}
+                           | BREAK PyC    #break {generar codigo para el tipo de declaracion de instrucciones ruptura}
+                           | devolucion   #dev   {generar codigo para el tipo de declaracion de instrucciones devolucion}
+                           | mostrar      #show  {generar codigo para el tipo de declaracion de instrucciones mostrar}
+                           | asertos      #aserto {generar codigo para el tipo de declaracion de instrucciones asertos}
+                           | expr_func PyC #exprfun {generar codigo para las expresiones}
+                           ;
 
   devolucion: RETURN (expr{generar codigo para expresión} COMA)* expr PyC;
 
@@ -241,6 +247,7 @@ expr_func: variable PA (expr) (COMA expr)* PC;
   cuantificadorExistencial: EXISTS cuantificacion;
 
   cuantificacion: PA variable DOSPTOS CA expr_integer COMA expr_integer CC COMA expr_bool PC;
+
 ----------------------------------------------------
 
 generar codigo declaracion clase:
@@ -281,6 +288,19 @@ generar codigo para expresión:
      si la expresion es una SUMA entonces el código generado es la composición del
         código generado para la subexpresión izquierda, el código + y
         código generado para la subexpresión derecha
-    si la expresion es una RESTA entonces el código generado es la composición del
+     si la expresion es una RESTA entonces el código generado es la composición del
         código generado para la subexpresión izquierda, el código - y
         código generado para la subexpresión derecha
+
+generar código para cada instrucción:
+    si la instrucción es una asignacion analizamos parte iquierda de la variable y tras asignacion la expresión
+    si la instrucción es una condicional analizamos la condicion y comprobamos si el bloque cumple o no la esta
+        tendremos en cuenta la operaciones de igualdades y desigualdadesd.
+        La prioridad que presenta y el uso de parentesis que romperá la prioridad por defecto
+    si la instrucción es una iteracion tendremos un bloque con una condición este se repite
+        hasta que la condición sea falsa.
+        Puede tener aociado funcion avance devolviendo una expresión NUMERO mayor o igual a valor cero
+    si la instrucción es de ruptura lleva al programa fuera del bloque donde esta esté localizada
+    si la instrucción es una declaración de subprogramas llamamos a SUBPROGRAMAS en zona de INSTRUCCIONES // x,y = mayor(s); //llamada a funcion
+    si la instrucciión es mostrar por consola enseñamos los valores de una lista de variables
+    si la instrucción es un aserto mostraremos el resultado entre llaves tras su evaluación puede ser verdadero o falso

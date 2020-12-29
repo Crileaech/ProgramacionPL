@@ -1,38 +1,84 @@
-import java.io.*;
 public class EntradaCompilador
 {
-    public static void main(String[] args) {
+    public static Integer main(String[] args) {
 
+//        PROGRAMA
+//
+//                VARIABLES
+//        i,j,max,min:NUM;
+//        s:SEQ(NUM);
+//
+        Integer i,j,max,min, pos, r = 0;
+
+//        SUBPROGRAMAS
+//        FUNCION bucle_1_avance(SEQ(NUM) seq, NUM pos) dev (NUM r)
 //        VARIABLES
-//            x:NUM;
-//        INSTRUCCIONES
-//            {ERROR DE COMPILACION DECLARACION DE INSTRUCCION}
-//            x=x+1 //error x+1 no tiene valor porque x no tiene valor
+//                INSTRUCCIONES
+//        r=ultima_posicion(s,1)-i;
+//        dev r;
+//        FFUNCION
+//
+//        FUNCION f(NUM pos) dev (NUM r)
+//        VARIABLES
+//                INSTRUCCIONES
+//        si (pos>0) entonces
+        if(pos>0){
+            if(pos<5){
+                r = 1;
+            } else {
+                r = 2;
+            }
+        }
+        return r;
+//        si (pos<5) entonces
+//                r=1;
+//        dev r;
+//        sino
+//                r=2;
+//        fsi
+//                fsi
+//        FFUNCION
+//
+//                INSTRUCCIONES
+        Boolean asertos = true;
+//        { T }
+        Integer[] secuenciaInteger = new Integer[] {3,4,2,7,9,0,11};
+        secuenciaInteger[0] = 3;
+        secuenciaInteger[1] = 4;
+        Boolean [] secuenciaBoolean = new Boolean[]{Boolean.TRUE, Boolean.FALSE};
 
-//        {Error de Compilacion si no llamamos a declaracion de instrucciones ruptura bucle infinito}
-//        i=0;
-//        mientras (i<=9) hacer
-//                x=3;
-//        ruptura;
+        i=0+j;
+//        mostrar(i);
+        System.out.println(i);
+        min=secuenciaInteger[i];
+        max=secuenciaInteger[i];
+        Integer[] ultima_posicion = new Integer[];
+        Integer[] bucle_1_avance = new Integer[];
+        Integer avance = 0;
+        while(i <= ultima_posicion(secuenciaInteger)){
+            do avance = bucle_1_avance[secuenciaInteger];
+            if(secuenciaInteger[i] > max){
+                max=secuenciaInteger[i];
+            }break;
+            if(secuenciaInteger[i]<min){
+                min = secuenciaBoolean[Boolean.FALSE];
+            }
+            System.out.println("Valor de: "+min+ ", Valor de max:" +max);
+            i = i+1;
+        }
+//        mientras (i<=ultima_posicion(s)) hacer {avance: bucle_1_avance(s)}
+//        si (s[i]>max) entonces
+//                max=s[i];
+//        fsi
+//                ruptura;
+//        si (s[i]<min) entonces
+//                min=s[F];
+//        fsi
+//        mostrar(min,max);
+//        { PARATODO(p:[0,x],s[p]<=max && s[p]>=min) }
 //        i=i+1;
 //        fmientras
-        Integer x = 0;
-        //0: estado=(x)
-        x= x+1;
+//        { PARATODO(p:[0,ultima_posicion(s)],s[p]<=m && s[p]>=min) }
 
-        System.out.println("(Compilador) x ---> "+x);
-
-//        //1: estado=(x,0),(y,0),(z,0),(a,0),(b,0)
-//        a=2;
-//        b=a+1;
-//        System.out.println("(Compilador) b ---> "+b);
-//        //2: estado=(x,0),(y,0),(z,0),(a,0),(b,3)
-//        y=0;
-//        z=2*y;
-//        System.out.println("(Compilador) z ---> "+z);
-//        //3: estado=(x,0),(y,0),(z,0),(a,0),(b,3)
-//        b = null;
-//        System.out.println("(Compilador) b ---> "+b);
-//        //4: estado=(x,0),(y,0),(z,0),(a,0),(b,INDEF)
     }
 }
