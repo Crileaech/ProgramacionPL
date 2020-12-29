@@ -139,6 +139,23 @@ public class Compilador extends AnasintBaseListener {
         }
         return resultado;
     }
+    
+    //Generar codigo mostrar por pantalla
+    Set<String>vars=new HashSet<String>();
+
+   public  void gencodigo_mostrar(Anasint.ExprContext exprs){
+        Anasint.ExprContext expr = exprs;
+        String s = new String(" System.out.println()");
+        while (expr!=null){
+           if (!vars.contains(expr.getText()))
+                 s+="\"indefinido\"";
+           else
+                    s+=expr.getText();
+        }
+        s+=");\n";
+        gencode_espacios();
+    }
+
 
 
     /////////////////////////
@@ -154,13 +171,13 @@ public class Compilador extends AnasintBaseListener {
         gencode_evaluar_variable("VAR");
     }
     public void enterInstrs(Anasint.Declaracion_instruccionesContext ctx) {
-//        gencodigo_asignacion("",ctx.getChildCount(Anasint.IGUAL));
-//        gencodigo_condicional();
+//        gencodigo_asignacion(v.getText(),exp);
+//        gencodigo_condicional(tipo, ctx);
 //        gencodigo_iteracion
 //        gencodigo_ruptura
 //        gencodigo_declaracionSubprograma
 //        gencodigo_retorno
-//        gencodigo_mostrar
+//        gencodigo_mostrar(exprs)
 //        gencodigo_aserto
     }
     public void exitPrograma(Anasint.ProgramaContext ctx) {
