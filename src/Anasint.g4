@@ -55,8 +55,10 @@ expr: expr_integer
     ;
 
 expr_integer: expr_sacar_elem                                                 #sacarElemInteger
-            | PA expr_integer (POR|SUMA|RESTA) expr_integer PC                #parentesisOpInteger
-            | expr_integer (POR|SUMA|RESTA) expr_integer                      #opInteger
+            | PA expr_integer (POR) expr_integer PC                           #parentesisOpInteger
+            | PA expr_integer (SUMA|RESTA) expr_integer PC                    #parentesisOpInteger
+            | expr_integer (POR) expr_integer                                 #opInteger
+            | expr_integer (SUMA|RESTA) expr_integer                          #opInteger
             | expr_func                                                       #exprFuncInt
             | NUM                                                             #num
             | RESTA expr_integer                                              #menosNum
@@ -67,11 +69,11 @@ expr_bool: T                                                    #true
          | F                                                    #false
          | expr_sacar_elem                                      #sacarElemBool
          | expr_bool (IGUALL|DISTINTO) expr_bool                #compararBool
+         | NO expr_bool                                         #negacionBool
          | PA expr_bool (AND|OR) expr_bool PC                   #parentesisOpBool
          | expr_bool (AND|OR) expr_bool                         #opBool
          | expr_seq (IGUALL|DISTINTO) expr_seq                  #compararSeq
          | expr_integer (MENORIGUAL|MAYORIGUAL|MENOR|MAYOR|IGUALL|DISTINTO) expr_integer #compararInteger
-         | NO expr_bool                                         #negacionBool
          | expr_func                                            #exprFuncBool
          | variable                                             #varBool
          ;

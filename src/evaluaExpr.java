@@ -30,12 +30,18 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
         }
     }
     public Boolean visitParentesisOpBool(Anasint.ParentesisOpBoolContext ctx) {
-        boolOp opBool = new boolOp(ctx, flujoInstrucciones.asig);
-        return opBool.resultado();
+        Anasint.Expr_boolContext izq = (Anasint.Expr_boolContext) ctx.getChild(1);
+        Anasint.Expr_boolContext dcha = (Anasint.Expr_boolContext) ctx.getChild(3);
+        String operador = ctx.getChild(2).getText();
+        if(operador.equals("&&")) { return (Boolean) visit(izq)&&(Boolean) visit(dcha); }
+        else { return (Boolean) visit(izq)||(Boolean) visit(dcha); }
     }
     public Boolean visitOpBool(Anasint.OpBoolContext ctx) {
-        boolOp opBool = new boolOp(ctx, flujoInstrucciones.asig);
-        return opBool.resultado();
+        Anasint.Expr_boolContext izq = (Anasint.Expr_boolContext) ctx.getChild(0);
+        Anasint.Expr_boolContext dcha = (Anasint.Expr_boolContext) ctx.getChild(2);
+        String operador = ctx.getChild(1).getText();
+        if(operador.equals("&&")) { return (Boolean) visit(izq)&&(Boolean) visit(dcha); }
+        else { return (Boolean) visit(izq)||(Boolean) visit(dcha); }
     }
 
     public Boolean visitCompararSeq(Anasint.CompararSeqContext ctx) {
@@ -100,21 +106,25 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
         return (Integer) visit(ctx.expr_sacar_elem());
     }
     public Integer visitParentesisOpInteger(Anasint.ParentesisOpIntegerContext ctx) {
-        //(2-4)
-        intOp op = new intOp(ctx,flujoInstrucciones.asig);
-        return op.resultado();
+        Anasint.Expr_integerContext izq = (Anasint.Expr_integerContext) ctx.getChild(1);
+        Anasint.Expr_integerContext dcha = (Anasint.Expr_integerContext) ctx.getChild(3);
+        String operador = ctx.getChild(2).getText();
+        if(operador.equals("*")) { return (Integer)visit(izq)*(Integer)visit(dcha); }
+        else if(operador.equals("+")) { return (Integer)visit(izq)+(Integer)visit(dcha); }
+        else { return (Integer)visit(izq)-(Integer)visit(dcha); }
     }
 
     public Integer visitOpInteger(Anasint.OpIntegerContext ctx) {
-        //si se desea que se resuelvan las variables mirando otro almacén introducir otro en el
-        //constructor como segundo parámetro.
-        intOp operador = new intOp(ctx,flujoInstrucciones.asig);
-        return operador.resultado();
+        Anasint.Expr_integerContext izq = (Anasint.Expr_integerContext) ctx.getChild(0);
+        Anasint.Expr_integerContext dcha = (Anasint.Expr_integerContext) ctx.getChild(2);
+        String operador = ctx.getChild(1).getText();
+        if(operador.equals("*")) { return (Integer)visit(izq)*(Integer)visit(dcha); }
+        else if(operador.equals("+")) { return (Integer)visit(izq)+(Integer)visit(dcha); }
+        else { return (Integer)visit(izq)-(Integer)visit(dcha); }
     }
 
     public Integer visitMenosNum(Anasint.MenosNumContext ctx) {
-        intOp op = new intOp(ctx, flujoInstrucciones.asig);
-        return op.resultado();
+        return -(Integer)visit(ctx.expr_integer());
     }
 
     public Integer visitNum(Anasint.NumContext ctx) {
