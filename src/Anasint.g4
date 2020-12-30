@@ -104,7 +104,7 @@ declaracion_instrucciones: asignacion   #asig
 
 devolucion: RETURN (expr COMA)* expr PyC;
 
-asignacion: (variable COMA)* variable IGUAL (expr COMA)* (expr) PyC;
+asignacion: (variable|expr_sacar_elem COMA)* (variable|expr_sacar_elem) IGUAL (expr COMA)* (expr) PyC;
 
 condicion: IF PA expr_bool PC THEN (declaracion_instrucciones)+ (blq_sino)? ENDIF;
 
