@@ -17,6 +17,9 @@ public class Compilador extends AnasintBaseListener {
     int espacios = 3; //Contador de espacios en blanco. Sirve para indentar el código generado.
     Map<String, Anasint.ExprContext> almacen_definiciones_Integer = new HashMap<>(); //almacen de las definiciones de variables
     Map<String, Anasint.ExprContext> almacen_definiciones_Bool = new HashMap<>();
+    public static Map<String, Anasint.ExprContext> almacen_definiciones_Seq_Integer = new HashMap<>();
+    public static Map<String, Anasint.ExprContext> almacen_definiciones_Seq_Bool = new HashMap<>();
+    Map<String, Anasint.ExprContext> almacen_definiciones_Temporal = new HashMap<>();
 
     ///////////////////////////
     // METODOS GLOBALES
@@ -46,12 +49,19 @@ public class Compilador extends AnasintBaseListener {
             almacen_definiciones_Integer.put(aux, null);
         }
     }
+    public void declarar_variable_Seq_Integer(String var) {
+        almacen_definiciones_Seq_Integer.put(var, null);
+    }
     public void declarar_variable_Bool(List<TerminalNode> var) {
         String aux = new String();
         for (int i = 0; i < var.size(); i++) {
             aux = var.get(i).getText();
             almacen_definiciones_Bool.put(aux, null);
         }
+    }
+
+    public void declarar_variable_Seq_Bool(String var) {
+        almacen_definiciones_Seq_Bool.put(var, null);
     }
     //definición por defecto (null equivaldría a 0)
 
@@ -60,10 +70,17 @@ public class Compilador extends AnasintBaseListener {
         almacen_definiciones_Integer.put(var,expr);
     }
 
+    public void definir_variable_Seq_Integer(String var, Anasint.ExprContext expr){
+        almacen_definiciones_Seq_Integer.put(var,expr);
+    }
+
     public void definir_variable_Bool(String var, Anasint.ExprContext expr){
         almacen_definiciones_Bool.put(var,expr);
     }
 
+    public void definir_variable_Seq_Bool(String var, Anasint.ExprContext expr){
+        almacen_definiciones_Seq_Bool.put(var,expr);
+    }
     //Escribir espacios en blanco en fichero de salida
     private void gencode_espacios(){
         try{
@@ -112,9 +129,7 @@ public class Compilador extends AnasintBaseListener {
             gencode_espacios();
             fichero.write("public static void main(String[] args) {\n");
             espacios++;
-        }catch(IOException e){
-            e.getMessage();
-        }
+        }catch(IOException e){}
     }
     //Generar código fin main
     private void gencode_end_main(){
@@ -156,6 +171,25 @@ public class Compilador extends AnasintBaseListener {
         }
     }
 
+    private void gencode_declarar_variables_Seq_Integer(){
+        try{
+            Set<String> aux = almacen_definiciones_Seq_Integer.keySet();
+            if (aux.size()>0){
+                gencode_espacios();
+                fichero.write("Integer[] ");
+                Iterator<String> it = aux.iterator();
+                while (it.hasNext()){
+                    fichero.write(it.next());
+                    if (it.hasNext())
+                        fichero.write(",");
+                }
+                fichero.write(";\n");
+            }
+        }catch(IOException e){
+            e.getMessage();
+        }
+    }
+
     private void gencode_declarar_variables_Bool(){
         try{
             Set<String> aux = almacen_definiciones_Bool.keySet();
@@ -175,13 +209,34 @@ public class Compilador extends AnasintBaseListener {
         }
     }
 
+    private void gencode_declarar_variables_Seq_Bool(){
+        try{
+            Set<String> aux = almacen_definiciones_Seq_Bool.keySet();
+            if (aux.size()>0){
+                gencode_espacios();
+                fichero.write("Boolean[] ");
+                Iterator<String> it = aux.iterator();
+                while (it.hasNext()){
+                    fichero.write(it.next());
+                    if (it.hasNext())
+                        fichero.write(",");
+                }
+                fichero.write(";\n");
+            }
+        }catch(IOException e){
+            e.getMessage();
+        }
+    }
+
     //Generar código mostrar el valor de variable en una evaluación
     public void gencode_evaluar_variable(String var){
         try{
             gencode_espacios();
             fichero.write("System.out.println(\"(Compilador) "+
                     var+" ---> \""+"+"+var+");\n");
-        }catch(IOException e){}
+        }catch(IOException e){
+            e.getMessage();
+        }
     }
 
     // Generar código condicional (Falta conseguir que las instrucciones se ejecuten dentro de las llaves)
@@ -196,30 +251,62 @@ public class Compilador extends AnasintBaseListener {
         }
     }
     // Generar código iteración (ocurre lo mismo que en condicional)
-    public void gencodigo_iteracion(Anasint.Expr_boolContext expr,List<Anasint.Declaracion_instruccionesContext> ls){
-        try{
+    public void gencodigo_iteracion(Anasint.Expr_boolContext expr,List<Anasint.Declaracion_instruccionesContext> ls) {
+        try {
             Anasint.Declaracion_instruccionesContext aux;
             gencode_espacios();
-            fichero.write("while("+generador.visit(expr)+"){");
+            fichero.write("while(" + generador.visit(expr) + "){");
             fichero.write("}\n");
-        }catch (IOException e){
+        } catch (IOException e) {
             e.getMessage();
         }
     }
-    //Generar código ruptura “break”, que solamente sirve para salir de un bucle
-    public void gencodigo_ruptura(TerminalNode ruptura, TerminalNode pyC) {
-        boolean cent = false, r = false;
-        try{
-            gencode_espacios();
-            if (cent) {
-                fichero.write("ruptura"+generador.visit(ruptura));
-                r = true;
-            }
 
-        }catch (IOException e){
+    //Generar codigo mostrar por pantalla
+    public  void gencodigo_mostrar(List<Anasint.ExprContext> exprs){
+        String res = new String();
+        for(int i=0;i< exprs.size();i++){
+            gencode_espacios();
+            res += "System.out.println(";
+            res += generador.visit(exprs.get(i));
+            res += ");\n";
+
+        }
+        try{
+            fichero.write(res);
+            gencode_espacios();
+        }catch(IOException e){
             e.getMessage();
         }
-
+    }
+    //Generar codigo retorno
+    public void gencodigo_devolucion(List<Anasint.ExprContext> exprs){
+        String res = "return ";
+        for(int i=0;i< exprs.size();i++){
+            res += generador.visit(exprs.get(i));
+            if(i+1 != exprs.size()){
+                res += ",";
+            }else{
+                res +=";";
+            }
+        }
+        try{
+            gencode_espacios();
+            fichero.write(res);
+            gencode_espacios();
+        }catch(IOException e){
+            e.getMessage();
+        }
+    }
+    //Generar código de ruptura
+    public void gencodigo_break(){
+        String res = "break;\n";
+        try{
+            fichero.write(res);
+            gencode_espacios();
+        }catch(IOException e){
+            e.getMessage();
+        }
     }
     //Generar codigo asertos
     public void gencodigo_asertos(Anasint.AsertoContext ctx) {
@@ -250,6 +337,7 @@ public class Compilador extends AnasintBaseListener {
         pila.push(pila.peek());
     }
 
+
     /////////////////////////
     // REGLAS. ATRIBUCIONES.
     /////////////////////////
@@ -261,13 +349,14 @@ public class Compilador extends AnasintBaseListener {
         gencode_begin_main();
     }
     public void enterVariable(Anasint.VariableContext ctx) {
-        //gencode_begin_main();
         gencode_evaluar_variable(ctx.VAR().getText());
     }
 
     public void exitVariables(Anasint.VariablesContext ctx){
         gencode_declarar_variables_Integer();
         gencode_declarar_variables_Bool();
+        gencode_declarar_variables_Seq_Integer();
+        gencode_declarar_variables_Seq_Bool();
     }
 
 
@@ -282,6 +371,15 @@ public class Compilador extends AnasintBaseListener {
 
     }
 
+    public void enterSecuencias(Anasint.SecuenciasContext ctx){
+        if(ctx.tipos_no_elementales().getChild(0)==ctx.tipos_no_elementales().SEQ_NUM()){
+            declarar_variable_Seq_Integer(ctx.getChild(0).getText());
+        }
+        if(ctx.tipos_no_elementales().getChild(0)==ctx.tipos_no_elementales().SEQ_BOOL()){
+            declarar_variable_Seq_Bool(ctx.getChild(0).getText());
+        }
+    }
+
     public void enterAsig(Anasint.AsigContext ctx){
         gencodigo_asignacion(ctx.asignacion().variable(),ctx.asignacion().expr());
     }
@@ -294,24 +392,22 @@ public class Compilador extends AnasintBaseListener {
         gencodigo_iteracion(ctx.iteracion().expr_bool(),ctx.iteracion().declaracion_instrucciones());
     }
 
-    public void enterBreak(Anasint.BreakContext breakContext) {
-        gencodigo_ruptura(breakContext.BREAK(), breakContext.PyC());
+    public void enterDev(Anasint.DevContext ctx){
+        gencodigo_devolucion(ctx.devolucion().expr());
     }
+
+    public void enterMostrar(Anasint.MostrarContext ctx){
+        gencodigo_mostrar(ctx.expr());
+    }
+
+    public void enterBreak(Anasint.BreakContext ctx){
+        gencodigo_break();
+    }
+
     public void enterAserto(Anasint.AsertoContext asertoContext) {
         gencodigo_asertos(asertoContext);
     }
 
-
-
-    public void enterInstrs(Anasint.Declaracion_instruccionesContext ctx) {
-//        gencodigo_condicional(tipo, ctx);
-//        gencodigo_iteracion
-//        gencodigo_ruptura
-//        gencodigo_declaracionSubprograma
-//        gencodigo_retorno
-//        gencodigo_mostrar(exprs);
-//        gencodigo_aserto
-    }
     public void exitPrograma(Anasint.ProgramaContext ctx) {
         gencode_end_main();
         gencode_end_class();
