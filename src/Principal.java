@@ -14,18 +14,6 @@ public class Principal {
         Anasint anasint = new Anasint(tokens);
         ParseTree tree = anasint.programa();// begin parsing at init rule
 
-//        VerificarAmbiguedad visitAmbiguedad = new VerificarAmbiguedad();
-//        visitAmbiguedad.visit(tree);
-//        System.out.println(visitAmbiguedad.visit(tree));
-
-//        AlmacenGlobal visitor = new AlmacenGlobal();
-//        visitor.visit(tree);
-//        System.out.println(visitor.visit(tree));
-//
-//        AlmacenFunciones loader = new AlmacenFunciones();
-//        loader.visit(tree);
-//        System.out.println(loader.visit(tree)); // print results
-
         // Create a generic parse tree walker that can trigger callbacks
         ParseTreeWalker walker = new ParseTreeWalker();
         // Walk the tree created during the parse, trigger callbacks
