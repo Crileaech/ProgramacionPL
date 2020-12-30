@@ -17,6 +17,9 @@ public class Compilador extends AnasintBaseListener {
     int espacios = 0; //Contador de espacios en blanco. Sirve para indentar el código generado.
     Map<String, Anasint.ExprContext> almacen_definiciones_Integer = new HashMap<>(); //almacen de las definiciones de variables
     Map<String, Anasint.ExprContext> almacen_definiciones_Bool = new HashMap<>();
+    public static Map<String, Anasint.ExprContext> almacen_definiciones_Seq_Integer = new HashMap<>();
+    public static Map<String, Anasint.ExprContext> almacen_definiciones_Seq_Bool = new HashMap<>();
+    Map<String, Anasint.ExprContext> almacen_definiciones_Temporal = new HashMap<>();
 
     ///////////////////////////
     // METODOS GLOBALES
@@ -46,6 +49,9 @@ public class Compilador extends AnasintBaseListener {
             almacen_definiciones_Integer.put(aux, null);
         }
     }
+    public void declarar_variable_Seq_Integer(String var) {
+            almacen_definiciones_Seq_Integer.put(var, null);
+    }
         public void declarar_variable_Bool(List<TerminalNode> var) {
             String aux = new String();
             for (int i = 0; i < var.size(); i++) {
@@ -53,6 +59,10 @@ public class Compilador extends AnasintBaseListener {
                 almacen_definiciones_Bool.put(aux, null);
             }
         }
+
+    public void declarar_variable_Seq_Bool(String var) {
+        almacen_definiciones_Seq_Bool.put(var, null);
+    }
          //definición por defecto (null equivaldría a 0)
 
     //Actualizar la definición de una variable
@@ -60,10 +70,17 @@ public class Compilador extends AnasintBaseListener {
         almacen_definiciones_Integer.put(var,expr);
     }
 
+    public void definir_variable_Seq_Integer(String var, Anasint.ExprContext expr){
+        almacen_definiciones_Seq_Integer.put(var,expr);
+    }
+
     public void definir_variable_Bool(String var, Anasint.ExprContext expr){
         almacen_definiciones_Bool.put(var,expr);
     }
 
+    public void definir_variable_Seq_Bool(String var, Anasint.ExprContext expr){
+        almacen_definiciones_Seq_Bool.put(var,expr);
+    }
     //Escribir espacios en blanco en fichero de salida
     private void gencode_espacios(){
         try{
@@ -146,12 +163,46 @@ public class Compilador extends AnasintBaseListener {
         }catch(IOException e){}
     }
 
+    private void gencode_declarar_variables_Seq_Integer(){
+        try{
+            Set<String> aux = almacen_definiciones_Seq_Integer.keySet();
+            if (aux.size()>0){
+                gencode_espacios();
+                fichero.write("Integer[] ");
+                Iterator<String> it = aux.iterator();
+                while (it.hasNext()){
+                    fichero.write(it.next());
+                    if (it.hasNext())
+                        fichero.write(",");
+                }
+                fichero.write(";\n");
+            }
+        }catch(IOException e){}
+    }
+
     private void gencode_declarar_variables_Bool(){
         try{
             Set<String> aux = almacen_definiciones_Bool.keySet();
             if (aux.size()>0){
                 gencode_espacios();
                 fichero.write("Boolean ");
+                Iterator<String> it = aux.iterator();
+                while (it.hasNext()){
+                    fichero.write(it.next());
+                    if (it.hasNext())
+                        fichero.write(",");
+                }
+                fichero.write(";\n");
+            }
+        }catch(IOException e){}
+    }
+
+    private void gencode_declarar_variables_Seq_Bool(){
+        try{
+            Set<String> aux = almacen_definiciones_Seq_Bool.keySet();
+            if (aux.size()>0){
+                gencode_espacios();
+                fichero.write("Boolean[] ");
                 Iterator<String> it = aux.iterator();
                 while (it.hasNext()){
                     fichero.write(it.next());
@@ -207,19 +258,51 @@ public class Compilador extends AnasintBaseListener {
     //Generar codigo mostrar por pantalla
     Set<String>vars=new HashSet<String>();
 
-    public  void gencodigo_mostrar(Anasint.ExprContext exprs){
-        Anasint.ExprContext expr = exprs;
-        String s = new String(" System.out.println()");
-        while (expr!=null){
-            if (!vars.contains(expr.getText()))
-                s+="\"indefinido\"";
-            else
-                s+=expr.getText();
+    public  void gencodigo_mostrar(List<Anasint.ExprContext> exprs){
+        String res = new String();
+        for(int i=0;i< exprs.size();i++){
+            gencode_espacios();
+            res += "System.out.println(";
+            res += generador.visit(exprs.get(i));
+            res += ");\n";
+
         }
-        s+=");\n";
-        gencode_espacios();
+        try{
+            fichero.write(res);
+            gencode_espacios();
+        }catch(IOException e){
+
+        }
     }
 
+    public void gencodigo_devolucion(List<Anasint.ExprContext> exprs){
+        String res = "return ";
+        for(int i=0;i< exprs.size();i++){
+            res += generador.visit(exprs.get(i));
+            if(i+1 != exprs.size()){
+                res += ",";
+            }else{
+                res +=";";
+            }
+        }
+        try{
+            gencode_espacios();
+            fichero.write(res);
+            gencode_espacios();
+        }catch(IOException e){
+
+        }
+    }
+
+    public void gencodigo_break(){
+        String res = "break;\n";
+        try{
+            fichero.write(res);
+            gencode_espacios();
+        }catch(IOException e){
+
+        }
+    }
 
 
     /////////////////////////
@@ -239,6 +322,8 @@ public class Compilador extends AnasintBaseListener {
     public void exitVariables(Anasint.VariablesContext ctx){
         gencode_declarar_variables_Integer();
         gencode_declarar_variables_Bool();
+        gencode_declarar_variables_Seq_Integer();
+        gencode_declarar_variables_Seq_Bool();
     }
 
 
@@ -253,6 +338,15 @@ public class Compilador extends AnasintBaseListener {
 
     }
 
+    public void enterSecuencias(Anasint.SecuenciasContext ctx){
+        if(ctx.tipos_no_elementales().getChild(0)==ctx.tipos_no_elementales().SEQ_NUM()){
+            declarar_variable_Seq_Integer(ctx.getChild(0).getText());
+        }
+        if(ctx.tipos_no_elementales().getChild(0)==ctx.tipos_no_elementales().SEQ_BOOL()){
+            declarar_variable_Seq_Bool(ctx.getChild(0).getText());
+        }
+    }
+
     public void enterAsig(Anasint.AsigContext ctx){
         gencodigo_asignacion(ctx.asignacion().variable(),ctx.asignacion().expr());
     }
@@ -263,6 +357,18 @@ public class Compilador extends AnasintBaseListener {
 
     public void enterIt(Anasint.ItContext ctx){
         gencodigo_iteracion(ctx.iteracion().expr_bool(),ctx.iteracion().declaracion_instrucciones());
+    }
+
+    public void enterDev(Anasint.DevContext ctx){
+        gencodigo_devolucion(ctx.devolucion().expr());
+    }
+
+    public void enterMostrar(Anasint.MostrarContext ctx){
+        gencodigo_mostrar(ctx.expr());
+    }
+
+    public void enterBreak(Anasint.BreakContext ctx){
+        gencodigo_break();
     }
 
     public void enterInstrs(Anasint.Declaracion_instruccionesContext ctx) {

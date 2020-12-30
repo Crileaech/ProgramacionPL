@@ -2,13 +2,12 @@ PROGRAMA
 VARIABLES
     i,j:NUM;
     l:LOG;
+    s:SEQ(NUM);
 SUBPROGRAMAS
+
 INSTRUCCIONES
+    s = [1,2,3,4];
     l=T;
-    si (l == T) entonces
-        i=3;
-    fsi
-    mientras(l==T) hacer
-        i=5;
-    fmientras
+    i=0;
+    mostrar(l,i);
 

@@ -8,6 +8,13 @@ public class Generador extends AnasintBaseVisitor<String> {
         return (String) visit(ctx.getChild(0));
     }
 
+    public String visitExpr_sacar_elem(Anasint.Expr_sacar_elemContext ctx){
+        String i = ctx.variable().VAR().getText();
+        String j = visit(ctx.expr_integer());
+        String res = i+"["+j+"]";
+        return res;
+    }
+
     public String visitExpr_Integer(Anasint.Expr_integerContext ctx){
         return (String) visit(ctx.getChild(0));
     }
@@ -16,12 +23,56 @@ public class Generador extends AnasintBaseVisitor<String> {
         return (String) visit(ctx.getChild(0));
     }
 
+    public String visitExpr_seq(Anasint.Expr_seqContext ctx){
+        return (String) visit(ctx.getChild(0));
+    }
+
+    public String visitVaciaSeq(Anasint.VarSeqContext ctx){
+        String res="[];";
+        return res;
+    }
+
+    public String visitSeq(Anasint.SeqContext ctx){
+        Boolean esInteger = true;
+        String res = new String();
+        System.out.println(ctx.expr(1).getText());
+        if((ctx.expr(0).getText().equals("true")) ||(ctx.expr(0).getText().equals("false"))){
+            esInteger = false;
+        }else if(Compilador.almacen_definiciones_Seq_Bool.containsKey(ctx.expr(0).getText())){
+            esInteger = false;
+        }
+        if(esInteger) {
+            res = "new Integer[]{";
+        }else{
+             res = "new Boolean[]{";
+        }
+        String aux= new String();
+        for(int i=0;i<ctx.expr().size();i++){
+            aux = visit(ctx.expr(i));
+            res += aux;
+            if(i+1 != ctx.expr().size()){
+                res += ",";
+            }else{
+                res += "}";
+            }
+        }
+        return res;
+    }
+
+    public String visitVarSeq(Anasint.VarSeqContext ctx){
+        return ctx.variable().VAR().getText();
+    }
+
     public String visitTrue(Anasint.TrueContext ctx){
         return "true";
     }
 
     public String visitFalse(Anasint.FalseContext ctx){
         return "false";
+    }
+
+    public String visitSacarElemBool(Anasint.SacarElemBoolContext ctx){
+        return visit(ctx.getChild(0));
     }
 
     public String visitCompararBool(Anasint.CompararBoolContext ctx){
@@ -113,6 +164,10 @@ public class Generador extends AnasintBaseVisitor<String> {
         return ctx.variable().VAR().getText();
     }
 
+    public String visitSacarElemInteger(Anasint.SacarElemIntegerContext ctx){
+        return visit(ctx.getChild(0));
+    }
+
     public String visitVarInt(Anasint.VarIntContext ctx) {
         return ctx.variable().VAR().getText();
     }
@@ -164,4 +219,6 @@ public class Generador extends AnasintBaseVisitor<String> {
         }
         return res;
     }
+
+
 }
