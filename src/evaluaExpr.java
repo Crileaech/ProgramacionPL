@@ -78,7 +78,7 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
             System.out.println("ERROR: El índice excede la secuencia. (" + ctx.getText() + ").");
             System.out.println("Ejecución finalizada.");
             int tam = flujoInstrucciones.pila.size();
-            flujoInstrucciones.pila.empty();
+            flujoInstrucciones.pila.clear();
             for(int i=0; i<tam; i++) {
                 flujoInstrucciones.pila.push(false);
             }

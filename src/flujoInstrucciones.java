@@ -181,7 +181,7 @@ public class flujoInstrucciones extends AnasintBaseListener{
                 } else {
                     muestraConIdentación("(aserto) el programa es incorrecto. La ejecución del programa ha sido finalizada.");
                     int tam = pila.size();
-                    pila.empty();
+                    pila.clear();
                     for(int i = 0; i<tam; i++) { pila.push(false); }
                 }
             } else {
@@ -190,7 +190,7 @@ public class flujoInstrucciones extends AnasintBaseListener{
                     muestraConIdentación("(aserto) la ejecución del programa está siendo correcta.");
                 } else {
                     int tam = pila.size();
-                    pila.empty();
+                    pila.clear();
                     for(int i = 0; i<tam; i++) { pila.push(false); }
                     muestraConIdentación("(aserto) el programa es incorrecto. La ejecución del programa ha sido finalizada.");
                 }
