@@ -1,12 +1,127 @@
 public class Generador extends AnasintBaseVisitor<String> {
     //Generar texto correspondiente a variable
-    public String visitVar(Anasint.VariableContext ctx) {
-        return ctx.VAR().getText();
+//    public String visitIdExpr(Anasint.IdExprContext ctx) {
+//        return ctx.VAR().getText();
+//    }
+
+    public String visitExpr(Anasint.ExprContext ctx){
+        return (String) visit(ctx.getChild(0));
     }
+
+    public String visitExpr_Integer(Anasint.Expr_integerContext ctx){
+        return (String) visit(ctx.getChild(0));
+    }
+
+    public String visitExpr_bool(Anasint.Expr_boolContext ctx){
+        return (String) visit(ctx.getChild(0));
+    }
+
+    public String visitTrue(Anasint.TrueContext ctx){
+        return "true";
+    }
+
+    public String visitFalse(Anasint.FalseContext ctx){
+        return "false";
+    }
+
+    public String visitCompararBool(Anasint.CompararBoolContext ctx){
+        String res = new String();
+        if(ctx.getChild(1)==ctx.IGUALL()){
+            String i=visit(ctx.expr_bool(0));
+            String j=visit(ctx.expr_bool(1));
+            res = i+"=="+j;
+        }
+        if(ctx.getChild(2)==ctx.DISTINTO()){
+            String i=visit(ctx.expr_bool(0));
+            String j=visit(ctx.expr_bool(1));
+            res = i+"!="+j;
+        }
+        return res;
+    }
+    public String visitParentesisOpBool(Anasint.ParentesisOpBoolContext ctx){
+        String res = "(";
+        if(ctx.getChild(2)==ctx.AND()){
+            String i=visit(ctx.expr_bool(0));
+            String j=visit(ctx.expr_bool(1));
+            res += i+"&&"+j;
+        }
+        if(ctx.getChild(2)==ctx.OR()){
+            String i=visit(ctx.expr_bool(0));
+            String j=visit(ctx.expr_bool(1));
+            res += i+"||"+j;
+        }
+        res += ")";
+        return res;
+    }
+    public String visitOpBool(Anasint.OpBoolContext ctx){
+        String res = new String();
+        if(ctx.getChild(1)==ctx.AND()){
+            String i=visit(ctx.expr_bool(0));
+            String j=visit(ctx.expr_bool(1));
+            res = i+"&&"+j;
+        }
+        if(ctx.getChild(1)==ctx.OR()){
+            String i=visit(ctx.expr_bool(0));
+            String j=visit(ctx.expr_bool(1));
+            res = i+"||"+j;
+        }
+        return res;
+    }
+
+    public String visitCompararInteger(Anasint.CompararIntegerContext ctx){
+        String res = new String();
+        if(ctx.getChild(1)==ctx.MENORIGUAL()) {
+            String i = visit(ctx.expr_integer(0));
+            String j = visit(ctx.expr_integer(1));
+            res = i + "<=" + j;
+        }
+        if(ctx.getChild(1)==ctx.MAYORIGUAL()) {
+            String i = visit(ctx.expr_integer(0));
+            String j = visit(ctx.expr_integer(1));
+            res = i + ">=" + j;
+        }
+        if(ctx.getChild(1)==ctx.MENOR()) {
+            String i = visit(ctx.expr_integer(0));
+            String j = visit(ctx.expr_integer(1));
+            res = i + "<" + j;
+        }
+        if(ctx.getChild(1)==ctx.MAYOR()) {
+            String i = visit(ctx.expr_integer(0));
+            String j = visit(ctx.expr_integer(1));
+            res = i + ">" + j;
+        }
+        if(ctx.getChild(1)==ctx.IGUALL()) {
+            String i = visit(ctx.expr_integer(0));
+            String j = visit(ctx.expr_integer(1));
+            res = i + "==" + j;
+        }
+        if(ctx.getChild(1)==ctx.DISTINTO()) {
+            String i = visit(ctx.expr_integer(0));
+            String j = visit(ctx.expr_integer(1));
+            res = i + "!=" + j;
+        }
+        return res;
+    }
+
+    public String visitNegacionBool(Anasint.NegacionBoolContext ctx){
+        String i=visit(ctx.expr_bool());
+        String res = "!"+i;
+        return res;
+    }
+
+    public String visitVarBool(Anasint.VarBoolContext ctx){
+        return ctx.variable().VAR().getText();
+    }
+
+    public String visitVarInt(Anasint.VarIntContext ctx) {
+        return ctx.variable().VAR().getText();
+    }
+
     //Generar texto correspondiente a número
     public String visitNum(Anasint.NumContext ctx) {
-        return ctx.NUM().getText(); }
-    //Generar texto correspondiente a expresión parentizada
+        return ctx.getText();
+    }
+
     public String visitParentesisOpInteger(Anasint.ParentesisOpIntegerContext ctx){
         String res = "(";
         if(ctx.getChild(2)==ctx.SUMA()){
@@ -26,7 +141,9 @@ public class Generador extends AnasintBaseVisitor<String> {
             res += i+"*"+j;
         }
         res += ")";
-        return res; }
+        return res;
+    }
+
     public String visitOpInteger(Anasint.OpIntegerContext ctx){
         String res = new String();
         if(ctx.getChild(1)==ctx.SUMA()){

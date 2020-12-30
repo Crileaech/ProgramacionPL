@@ -1,28 +1,33 @@
-import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.runtime.RecognitionException;
+import org.antlr.v4.runtime.tree.TerminalNode;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
-public class Compilador extends AnasintBaseListener{
+
+public class Compilador extends AnasintBaseListener {
     ///////////////////////////
     // VARIABLES GLOBALES
     //////////////////////////
     Generador generador = new Generador(); //traductor de árbolparse a texto
     ExtraerVarsExpr extractor = new ExtraerVarsExpr(); //extractor de variables de una expresión
     FileWriter fichero; //Fichero para escribir el resultado de la compilación
-    String nombre_fichero=null; //Nombre del fichero compilado
+
+    String EntradaCompilador = null; //Nombre del fichero compilador
     int espacios = 0; //Contador de espacios en blanco. Sirve para indentar el código generado.
-            Map<String, Anasint.Expr_integerContext> almacen_definiciones = new
-            HashMap<>(); //almacen de las definiciones de variables
+    Map<String, Anasint.ExprContext> almacen_definiciones_Integer = new HashMap<>(); //almacen de las definiciones de variables
+    Map<String, Anasint.ExprContext> almacen_definiciones_Bool = new HashMap<>();
+
     ///////////////////////////
     // METODOS GLOBALES
     //////////////////////////
     //Nombre del fichero sin la extensión
-    public void init(String f){ nombre_fichero=new
-            String(f.substring(0,f.length()-4)); }
+    public void init(String f){
+        EntradaCompilador=new String(f.substring(0,17)); }
     //Abrir fichero
     private void open_file(){
         try{
-            fichero = new FileWriter("src/"+nombre_fichero+".java");
+            fichero = new FileWriter("src/"+EntradaCompilador+".java");
         }catch(IOException e)
         {System.out.println("open_file (exception): "+e.toString());}
     }
@@ -34,13 +39,31 @@ public class Compilador extends AnasintBaseListener{
         {System.out.println("close_file (exception): "+e.toString());}
     }
     //Declarar variable con definición por defecto
-    public void declarar_variable(String var){
-        almacen_definiciones.put(var,null); //definición por defecto (null equivaldría a 0)
+    public void declarar_variable_Integer(List<TerminalNode> var) {
+        String aux = new String();
+        for (int i = 0; i < var.size(); i++) {
+            aux = var.get(i).getText();
+            almacen_definiciones_Integer.put(aux, null);
+        }
     }
+        public void declarar_variable_Bool(List<TerminalNode> var) {
+            String aux = new String();
+            for (int i = 0; i < var.size(); i++) {
+                aux = var.get(i).getText();
+                almacen_definiciones_Bool.put(aux, null);
+            }
+        }
+         //definición por defecto (null equivaldría a 0)
+
     //Actualizar la definición de una variable
-    public void definir_variable(String var, Anasint.Expr_integerContext expr){
-        almacen_definiciones.put(var,expr);
+    public void definir_variable_Integer(String var, Anasint.ExprContext expr){
+        almacen_definiciones_Integer.put(var,expr);
     }
+
+    public void definir_variable_Bool(String var, Anasint.ExprContext expr){
+        almacen_definiciones_Bool.put(var,expr);
+    }
+
     //Escribir espacios en blanco en fichero de salida
     private void gencode_espacios(){
         try{
@@ -49,84 +72,33 @@ public class Compilador extends AnasintBaseListener{
         }catch(IOException e)
         {System.out.println("gencode_espacios (exception): "+e.toString());}
     }
-    //Generar código para evaluación de variable indefinida
-    public void gencode_evaluacion_variable_indefinida(String var){
-        try{
-            gencode_espacios();
-            fichero.write(var+" = null;\n"); //código de una asignación
-            gencode_espacios();
-            fichero.write("System.out.println(\"(Compilador) "+
-                    var+" ---> \""+"+"+var+");\n");
-        }catch(IOException e){}
-    }
-    //Calcular dependencias de variables por niveles
-    //Necesario para generar código de la evaluación de una variable
-    //nivel representa el conjunto de variables al que se le calcula las dependencias
-            // r representa las dependencias organizadas por niveles,
-            // p.e. r=[[b], [a], [x, y]] representa b depende de a y a depende de x e y
-    public void calcular_dependencias_por_niveles(Set<String> nivel,
-                                                  List<Set<String>> r){
-        ExtraerVarsExpr extractor = new ExtraerVarsExpr();
-        try{
-            if (!nivel.isEmpty()){
-                Set<String>nivel_sig=new HashSet<String>();
-                //nivel_sig representa las variables de las que dependen directamente las variables de nivel
-                for(String v:nivel){
-                    Anasint.Expr_integerContext def =
-                            almacen_definiciones.get(v);
-                    Set<String>aux=new HashSet<>();
-                    if (def!=null)
-                        aux=extractor.visit(def);
-                    nivel_sig.addAll(aux);
-                }
-                if (!nivel_sig.isEmpty()) r.add(nivel_sig); //actualización de niveles de dependencia con nuevo nivel
-                calcular_dependencias_por_niveles(nivel_sig,r);
-            }
-        }catch(RecognitionException e){}
-    }
+
     //Generar código para v = exp
-    public void gencodigo_asignacion(String v, Anasint.Expr_integerContext exp){
+    public void gencodigo_asignacion(List<Anasint.VariableContext> variables, List<Anasint.ExprContext> exp){
         String txt_exp="0";
-        if (exp!=null)
-            txt_exp = generador.visit(exp);
-        gencode_espacios();
-        try{
-            fichero.write(v+"="+txt_exp+";\n"); //código de una asignación
-        }catch(IOException e){}
-    }
-    //Generar código desde dependencias por niveles
-    // e.g. desde var=x y r=[[x], [y, z], [r, t, z], [r, t], [t]] se generará la secuencia de asignaciones:
-    // t= ...
-    // r= ...
-    // z = ...
-    // y = ...
-    // x = ...
-    public void gencode_desde_dependencias(String var, List<Set<String>>r){
-        Set<String>visitados=new HashSet<String>(); //Evitar código repetido
-        for (int i=r.size()-1;i>=0;i--) //primero las variables que no  dependen de otras y luego las restantes por niveles
-        for(String v:r.get(i)) //asignaciones correspondientes a  variables de un nivel
-        if (!visitados.contains(v)){
-            visitados.add(v);
-            Anasint.Expr_integerContext exp =
-                    almacen_definiciones.get(v);
-            gencodigo_asignacion(v, exp);
+        String v = new String();
+        for(int i=0;i<variables.size();i++) {
+            v = variables.get(i).getText();
+            Anasint.ExprContext aux = exp.get(i);
+            if (aux != null)
+                txt_exp = generador.visit(aux);
+            gencode_espacios();
+
+            try {
+                fichero.write(v + "=" + txt_exp + ";\n"); //código de una asignación
+            } catch (IOException e) {
+                e.getMessage();
+            }
         }
-        gencode_evaluar_variable(var); //Código para mostrar por pantalla el valor de la variable var evaluada
     }
-    //Generar código evaluación variable definida
-    public void gencode_evaluacion_variable_definida(String var){
-        Set<String>n=new HashSet<String>(); n.add(var);
-        List<Set<String>>r=new LinkedList<Set<String>>(); r.add(n);
-        calcular_dependencias_por_niveles(n,r); //Calcular dependencias
-        gencode_desde_dependencias(var,r); // Generar código desde dependencias
-    }
+
     //Generar código comienzo clase
     private void gencode_begin_class(){
         try{
             gencode_espacios();
             fichero.write("import java.io.*;\n");
             gencode_espacios();
-            fichero.write("public class "+nombre_fichero+"\n");
+            fichero.write("public class "+EntradaCompilador+"\n");
             gencode_espacios();
             fichero.write("{\n");
             espacios++;
@@ -157,9 +129,9 @@ public class Compilador extends AnasintBaseListener{
         }catch(IOException e){}
     }
     //Generar código declaración de variables
-    private void gencode_declarar_variables(){
+    private void gencode_declarar_variables_Integer(){
         try{
-            Set<String> aux = almacen_definiciones.keySet();
+            Set<String> aux = almacen_definiciones_Integer.keySet();
             if (aux.size()>0){
                 gencode_espacios();
                 fichero.write("Integer ");
@@ -173,6 +145,24 @@ public class Compilador extends AnasintBaseListener{
             }
         }catch(IOException e){}
     }
+
+    private void gencode_declarar_variables_Bool(){
+        try{
+            Set<String> aux = almacen_definiciones_Bool.keySet();
+            if (aux.size()>0){
+                gencode_espacios();
+                fichero.write("Boolean ");
+                Iterator<String> it = aux.iterator();
+                while (it.hasNext()){
+                    fichero.write(it.next());
+                    if (it.hasNext())
+                        fichero.write(",");
+                }
+                fichero.write(";\n");
+            }
+        }catch(IOException e){}
+    }
+
     //Generar código mostrar el valor de variable en una evaluación
     public void gencode_evaluar_variable(String var){
         try{
@@ -181,63 +171,112 @@ public class Compilador extends AnasintBaseListener{
                     var+" ---> \""+"+"+var+");\n");
         }catch(IOException e){}
     }
-    // Test de evaluaciones indefinidas.
-    boolean test(String v){
+
+    // Generar código condicional (Falta conseguir que las instrucciones se ejecuten dentro de las llaves)
+    public void gencodigo_condicional(Anasint.Expr_boolContext expr, List<Anasint.Declaracion_instruccionesContext> ls){
         try{
-            Anasint.Expr_integerContext d = almacen_definiciones.get(v);
-            Set<String> S = extractor.visit(d);
-            if (S.isEmpty()) return false;
-            else {
-                List<String>aux=new LinkedList<String>();
-                aux.add(v);
-                return ciclo(aux,S);
-            }
-        }catch(RecognitionException excep)
-        {System.out.println(excep.toString());return false;}
+            Anasint.Declaracion_instruccionesContext aux;
+            gencode_espacios();
+            fichero.write("if("+generador.visit(expr)+"){");
+            fichero.write("}\n");
+        }catch (IOException e){
+
+        }
     }
-    //Comprobar si algún elemento en S está en V
-    boolean contiene_algun_elemento(List<String> V,Set<String> S){
-        return S.stream().anyMatch((e)->V.contains(e));
-    }
-    //Testar ciclicidad en la definición de una variable v
-    //V representa una secuencia de dependencias entre variables
-    //S representa un conjunto de variables
-    //Hay que comprobar si al anadir alguna variable de S en V se alcanza un
-    ciclo
-    boolean ciclo(List<String> V,Set<String> S){
+    // Generar código iteración (ocurre lo mismo que en condicional)
+    public void gencodigo_iteracion(Anasint.Expr_boolContext expr,List<Anasint.Declaracion_instruccionesContext> ls){
         try{
-            if (contiene_algun_elemento(V,S))
-                return true;
+            Anasint.Declaracion_instruccionesContext aux;
+            gencode_espacios();
+            fichero.write("while("+generador.visit(expr)+"){");
+            fichero.write("}\n");
+        }catch (IOException e){
+
+        }
+    }
+
+    private String convertir(String tipo,Anasint.Tipos_elementalesContext ctx){
+        String resultado = new String();
+        switch(tipo){
+//            case ctx.BOOL().toString(): resultado=new String("boolean");
+//                break;
+        }
+        return resultado;
+    }
+
+    //Generar codigo mostrar por pantalla
+    Set<String>vars=new HashSet<String>();
+
+    public  void gencodigo_mostrar(Anasint.ExprContext exprs){
+        Anasint.ExprContext expr = exprs;
+        String s = new String(" System.out.println()");
+        while (expr!=null){
+            if (!vars.contains(expr.getText()))
+                s+="\"indefinido\"";
             else
-                for (String z:S){
-                    Anasint.Expr_integerContext d = almacen_definiciones.get(z);
-                    Set<String> K = new HashSet<String>();
-                    if (d!=null) K=extractor.visit(d);
-                    List<String> aux = new LinkedList<String>();
-                    aux.addAll(V);aux.add(z);
-                    if (ciclo(aux,K)) return true;
-                }
-            return false;
-        }catch(RecognitionException excep)
-        {System.out.println(excep.toString());return false;}
+                s+=expr.getText();
+        }
+        s+=");\n";
+        gencode_espacios();
     }
+
+
+
     /////////////////////////
     // REGLAS. ATRIBUCIONES.
     /////////////////////////
-    public void enterPrograma(Anasint.ProgramaContext ctx) { open_file();
-        gencode_begin_class(); }
-    public void enterVars(Anasint.VariablesContext ctx) { gencode_begin_main(); }
-    public void enterInstrucciones(Anasint.InstruccionesContext ctx) {
-        gencode_declarar_variables(); }
-    public void exitPrograma(Anasint.ProgramaContext ctx) { gencode_end_main();
-        gencode_end_class(); close_file(); }
-    public void exitId(Anasint.VarIntContext ctx) {
-        declarar_variable(ctx.variable().VAR().getText()); }
-    public void exitDef(Anasint.AsigContext ctx) {
-        definir_variable(ctx.asignacion().variable(0).VAR().getText(),ctx.asignacion().expr(0).expr_integer());} //Solo se podría hacer una asignación simple
-    public void exitEv(Anasint.EvContext ctx) {
-        if (test(ctx.VAR().getText()))
-            gencode_evaluacion_variable_indefinida(ctx.VAR().getText());
-        else gencode_evaluacion_variable_definida(ctx.VAR().getText());
+    public void enterPrograma(Anasint.ProgramaContext ctx) {
+        init("EntradaCompilador.java");
+        open_file();
+        gencode_begin_class();
+        gencode_begin_main();
+    }
+    public void enterVariable(Anasint.VariableContext ctx) {
+        //gencode_begin_main();
+        gencode_evaluar_variable(ctx.VAR().getText());
+    }
+
+    public void exitVariables(Anasint.VariablesContext ctx){
+        gencode_declarar_variables_Integer();
+        gencode_declarar_variables_Bool();
+    }
+
+
+
+    public void enterElementales(Anasint.ElementalesContext ctx){
+          if(ctx.tipos_elementales().getChild(0)==ctx.tipos_elementales().NUMERO()) {
+              declarar_variable_Integer(ctx.VAR());
+          }
+        if(ctx.tipos_elementales().getChild(0)==ctx.tipos_elementales().BOOL()) {
+            declarar_variable_Bool(ctx.VAR());
+        }
+
+    }
+
+    public void enterAsig(Anasint.AsigContext ctx){
+        gencodigo_asignacion(ctx.asignacion().variable(),ctx.asignacion().expr());
+    }
+
+    public void enterCond(Anasint.CondContext ctx){
+        gencodigo_condicional(ctx.condicion().expr_bool(),ctx.condicion().declaracion_instrucciones());
+    }
+
+    public void enterIt(Anasint.ItContext ctx){
+        gencodigo_iteracion(ctx.iteracion().expr_bool(),ctx.iteracion().declaracion_instrucciones());
+    }
+
+    public void enterInstrs(Anasint.Declaracion_instruccionesContext ctx) {
+//        gencodigo_condicional(tipo, ctx);
+//        gencodigo_iteracion
+//        gencodigo_ruptura
+//        gencodigo_declaracionSubprograma
+//        gencodigo_retorno
+//        gencodigo_mostrar(exprs);
+//        gencodigo_aserto
+    }
+    public void exitPrograma(Anasint.ProgramaContext ctx) {
+        gencode_end_main();
+        gencode_end_class();
+        close_file();
     }
 }

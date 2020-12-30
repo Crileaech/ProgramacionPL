@@ -228,22 +228,16 @@ public class ErroresParámetros extends AnasintBaseVisitor<Object>{
         if(almacenGlobal.containsKey(var)) {
             tipo = almacenGlobal.get(var);
         } else if(nombreFunc!=null) {
-
-            try {
-                Map<String, Map<String, String>> m = Anasem.almacenF.get(nombreFunc);
-                System.out.println("c: " + nombreFunc);
-                if (m.get("PARAM").containsKey(var)) {
-                    tipo = m.get("PARAM").get(var);
-                } else if (m.get("DEV").containsKey(var)) {
-                    tipo = m.get("DEV").get(var);
-                } else if (m.get("CUERPO").containsKey(var)) {
-                    tipo = m.get("CUERPO").get(var);
-                } else {
-                    System.out.println("EXCEPCIÓN: La variable " + var + " no ha sido declarada.");
-                    throw new IllegalArgumentException("ERROR: La variable introducida no ha sido declarada");
-                }
-            }catch(Exception E){
-                return "";
+            Map<String,Map<String,String>> m = Anasem.almacenF.get(nombreFunc);
+            if(m.get("PARAM").containsKey(var)) {
+                tipo = m.get("PARAM").get(var);
+            } else if(m.get("DEV").containsKey(var)) {
+                tipo = m.get("DEV").get(var);
+            } else if(m.get("CUERPO").containsKey(var)) {
+                tipo = m.get("CUERPO").get(var);
+            } else {
+                System.out.println("EXCEPCIÓN: La variable " + var + " no ha sido declarada.");
+                throw new IllegalArgumentException("ERROR: La variable introducida no ha sido declarada");
             }
         } else {
             System.out.println("EXCEPCIÓN: La variable " + var + " no ha sido declarada.");
