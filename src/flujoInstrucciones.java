@@ -1,3 +1,4 @@
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -85,28 +86,60 @@ public class flujoInstrucciones extends AnasintBaseListener{
 
     public void enterAsignacion(Anasint.AsignacionContext ctx) {
         if(pila.peek()) {
-            //añade los nombres de las variables a una lista
-            List<String> vars = ctx.variable().stream().map(v -> v.getText()).collect(Collectors.toList());
-
-            //añade las expresiones sin evaluar a una lista
+            //List<String> vars = ctx.variable().stream().map(v -> v.getText()).collect(Collectors.toList());
             List<Anasint.ExprContext> asign = ctx.expr();
-
-            //añade las expresiones una vez evaluadas a una lista
-            List<Object> asignEvaluadas = asign.stream().map(x -> evalua.visit(x))
+            List<Object> asignEvaluadasAux = asign.stream().map(x -> evalua.visit(x))
                     .collect(Collectors.toList());
 
-            for(int i=0; i<vars.size(); i++) {
-                Object evaluacion = asignEvaluadas.get(i);
+            List<Object> asignEvaluadas = new ArrayList<>();
+
+            //Aplana la lista de asignaciones, porque las funciones devuelven listas cuando tienen múltiples valores,
+            //en caso de que haya alguna función que devuelva múltiples valores
+            if(asignEvaluadasAux.stream().anyMatch(x -> x instanceof List)) {
+                for (int i = 0; i < asignEvaluadasAux.size(); i++) {
+                    if (asignEvaluadasAux.get(i) instanceof List)
+                        asignEvaluadas.addAll((List<Object>)asignEvaluadasAux.get(i));
+                    else
+                        asignEvaluadas.add(asignEvaluadasAux.get(i));
+                }
+            }
+            else
+                asignEvaluadas.addAll(asignEvaluadasAux);
+
+            Object evaluacion = null;
+            for(int j = 0; !ctx.getChild(j).getText().equals("="); j++) {
+                if (j<asignEvaluadas.size())
+                    evaluacion = asignEvaluadas.get(j);
                 if(evaluacion==null) {
                     break;
                 }
-                asig.put(vars.get(i), evaluacion);
-                String exprAsignada = evaluacion.toString();
-                //si una asignación es una expresión compuesta, quiero que se observe a la
-                //dcha de donde viene el resultado.
-                if (!asign.get(i).getText().equals(exprAsignada)&&!asig.get(vars.get(i)).getClass().equals(ArrayList.class))
-                    exprAsignada+= " (" + asign.get(i).getText() + ")";
-                muestraConIdentación("(asignación) " + vars.get(i) + " <- " + exprAsignada);
+                if(!ctx.getChild(j).getText().equals(",")) {
+                    if(ctx.getChild(j).getClass()==Anasint.Expr_sacar_elemContext.class) {
+                        Anasint.Expr_sacar_elemContext elem = (Anasint.Expr_sacar_elemContext) ctx.getChild(j);
+                        String nombreVar = elem.getChild(0).getText();
+                        int pos = Integer.parseInt(elem.getChild(2).getText());
+                        List<Object> seq = (List<Object>) asig.get(nombreVar);
+                        String antes = seq.toString();
+                        seq.set(pos, evaluacion);
+                        String dsps = seq.toString();
+                        asig.put(nombreVar,seq);
+                        String exprAsignada = evaluacion.toString();
+                        //si el valor a asignar viene de una operación, deseo que se observe la operación realizada.
+                        if (!asign.get(j).getText().equals(exprAsignada))
+                            exprAsignada+= " (" + asign.get(j).getText() + ")";
+                        muestraConIdentación("(asignación) " + elem.getText() + " <- "
+                                + exprAsignada +  ". Antes: " + antes + ". Ahora: " + dsps);
+                    } else {
+                        Anasint.VariableContext elem = (Anasint.VariableContext) ctx.getChild(j);
+                        asig.put(elem.getText(), evaluacion);
+                        String exprAsignada = evaluacion.toString();
+                        //si una asignación es una expresión compuesta, quiero que se observe a la
+                        //dcha de donde viene el resultado.
+                        if (j<asign.size()&&!asign.get(j).getText().equals(exprAsignada)&&!asig.get(elem.getText()).getClass().equals(ArrayList.class))
+                            exprAsignada+= " (" + asign.get(j).getText() + ")";
+                        muestraConIdentación("(asignación) " + elem.getText() + " <- " + exprAsignada);
+                    }
+                }
             }
         }
     }
@@ -177,6 +210,14 @@ public class flujoInstrucciones extends AnasintBaseListener{
         }
     }
 
+    public void exitDev(Anasint.DevContext ctx){
+        if(pila.peek()) {
+            pila.pop();
+            pila.push(false);
+            muestraConIdentación("(devolución)");
+        }
+    }
+
     public void enterAserto(Anasint.AsertoContext ctx) {
         if(pila.peek()) {
             if(ctx.asertos().expr_bool()!=null) { //en este caso es simple {cierto} {falso} o equivalente.
@@ -186,7 +227,7 @@ public class flujoInstrucciones extends AnasintBaseListener{
                 } else {
                     muestraConIdentación("(aserto) el programa es incorrecto. La ejecución del programa ha sido finalizada.");
                     int tam = pila.size();
-                    pila.empty();
+                    pila.clear();
                     for(int i = 0; i<tam; i++) { pila.push(false); }
                 }
             } else {
@@ -195,7 +236,7 @@ public class flujoInstrucciones extends AnasintBaseListener{
                     muestraConIdentación("(aserto) la ejecución del programa está siendo correcta.");
                 } else {
                     int tam = pila.size();
-                    pila.empty();
+                    pila.clear();
                     for(int i = 0; i<tam; i++) { pila.push(false); }
                     muestraConIdentación("(aserto) el programa es incorrecto. La ejecución del programa ha sido finalizada.");
                 }

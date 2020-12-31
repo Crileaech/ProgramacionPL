@@ -49,12 +49,18 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
         }
     }
     public Boolean visitParentesisOpBool(Anasint.ParentesisOpBoolContext ctx) {
-        boolOp opBool = new boolOp(ctx, flujoInstrucciones.asig);
-        return opBool.resultado();
+        Anasint.Expr_boolContext izq = (Anasint.Expr_boolContext) ctx.getChild(1);
+        Anasint.Expr_boolContext dcha = (Anasint.Expr_boolContext) ctx.getChild(3);
+        String operador = ctx.getChild(2).getText();
+        if(operador.equals("&&")) { return (Boolean) visit(izq)&&(Boolean) visit(dcha); }
+        else { return (Boolean) visit(izq)||(Boolean) visit(dcha); }
     }
     public Boolean visitOpBool(Anasint.OpBoolContext ctx) {
-        boolOp opBool = new boolOp(ctx, flujoInstrucciones.asig);
-        return opBool.resultado();
+        Anasint.Expr_boolContext izq = (Anasint.Expr_boolContext) ctx.getChild(0);
+        Anasint.Expr_boolContext dcha = (Anasint.Expr_boolContext) ctx.getChild(2);
+        String operador = ctx.getChild(1).getText();
+        if(operador.equals("&&")) { return (Boolean) visit(izq)&&(Boolean) visit(dcha); }
+        else { return (Boolean) visit(izq)||(Boolean) visit(dcha); }
     }
 
     public Boolean visitCompararSeq(Anasint.CompararSeqContext ctx) {
@@ -91,7 +97,7 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
             System.out.println("ERROR: El índice excede la secuencia. (" + ctx.getText() + ").");
             System.out.println("Ejecución finalizada.");
             int tam = flujoInstrucciones.pila.size();
-            flujoInstrucciones.pila.empty();
+            flujoInstrucciones.pila.clear();
             for(int i=0; i<tam; i++) {
                 flujoInstrucciones.pila.push(false);
             }
@@ -133,37 +139,46 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
         return f;
     }
 
-    public Object visitFuncion(Anasint.FuncionContext ctx){
+    public List<Object> visitFuncion(Anasint.FuncionContext ctx){
 
         String nomFunc = ctx.variable().VAR().getText();
 
         Map<String, Object> nombresYvalores = new LinkedHashMap<>();
-        String nombreDev;
+        List<String> nombresDev = new ArrayList<>();
 
         //si el tercer hijo es un paréntesis, es que la función tiene parámetros de entrada
         //y, por tanto, debemos asignar el nombre que aparece en la declaración de la función
         //al valor introducido al llamarla
         if(ctx.getChild(2).getText().equals("(")){
             List<String> nombresParamsEntrada = getNombresParamsEntrada(ctx.params(0));
-            nombreDev = ctx.params(1).variable().getText();
-            for (int i=0; i<=subpParams.size(); i++){
+            for (int i=0; i<subpParams.size(); i++){
                 nombresYvalores.put(nombresParamsEntrada.get(i), subpParams.get(nomFunc).get(i));
             }
         }
-        else{
-            nombreDev = ctx.params(0).variable().getText();
-        }
+
+        List<Anasint.Declaracion_instruccionesContext> instCtx = ctx.instrucciones().declaracion_instrucciones();
+
+        //en cuanto se ve la instrucción dev, se devuelven las variables indicadas
+        for(int i=0; i<instCtx.size(); i++)
+            if(instCtx.get(i).getChild(0).getChild(0).getText().equals("dev"))
+                for(int j=1; j<instCtx.get(i).getChild(0).getChildCount(); j+=2)
+                    nombresDev.add(instCtx.get(i).getChild(0).getChild(j).getText());
 
         subpParamsAsignados.put(nomFunc, nombresYvalores);
 
         //creamos un flujo de instrucciones para la función correspondiente
-        System.out.println("--FUNCIÓN "+nomFunc+"--");
+        System.out.println("(FUNCIÓN "+nomFunc+")");
         flujoInstrucciones func = new flujoInstrucciones(subpParamsAsignados.get(nomFunc));
         ParseTreeWalker walker = new ParseTreeWalker();
         walker.walk(func, ctx);
-        System.out.println("--FFUNCIÓN "+nomFunc+"--");
+        System.out.println("(FIN FUNCIÓN "+nomFunc+")");
 
-        return func.asig.get(nombreDev);
+        List<Object> valores = new ArrayList<>();
+        for(String s: nombresDev)
+            valores.add(func.asig.get(s));
+
+
+        return valores;
     }
 
         //función que devuelve una lista con todos los nombres de los parámetros de la función
@@ -187,21 +202,23 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
         return (Integer) visit(ctx.expr_sacar_elem());
     }
     public Integer visitParentesisOpInteger(Anasint.ParentesisOpIntegerContext ctx) {
-        //(2-4)*5
-        intOp op = new intOp(ctx,flujoInstrucciones.asig);
-        return op.resultado();
+        Anasint.Expr_integerContext izq = (Anasint.Expr_integerContext) ctx.getChild(1);
+        Anasint.Expr_integerContext dcha = (Anasint.Expr_integerContext) ctx.getChild(3);
+        String operador = ctx.getChild(2).getText();
+        if(operador.equals("*")) { return (Integer)visit(izq)*(Integer)visit(dcha); }
+        else if(operador.equals("+")) { return (Integer)visit(izq)+(Integer)visit(dcha); }
+        else { return (Integer)visit(izq)-(Integer)visit(dcha); }
     }
-
     public Integer visitOpInteger(Anasint.OpIntegerContext ctx) {
-        //si se desea que se resuelvan las variables mirando otro almacén introducir otro en el
-        //constructor como segundo parámetro.
-        intOp operador = new intOp(ctx,flujoInstrucciones.asig);
-        return operador.resultado();
+        Anasint.Expr_integerContext izq = (Anasint.Expr_integerContext) ctx.getChild(0);
+        Anasint.Expr_integerContext dcha = (Anasint.Expr_integerContext) ctx.getChild(2);
+        String operador = ctx.getChild(1).getText();
+        if(operador.equals("*")) { return (Integer)visit(izq)*(Integer)visit(dcha); }
+        else if(operador.equals("+")) { return (Integer)visit(izq)+(Integer)visit(dcha); }
+        else { return (Integer)visit(izq)-(Integer)visit(dcha); }
     }
-
     public Integer visitMenosNum(Anasint.MenosNumContext ctx) {
-        intOp op = new intOp(ctx, flujoInstrucciones.asig);
-        return op.resultado();
+        return -(Integer)visit(ctx.expr_integer());
     }
     public Integer visitNum(Anasint.NumContext ctx) {
         return Integer.parseInt(ctx.getText());
