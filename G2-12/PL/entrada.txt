@@ -6,8 +6,9 @@ VARIABLES
 SUBPROGRAMAS
 
 INSTRUCCIONES
-    s = [1,2,3,4];
     l=T;
-    i=0;
-    mostrar(l,i);
+    si (l==T) entonces
+        i=1;
+    fsi
+
 

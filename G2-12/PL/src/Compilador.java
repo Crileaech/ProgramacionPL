@@ -1,4 +1,5 @@
 import org.antlr.runtime.RecognitionException;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.io.FileWriter;
@@ -91,22 +92,20 @@ public class Compilador extends AnasintBaseListener {
     }
 
     //Generar código para v = exp
-    public void gencodigo_asignacion(List<Anasint.VariableContext> variables, List<Anasint.ExprContext> exp){
+    public void gencodigo_asignacion(ParseTree var, Anasint.ExprContext exp){
         String txt_exp="0";
         String v = new String();
-        for(int i=0;i<variables.size();i++) {
-            v = variables.get(i).getText();
-            Anasint.ExprContext aux = exp.get(i);
-            if (aux != null)
-                txt_exp = generador.visit(aux);
-            gencode_espacios();
+        v = var.getText();
+        if (exp != null)
+            txt_exp = generador.visit(exp);
+        gencode_espacios();
 
-            try {
-                fichero.write(v + "=" + txt_exp + ";\n"); //código de una asignación
-            } catch (IOException e) {
-                e.getMessage();
-            }
+        try {
+            fichero.write(v + "=" + txt_exp + ";\n"); //código de una asignación
+        } catch (IOException e) {
+            e.getMessage();
         }
+
     }
 
     //Generar código comienzo clase
@@ -226,9 +225,34 @@ public class Compilador extends AnasintBaseListener {
     // Generar código condicional (Falta conseguir que las instrucciones se ejecuten dentro de las llaves)
     public void gencodigo_condicional(Anasint.Expr_boolContext expr, List<Anasint.Declaracion_instruccionesContext> ls){
         try{
-            Anasint.Declaracion_instruccionesContext aux;
             gencode_espacios();
             fichero.write("if("+generador.visit(expr)+"){");
+            System.out.println(ls.get(0).getText());
+            for(int i=0;i<ls.size();i++){
+                if(ls.get(i).getText().startsWith("si ") || ls.get(i).getText().startsWith("si")){
+                    Anasint.CondContext aux = (Anasint.CondContext) ls.get(i);
+                    gencodigo_condicional(aux.condicion().expr_bool(),aux.condicion().declaracion_instrucciones());
+                }
+                if(ls.get(i).getText().startsWith("mientras ") || ls.get(i).getText().startsWith("mientras")){
+                    Anasint.ItContext aux = (Anasint.ItContext) ls.get(i);
+                    gencodigo_iteracion(aux.iteracion().expr_bool(),aux.iteracion().declaracion_instrucciones());
+                }
+                if(ls.get(i).getText().startsWith("mostrar ") || ls.get(i).getText().startsWith("mostrar")){
+                    Anasint.ShowContext aux = (Anasint.ShowContext) ls.get(i);
+                    gencodigo_mostrar(aux.mostrar().expr());
+                }
+                if(ls.get(i).getText().startsWith("ruptura ") || ls.get(i).getText().startsWith("ruptura")){
+                //TODO
+                }
+                if(ls.get(i).getText().startsWith("dev ") || ls.get(i).getText().startsWith("dev")){
+                    //TODO
+                }
+                if(ls.get(i).getText().startsWith("{ ") || ls.get(i).getText().startsWith("{")){
+                    //TODO
+                }
+                // Falta diferenciar asignación de expresión función
+
+            }
             fichero.write("}\n");
         }catch (IOException e){
 
@@ -348,7 +372,20 @@ public class Compilador extends AnasintBaseListener {
     }
 
     public void enterAsig(Anasint.AsigContext ctx){
-        gencodigo_asignacion(ctx.asignacion().variable(),ctx.asignacion().expr());
+        System.out.println(ctx.getParent().getText());
+        if(ctx.getParent().getText().startsWith("INSTRUCCIONES")) {
+            int suma = ctx.asignacion().variable().size() + ctx.asignacion().expr_sacar_elem().size();
+            int pos = 0;
+            for (int i = 0; i < (suma * 2 - 1); i = i + 2) { // Por las comas
+                if (ctx.asignacion().getChild(i).getText().contains("[")) {
+                    gencodigo_asignacion(ctx.asignacion().getChild(i), ctx.asignacion().expr(pos));
+                    pos++;
+                } else {
+                    gencodigo_asignacion(ctx.asignacion().getChild(i), ctx.asignacion().expr(pos));
+                    pos++;
+                }
+            }
+        }
     }
 
     public void enterCond(Anasint.CondContext ctx){

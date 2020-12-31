@@ -177,6 +177,18 @@ public interface AnasintListener extends ParseTreeListener {
 	 */
 	void exitExpr(Anasint.ExprContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code menosNum}
+	 * labeled alternative in {@link Anasint#expr_integer}.
+	 * @param ctx the parse tree
+	 */
+	void enterMenosNum(Anasint.MenosNumContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code menosNum}
+	 * labeled alternative in {@link Anasint#expr_integer}.
+	 * @param ctx the parse tree
+	 */
+	void exitMenosNum(Anasint.MenosNumContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code opInteger}
 	 * labeled alternative in {@link Anasint#expr_integer}.
 	 * @param ctx the parse tree

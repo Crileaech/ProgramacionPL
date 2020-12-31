@@ -112,6 +112,13 @@ public interface AnasintVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitExpr(Anasint.ExprContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code menosNum}
+	 * labeled alternative in {@link Anasint#expr_integer}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMenosNum(Anasint.MenosNumContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code opInteger}
 	 * labeled alternative in {@link Anasint#expr_integer}.
 	 * @param ctx the parse tree

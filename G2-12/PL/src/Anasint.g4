@@ -1,3 +1,4 @@
+
 parser grammar Anasint;
 options{ tokenVocab=Analex; }
 
@@ -55,10 +56,13 @@ expr: expr_integer
     ;
 
 expr_integer: expr_sacar_elem                                                 #sacarElemInteger
-            | PA expr_integer (POR|SUMA|RESTA) expr_integer PC                #parentesisOpInteger
-            | expr_integer (POR|SUMA|RESTA) expr_integer                      #opInteger
+            | PA expr_integer (POR) expr_integer PC                           #parentesisOpInteger
+            | PA expr_integer (SUMA|RESTA) expr_integer PC                    #parentesisOpInteger
+            | expr_integer (POR) expr_integer                                 #opInteger
+            | expr_integer (SUMA|RESTA) expr_integer                          #opInteger
             | expr_func                                                       #exprFuncInt
             | NUM                                                             #num
+            | RESTA expr_integer                                              #menosNum
             | variable                                                        #varInt
             ;
 
@@ -66,11 +70,11 @@ expr_bool: T                                                    #true
          | F                                                    #false
          | expr_sacar_elem                                      #sacarElemBool
          | expr_bool (IGUALL|DISTINTO) expr_bool                #compararBool
+         | NO expr_bool                                         #negacionBool
          | PA expr_bool (AND|OR) expr_bool PC                   #parentesisOpBool
          | expr_bool (AND|OR) expr_bool                         #opBool
          | expr_seq (IGUALL|DISTINTO) expr_seq                  #compararSeq
          | expr_integer (MENORIGUAL|MAYORIGUAL|MENOR|MAYOR|IGUALL|DISTINTO) expr_integer #compararInteger
-         | NO expr_bool                                         #negacionBool
          | expr_func                                            #exprFuncBool
          | variable                                             #varBool
          ;
@@ -85,7 +89,7 @@ expr_sacar_elem: variable CA expr_integer CC ;
 
 expr_avanza: LA AVANZA DOSPTOS expr_func LC;
 
-expr_func: variable PA (expr) (COMA expr)* PC;
+expr_func: variable PA (expr COMA)? (expr)* PC;
 
 //---INSTRUCCIONES---
 
@@ -101,7 +105,7 @@ declaracion_instrucciones: asignacion   #asig
 
 devolucion: RETURN (expr COMA)* expr PyC;
 
-asignacion: (variable COMA)* variable IGUAL (expr COMA)* (expr) PyC;
+asignacion: ((variable|expr_sacar_elem) COMA)* (variable|expr_sacar_elem) IGUAL (expr COMA)* (expr) PyC;
 
 condicion: IF PA expr_bool PC THEN (declaracion_instrucciones)+ (blq_sino)? ENDIF;
 
