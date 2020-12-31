@@ -226,37 +226,103 @@ public class Compilador extends AnasintBaseListener {
     public void gencodigo_condicional(Anasint.Expr_boolContext expr, List<Anasint.Declaracion_instruccionesContext> ls){
         try{
             gencode_espacios();
-            fichero.write("if("+generador.visit(expr)+"){");
+            fichero.write("if("+generador.visit(expr)+"){\n");
             System.out.println(ls.get(0).getText());
             for(int i=0;i<ls.size();i++){
                 if(ls.get(i).getText().startsWith("si ") || ls.get(i).getText().startsWith("si")){
                     Anasint.CondContext aux = (Anasint.CondContext) ls.get(i);
                     gencodigo_condicional(aux.condicion().expr_bool(),aux.condicion().declaracion_instrucciones());
                 }
-                if(ls.get(i).getText().startsWith("mientras ") || ls.get(i).getText().startsWith("mientras")){
+                else if(ls.get(i).getText().startsWith("mientras ") || ls.get(i).getText().startsWith("mientras")){
                     Anasint.ItContext aux = (Anasint.ItContext) ls.get(i);
                     gencodigo_iteracion(aux.iteracion().expr_bool(),aux.iteracion().declaracion_instrucciones());
                 }
-                if(ls.get(i).getText().startsWith("mostrar ") || ls.get(i).getText().startsWith("mostrar")){
+                else if(ls.get(i).getText().startsWith("mostrar ") || ls.get(i).getText().startsWith("mostrar")){
                     Anasint.ShowContext aux = (Anasint.ShowContext) ls.get(i);
                     gencodigo_mostrar(aux.mostrar().expr());
                 }
-                if(ls.get(i).getText().startsWith("ruptura ") || ls.get(i).getText().startsWith("ruptura")){
+                else if(ls.get(i).getText().startsWith("ruptura ") || ls.get(i).getText().startsWith("ruptura")){
                 //TODO
                 }
-                if(ls.get(i).getText().startsWith("dev ") || ls.get(i).getText().startsWith("dev")){
+                else if(ls.get(i).getText().startsWith("dev ") || ls.get(i).getText().startsWith("dev")){
                     //TODO
                 }
-                if(ls.get(i).getText().startsWith("{ ") || ls.get(i).getText().startsWith("{")){
+                else if(ls.get(i).getText().startsWith("{ ") || ls.get(i).getText().startsWith("{")){
                     //TODO
                 }
-                // Falta diferenciar asignación de expresión función
+                else if(ls.get(i).getChild(0).getChild(1).getText().startsWith("(")){
+                    //TODO
+                }else{
+                    Anasint.AsigContext aux = (Anasint.AsigContext) ls.get(i);
+                    int suma = aux.asignacion().variable().size() + aux.asignacion().expr_sacar_elem().size();
+                    int pos = 0;
+                    for (int j = 0; j < (suma * 2 - 1); j = j + 2) { // Por las comas
+                        if (aux.asignacion().getChild(j).getText().contains("[")) {
+                            gencodigo_asignacion(aux.asignacion().getChild(j), aux.asignacion().expr(pos));
+                            pos++;
+                        } else {
+                            gencodigo_asignacion(aux.asignacion().getChild(j), aux.asignacion().expr(pos));
+                            pos++;
+                        }
+                    }
+                }
 
             }
             fichero.write("}\n");
         }catch (IOException e){
 
         }
+    }
+    public void gencodigo_blq_sino(List<Anasint.Declaracion_instruccionesContext> ls){
+        try{
+            gencode_espacios();
+            fichero.write("else{\n");
+            for(int i=0;i<ls.size();i++){
+                if(ls.get(i).getText().startsWith("si ") || ls.get(i).getText().startsWith("si")){
+                    Anasint.CondContext aux = (Anasint.CondContext) ls.get(i);
+                    gencodigo_condicional(aux.condicion().expr_bool(),aux.condicion().declaracion_instrucciones());
+                }
+                else if(ls.get(i).getText().startsWith("mientras ") || ls.get(i).getText().startsWith("mientras")){
+                    Anasint.ItContext aux = (Anasint.ItContext) ls.get(i);
+                    gencodigo_iteracion(aux.iteracion().expr_bool(),aux.iteracion().declaracion_instrucciones());
+                }
+                else if(ls.get(i).getText().startsWith("mostrar ") || ls.get(i).getText().startsWith("mostrar")){
+                    Anasint.ShowContext aux = (Anasint.ShowContext) ls.get(i);
+                    gencodigo_mostrar(aux.mostrar().expr());
+                }
+                else if(ls.get(i).getText().startsWith("ruptura ") || ls.get(i).getText().startsWith("ruptura")){
+                    //TODO
+                }
+                else if(ls.get(i).getText().startsWith("dev ") || ls.get(i).getText().startsWith("dev")){
+                    //TODO
+                }
+                else if(ls.get(i).getText().startsWith("{ ") || ls.get(i).getText().startsWith("{")){
+                    //TODO
+                }
+                else if(ls.get(i).getChild(0).getChild(1).getText().startsWith("(")){
+                    //TODO
+                }else{
+                    Anasint.AsigContext aux = (Anasint.AsigContext) ls.get(i);
+                    int suma = aux.asignacion().variable().size() + aux.asignacion().expr_sacar_elem().size();
+                    int pos = 0;
+                    for (int j = 0; j < (suma * 2 - 1); j = j + 2) { // Por las comas
+                        if (aux.asignacion().getChild(j).getText().contains("[")) {
+                            gencodigo_asignacion(aux.asignacion().getChild(j), aux.asignacion().expr(pos));
+                            pos++;
+                        } else {
+                            gencodigo_asignacion(aux.asignacion().getChild(j), aux.asignacion().expr(pos));
+                            pos++;
+                        }
+                    }
+                }
+
+            }
+            fichero.write("}\n");
+        }catch (IOException e){
+
+        }
+
+
     }
     // Generar código iteración (ocurre lo mismo que en condicional)
     public void gencodigo_iteracion(Anasint.Expr_boolContext expr,List<Anasint.Declaracion_instruccionesContext> ls){
@@ -340,7 +406,7 @@ public class Compilador extends AnasintBaseListener {
     }
     public void enterVariable(Anasint.VariableContext ctx) {
         //gencode_begin_main();
-        gencode_evaluar_variable(ctx.VAR().getText());
+        //gencode_evaluar_variable(ctx.VAR().getText());
     }
 
     public void exitVariables(Anasint.VariablesContext ctx){
@@ -392,6 +458,10 @@ public class Compilador extends AnasintBaseListener {
         gencodigo_condicional(ctx.condicion().expr_bool(),ctx.condicion().declaracion_instrucciones());
     }
 
+    public void enterBlq_sino(Anasint.Blq_sinoContext ctx){
+        gencodigo_blq_sino(ctx.declaracion_instrucciones());
+    }
+
     public void enterIt(Anasint.ItContext ctx){
         gencodigo_iteracion(ctx.iteracion().expr_bool(),ctx.iteracion().declaracion_instrucciones());
     }
@@ -408,7 +478,7 @@ public class Compilador extends AnasintBaseListener {
         gencodigo_break();
     }
 
-    public void enterInstrs(Anasint.Declaracion_instruccionesContext ctx) {
+    public void exitDeclaracion_Instrucciones(Anasint.Declaracion_instruccionesContext ctx) {
 //        gencodigo_condicional(tipo, ctx);
 //        gencodigo_iteracion
 //        gencodigo_ruptura

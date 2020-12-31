@@ -5,9 +5,13 @@ public class EntradaCompilador
   Integer i,j;
   Boolean l;
   Integer[] s;
+  i=0;
   l=true;
-  System.out.println("(Compilador) l ---> "+l);
-  if(l==true){}
-  System.out.println("(Compilador) l ---> "+l);
+  if(l==true){
+  i=1;
+}
+  else{
+  i=2;
+}
  }
 }
