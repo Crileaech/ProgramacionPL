@@ -9,22 +9,20 @@ SUBPROGRAMAS
   t=3;
   FFUNCION
 INSTRUCCIONES
+t=(6O);
 a=[5,4,3,2];
 a[0]=6-3;
 c=a[0];
 f=2*3;
-{PARATODO(p:[0,3],a[p]==1)}
-{EXISTE(p:[0,3],a[p]==2)}
+/*{PARATODO(p:[0,3],a[p]==1)}
+{EXISTE(p:[0,3],a[p]==2)}*/
 d=T&&!((F||(T&&!F))||(F&&F))||(T&&F);
 k=5*4-3-2-2-6*3;
-b=(a[0]+2)*c*(-3*(2+3));
+b=(a[0]+2)*c*(3*(2+3));
 t=(2-3);
 si(b>5) entonces
+    ruptura;
     c=2;
-    si(t==0) entonces
-        ruptura;
-        c=3;
-    fsi
 sino
     c=1;
 fsi

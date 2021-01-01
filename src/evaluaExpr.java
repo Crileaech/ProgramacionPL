@@ -126,7 +126,11 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
     public Integer visitMenosNum(Anasint.MenosNumContext ctx) {
         return -(Integer)visit(ctx.expr_integer());
     }
-
+/*
+    public Integer visitParentesisNum(Anasint.ParentesisNumContext ctx) {
+        return (Integer) Integer.parseInt(ctx.NUM().getText());
+    }
+*/
     public Integer visitNum(Anasint.NumContext ctx) {
         return Integer.parseInt(ctx.getText());
     }

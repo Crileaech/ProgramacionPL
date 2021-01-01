@@ -140,9 +140,11 @@ public class flujoInstrucciones extends AnasintBaseListener{
         //Si false,false,... -> No se ha ejecutado cond porque pila.peek en enterIt fue false -> No se debe de ejecutar sino.
         //Si true,true,... -> Se ejecutó cond. Luego no debe ser así con sino.
         //Si true,false,... -> Imposible su ejecución.
+        Anasint.CondicionContext padre = (Anasint.CondicionContext) ctx.getParent();
+        Boolean cond = (Boolean) evalua.visit(padre.expr_bool());
         Stack<Boolean> pilaCopia = (Stack<Boolean>) pila.clone();
         pilaCopia.pop();
-        pila.push(!pila.peek()&&pilaCopia.peek());
+        pila.push(!cond&&pilaCopia.peek());
     }
     public void exitBlq_sino(Anasint.Blq_sinoContext ctx) {
         pila.pop();

@@ -140,6 +140,13 @@ public interface AnasintVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitSacarElemInteger(Anasint.SacarElemIntegerContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code parentesisNum}
+	 * labeled alternative in {@link Anasint#expr_integer}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitParentesisNum(Anasint.ParentesisNumContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code num}
 	 * labeled alternative in {@link Anasint#expr_integer}.
 	 * @param ctx the parse tree

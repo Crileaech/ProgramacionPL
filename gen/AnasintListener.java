@@ -225,6 +225,18 @@ public interface AnasintListener extends ParseTreeListener {
 	 */
 	void exitSacarElemInteger(Anasint.SacarElemIntegerContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code parentesisNum}
+	 * labeled alternative in {@link Anasint#expr_integer}.
+	 * @param ctx the parse tree
+	 */
+	void enterParentesisNum(Anasint.ParentesisNumContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code parentesisNum}
+	 * labeled alternative in {@link Anasint#expr_integer}.
+	 * @param ctx the parse tree
+	 */
+	void exitParentesisNum(Anasint.ParentesisNumContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code num}
 	 * labeled alternative in {@link Anasint#expr_integer}.
 	 * @param ctx the parse tree

@@ -1,0 +1,118 @@
+ESPECIFICACIÓN INTÉRPRETE:
+
+Objetivo principal: Desarollar un intérprete para P.
+
+OBJETIVO 1: Llevar a cabo la ejecución secuencial de las instrucciones de P.
+
+DECISIONES DE DISEÑO:
+
+    (DECISIÓN 1) Para controlar el flujo de ejecución de las instrucciones haremos uso
+    de una pila de booleanos:
+        -Cuando entremos en un bloque de instrucciones comprobaremos la cima de la pila:
+            -Si false: No se deberán ejecutar las instrucciones del bloque.
+            -Si true: Se deberán ejecutar las instrucciones del bloque. Salvo aquellas
+            en las que su ejecución dependa de una condición adicional como las condiciones
+            o las iteraciones. En cuyo caso se deberá cumplir que cima==true y cond==true.
+        -Cada vez que pasemos por un bloque deberemos introducir un centinela en la pila
+         que indicará a las instrucciones hijas si se deben ejecutar o no.
+        -Cuando salgamos de un bloque deberemos retirar el centinela introducido en la
+        pila.
+
+        | false |
+        | true  |
+        | true  |
+        | ...   |
+
+    Consideramos un bloque de instrucciones como un conjunto de instrucciones que
+    jerárquicamente dependen de una misma instrucción padre.
+    También se considerará bloque de instrucciones a un trozo de código con una función
+    diferenciadora, como puede ser la zona de declaración de variables o la zona de
+    instrucciones.
+    Todas las instrucciones pertenecen al bloque programa.
+    Como ejemplo, una iteración se considera un bloque por la primera definición, pues
+    las instrucciones que contiene dependen su ejecución de una misma condición iterativa.
+
+    (DECISIÓN 2) Dispondremos de un almacén de asignaciones donde almacenemos los valores
+    asignados a cada una de las variables.
+
+        | var   | asignación |
+        ----------------------
+        | a     | true       |
+        | b     | 2          |
+
+    (DECISIÓN 3) Dado que el programa se considera un bloque nada más empezar la ejecución
+    de nuestro programa introduciremos a la pila true.
+    Cuando finalice la ejecución de todas y cada una de las instrucciones y subprogramas
+    que correspondan quedará un único centinela, que corresponderá con el introducido
+    al principio y que se sacará.
+
+    (DECISIÓN 4) La instrucción ruptura consiste en una instrucción que finaliza las
+    instrucciones del bloque en el que se encuentra. Para su implementación sustituiremos
+    la cima de la pila por un false. Esto hará que las instrucciones del bloque no sean
+    ejecutadas.
+
+    (DECISIÓN 5) JUAN** Las asignaciones se llevarán a cabo si la cima de la pila es true.
+    -Para asignaciones simples del tipo a = expr:
+        -Añadir al almacén de asignaciones el par variable (a) y asignación (evalua expr).
+
+    -Para asignaciones múltiples del tipo a,b = expr1,expr2:
+        -Dada la paralelidad de las asignaciones múltiples evaluaremos todas las expresiones
+        asignadas (visit) y sólo cuando todas estén evaluadas añadiremos las asignaciones al
+        almacén.
+
+        todo añadir caso s[i] = 5;
+    asignacion(asignacion ctx):
+        si la cima es true:
+            variables = extrae variables de ctx
+            expresiones = extrae expr de ctx
+            evaluaciones = evalua cada expr de expresiones
+            para cada (var,evaluación) en variables y evaluaciones:
+                añade al almacén var y evaluación
+
+    Debido a que la evaluación de las expresiones asignadas se realiza de manera secuencial
+    y durante la asignación, no se producirá con total seguridad ningún tipo de ciclicidad.
+
+    (DECISIÓN 6) La instrucción condición define un bloque o dos de instrucciones en caso
+    de existir sino.
+
+    -Llegamos a la instrucción si, posibilidades:
+
+        -Que la cima de la pila sea true y se cumpla la condición del si: Añadimos a la pila
+        true -> Esto permitirá la ejecución de asignaciones, iteraciones y cualquier otra
+        instrucción del bloque si.
+
+        -Que la cima sea true, pero la condición no, añadir a la pila un false:
+            -Si hay sino. Tras añadir el false añadir true -> Se ejecutarán las instrucciones
+            del bloque sino.
+
+        -Si la cima es false -> No ejecutar las instrucciones ni del si, ni del sino en caso
+        de existir. Añadir tanto para el si, como para el sino en caso de existir, false
+        a la pila. Cuando el walker salga del bloque los retirará.
+
+    bloqueCondicion(condicion ctx):
+        si la cima es true:
+            seCumpleCond = evalua ctx.cond
+            añade a pila seCumpleCond
+        sino:
+            añade a pila false
+
+    La pila llegados al bloque sino tendría este aspecto (los valores de la pila podrían ser distintos):
+
+        |  false | -> (1) Representa si se cumplió la condición de si en caso de no haber habido ruptura.
+        |  true  | -> (2) Representa, si true, que la ejecución del bloque si debe realizarse si cumple la condición.
+        |  ...   |
+
+    Para saber si se debe ejecutar el bloque sino necesitamos a (2) -> Si (2) es false el bloque sino no deberá de
+    ejecutarse.
+    Y además debemos conocer si la condición del if se cumplió. Si (2) y no se cumplió la condición entonces bloque
+    sino tendrá centinela true.
+    (1) no corresponde con condición del si pues su valor se ve alterado en caso de estar ruptura en las instrucciones
+    del si.
+
+    bloqueSino(sino ctx):
+        cumpleCondSi = evalua extrae del padre de ctx su cond
+        si no cumpleCondSi y (2):
+            añade a pila true
+        sino:
+            añade a pila false
+
