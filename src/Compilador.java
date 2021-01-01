@@ -1,4 +1,5 @@
 import org.antlr.runtime.RecognitionException;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.io.FileWriter;
@@ -10,11 +11,10 @@ public class Compilador extends AnasintBaseListener {
     // VARIABLES GLOBALES
     //////////////////////////
     Generador generador = new Generador(); //traductor de árbolparse a texto
-    ExtraerVarsExpr extractor = new ExtraerVarsExpr(); //extractor de variables de una expresión
     FileWriter fichero; //Fichero para escribir el resultado de la compilación
 
     String EntradaCompilador = null; //Nombre del fichero compilador
-    int espacios = 3; //Contador de espacios en blanco. Sirve para indentar el código generado.
+    int espacios = 0; //Contador de espacios en blanco. Sirve para indentar el código generado.
     Map<String, Anasint.ExprContext> almacen_definiciones_Integer = new HashMap<>(); //almacen de las definiciones de variables
     Map<String, Anasint.ExprContext> almacen_definiciones_Bool = new HashMap<>();
     public static Map<String, Anasint.ExprContext> almacen_definiciones_Seq_Integer = new HashMap<>();
@@ -91,22 +91,20 @@ public class Compilador extends AnasintBaseListener {
     }
 
     //Generar código para v = exp
-    public void gencodigo_asignacion(List<Anasint.VariableContext> variables, List<Anasint.ExprContext> exp){
+    public void gencodigo_asignacion(ParseTree var, Anasint.ExprContext exp){
         String txt_exp="0";
         String v = new String();
-        for(int i=0;i<variables.size();i++) {
-            v = variables.get(i).getText();
-            Anasint.ExprContext aux = exp.get(i);
-            if (aux != null)
-                txt_exp = generador.visit(aux);
-            gencode_espacios();
+        v = var.getText();
+        if (exp != null)
+            txt_exp = generador.visit(exp);
+        gencode_espacios();
 
-            try {
-                fichero.write(v + "=" + txt_exp + ";\n"); //código de una asignación
-            } catch (IOException e) {
-                e.getMessage();
-            }
+        try {
+            fichero.write(v + "=" + txt_exp + ";\n"); //código de una asignación
+        } catch (IOException e) {
+            e.getMessage();
         }
+
     }
 
     //Generar código comienzo clase
@@ -119,9 +117,7 @@ public class Compilador extends AnasintBaseListener {
             gencode_espacios();
             fichero.write("{\n");
             espacios++;
-        }catch(IOException e){
-            e.getMessage();
-        }
+        }catch(IOException e){}
     }
     //Generar código comienzo main
     private void gencode_begin_main(){
@@ -137,9 +133,7 @@ public class Compilador extends AnasintBaseListener {
             espacios--;
             gencode_espacios();
             fichero.write("}\n");
-        }catch(IOException e){
-            e.getMessage();
-        }
+        }catch(IOException e){}
     }
     //Generar código fin clase
     private void gencode_end_class(){
@@ -147,9 +141,7 @@ public class Compilador extends AnasintBaseListener {
             espacios--;
             gencode_espacios();
             fichero.write("}");
-        }catch(IOException e){
-            e.getMessage();
-        }
+        }catch(IOException e){}
     }
     //Generar código declaración de variables
     private void gencode_declarar_variables_Integer(){
@@ -166,9 +158,7 @@ public class Compilador extends AnasintBaseListener {
                 }
                 fichero.write(";\n");
             }
-        }catch(IOException e){
-            e.getMessage();
-        }
+        }catch(IOException e){}
     }
 
     private void gencode_declarar_variables_Seq_Integer(){
@@ -185,9 +175,7 @@ public class Compilador extends AnasintBaseListener {
                 }
                 fichero.write(";\n");
             }
-        }catch(IOException e){
-            e.getMessage();
-        }
+        }catch(IOException e){}
     }
 
     private void gencode_declarar_variables_Bool(){
@@ -204,9 +192,7 @@ public class Compilador extends AnasintBaseListener {
                 }
                 fichero.write(";\n");
             }
-        }catch(IOException e){
-            e.getMessage();
-        }
+        }catch(IOException e){}
     }
 
     private void gencode_declarar_variables_Seq_Bool(){
@@ -223,9 +209,7 @@ public class Compilador extends AnasintBaseListener {
                 }
                 fichero.write(";\n");
             }
-        }catch(IOException e){
-            e.getMessage();
-        }
+        }catch(IOException e){}
     }
 
     //Generar código mostrar el valor de variable en una evaluación
@@ -234,36 +218,133 @@ public class Compilador extends AnasintBaseListener {
             gencode_espacios();
             fichero.write("System.out.println(\"(Compilador) "+
                     var+" ---> \""+"+"+var+");\n");
-        }catch(IOException e){
-            e.getMessage();
-        }
+        }catch(IOException e){}
     }
 
     // Generar código condicional (Falta conseguir que las instrucciones se ejecuten dentro de las llaves)
     public void gencodigo_condicional(Anasint.Expr_boolContext expr, List<Anasint.Declaracion_instruccionesContext> ls){
         try{
-            Anasint.Declaracion_instruccionesContext aux;
             gencode_espacios();
-            fichero.write("if("+generador.visit(expr)+"){");
+            fichero.write("if("+generador.visit(expr)+"){\n");
+            System.out.println(ls.get(0).getText());
+            for(int i=0;i<ls.size();i++){
+                if(ls.get(i).getText().startsWith("si ") || ls.get(i).getText().startsWith("si")){
+                    Anasint.CondContext aux = (Anasint.CondContext) ls.get(i);
+                    gencodigo_condicional(aux.condicion().expr_bool(),aux.condicion().declaracion_instrucciones());
+                }
+                else if(ls.get(i).getText().startsWith("mientras ") || ls.get(i).getText().startsWith("mientras")){
+                    Anasint.ItContext aux = (Anasint.ItContext) ls.get(i);
+                    gencodigo_iteracion(aux.iteracion().expr_bool(),aux.iteracion().declaracion_instrucciones());
+                }
+                else if(ls.get(i).getText().startsWith("mostrar ") || ls.get(i).getText().startsWith("mostrar")){
+                    Anasint.ShowContext aux = (Anasint.ShowContext) ls.get(i);
+                    gencodigo_mostrar(aux.mostrar().expr());
+                }
+                else if(ls.get(i).getText().startsWith("ruptura ") || ls.get(i).getText().startsWith("ruptura")){
+                    //TODO
+                    gencodigo_break();
+                }
+                else if(ls.get(i).getText().startsWith("dev ") || ls.get(i).getText().startsWith("dev")){
+                    //TODO
+                    Anasint.DevContext dev = (Anasint.DevContext) ls.get(i);
+                    gencodigo_devolucion(dev.devolucion().expr());
+                }
+                else if(ls.get(i).getText().startsWith("{ ") || ls.get(i).getText().startsWith("{")){
+                    //TODO
+                }
+                else if(ls.get(i).getChild(0).getChild(1).getText().startsWith("(")){
+                    //TODO
+                }else{
+                    Anasint.AsigContext aux = (Anasint.AsigContext) ls.get(i);
+                    int suma = aux.asignacion().variable().size() + aux.asignacion().expr_sacar_elem().size();
+                    int pos = 0;
+                    for (int j = 0; j < (suma * 2 - 1); j = j + 2) { // Por las comas
+                        if (aux.asignacion().getChild(j).getText().contains("[")) {
+                            gencodigo_asignacion(aux.asignacion().getChild(j), aux.asignacion().expr(pos));
+                            pos++;
+                        } else {
+                            gencodigo_asignacion(aux.asignacion().getChild(j), aux.asignacion().expr(pos));
+                            pos++;
+                        }
+                    }
+                }
+
+            }
             fichero.write("}\n");
         }catch (IOException e){
-            e.getMessage();
+
         }
+    }
+    public void gencodigo_blq_sino(List<Anasint.Declaracion_instruccionesContext> ls){
+        try{
+            gencode_espacios();
+            fichero.write("else{\n");
+            for(int i=0;i<ls.size();i++){
+                if(ls.get(i).getText().startsWith("si ") || ls.get(i).getText().startsWith("si")){
+                    Anasint.CondContext aux = (Anasint.CondContext) ls.get(i);
+                    gencodigo_condicional(aux.condicion().expr_bool(),aux.condicion().declaracion_instrucciones());
+                }
+                else if(ls.get(i).getText().startsWith("mientras ") || ls.get(i).getText().startsWith("mientras")){
+                    Anasint.ItContext aux = (Anasint.ItContext) ls.get(i);
+                    gencodigo_iteracion(aux.iteracion().expr_bool(),aux.iteracion().declaracion_instrucciones());
+                }
+                else if(ls.get(i).getText().startsWith("mostrar ") || ls.get(i).getText().startsWith("mostrar")){
+                    Anasint.ShowContext aux = (Anasint.ShowContext) ls.get(i);
+                    gencodigo_mostrar(aux.mostrar().expr());
+                }
+                else if(ls.get(i).getText().startsWith("ruptura ") || ls.get(i).getText().startsWith("ruptura")){
+                    //TODO
+                    gencodigo_break();
+                }
+                else if(ls.get(i).getText().startsWith("dev ") || ls.get(i).getText().startsWith("dev")){
+                    //TODO
+                    Anasint.DevContext dev = (Anasint.DevContext) ls.get(i);
+                    gencodigo_devolucion(dev.devolucion().expr());
+                }
+                else if(ls.get(i).getText().startsWith("{ ") || ls.get(i).getText().startsWith("{")){
+                    //TODO
+                }
+                else if(ls.get(i).getChild(0).getChild(1).getText().startsWith("(")){
+                    //TODO
+                }else{
+                    Anasint.AsigContext aux = (Anasint.AsigContext) ls.get(i);
+                    int suma = aux.asignacion().variable().size() + aux.asignacion().expr_sacar_elem().size();
+                    int pos = 0;
+                    for (int j = 0; j < (suma * 2 - 1); j = j + 2) { // Por las comas
+                        if (aux.asignacion().getChild(j).getText().contains("[")) {
+                            gencodigo_asignacion(aux.asignacion().getChild(j), aux.asignacion().expr(pos));
+                            pos++;
+                        } else {
+                            gencodigo_asignacion(aux.asignacion().getChild(j), aux.asignacion().expr(pos));
+                            pos++;
+                        }
+                    }
+                }
+
+            }
+            fichero.write("}\n");
+        }catch (IOException e){
+
+        }
+
+
     }
     // Generar código iteración (ocurre lo mismo que en condicional)
-    public void gencodigo_iteracion(Anasint.Expr_boolContext expr,List<Anasint.Declaracion_instruccionesContext> ls) {
-        try {
+    public void gencodigo_iteracion(Anasint.Expr_boolContext expr,List<Anasint.Declaracion_instruccionesContext> ls){
+        try{
             Anasint.Declaracion_instruccionesContext aux;
             gencode_espacios();
-            fichero.write("while(" + generador.visit(expr) + "){");
+            fichero.write("while("+generador.visit(expr)+"){");
             fichero.write("}\n");
-        } catch (IOException e) {
-            e.getMessage();
+        }catch (IOException e){
+
         }
-    }
+   }
+
+
 
     //Generar codigo mostrar por pantalla
-    public  void gencodigo_mostrar(List<Anasint.ExprContext> exprs){
+   public  void gencodigo_mostrar(List<Anasint.ExprContext> exprs){
         String res = new String();
         for(int i=0;i< exprs.size();i++){
             gencode_espacios();
@@ -276,10 +357,11 @@ public class Compilador extends AnasintBaseListener {
             fichero.write(res);
             gencode_espacios();
         }catch(IOException e){
-            e.getMessage();
+
         }
     }
-    //Generar codigo retorno
+
+    //Generar codigo de retorno
     public void gencodigo_devolucion(List<Anasint.ExprContext> exprs){
         String res = "return ";
         for(int i=0;i< exprs.size();i++){
@@ -295,61 +377,83 @@ public class Compilador extends AnasintBaseListener {
             fichero.write(res);
             gencode_espacios();
         }catch(IOException e){
-            e.getMessage();
+
         }
     }
-    //Generar código de ruptura
+
+    //Generar codigo de ruptura
+    //  TODO:
+    //   Fin Programa,
+    //   Para Condición y
+    //   Sale del Bloque
     public void gencodigo_break(){
         String res = "break;\n";
         try{
             fichero.write(res);
             gencode_espacios();
         }catch(IOException e){
-            e.getMessage();
+
         }
     }
     //Generar codigo asertos
-    public void gencodigo_asertos(Anasint.AsertoContext ctx) {
-        Stack<Boolean> pila = new Stack<>();
-        if(pila.peek()) {
-            if(ctx.asertos().expr_bool()!=null) { //en este caso es simple {cierto} {falso} o equivalente.
-                Boolean eval =  Boolean.valueOf(generador.visit(ctx.asertos().expr_bool()));
-                if(eval) {
-                    System.out.println("(aserto) la ejecución del programa está siendo correcta.");
-                } else {
-                    System.out.println("(aserto) el programa es incorrecto. La ejecución del programa ha sido finalizada.");
-                    int tam = pila.size();
-                    pila.empty();
-                    for(int i = 0; i<tam; i++) { pila.push(false); }
-                }
+    // 1 -> Si sus asertos son ciertos entonces el programa se considera correcto
+    // 2 -> Un programa es incorrecto si alguno de sus asertos es falso en alguna de sus ejecuciones.
+    // 3 -> Asertos son condiciones extendidas con dos tipos de posibles cuantificaciones:
+        // 3.1 -> Cuantificación universal, ej. PARATODO(p:[0,ultima_posicion(s)],s[i]<=max)
+        // 3.2 -> Cuantificación existencial ej. EXISTE(x:[0,ultima_posicion(s)],s[x]>10)
+    public void gencodigo_asertos(Anasint.AsertoContext ctx){
+        if(ctx.asertos().expr_bool() != null) {
+            Boolean expr_booleana = Boolean.valueOf(generador.visit(ctx.asertos().expr_bool()));
+            if(expr_booleana){
+                System.out.println("(aserto) Si sus asertos son ciertos entonces el programa se considera correcto");
             } else {
-                Boolean eval = Boolean.valueOf(generador.visitAserto(ctx));
-                if(eval) {
-                    System.out.println("(aserto) la ejecución del programa está siendo correcta.");
-                } else {
-                    int tam = pila.size();
-                    pila.empty();
-                    for(int i = 0; i<tam; i++) { pila.push(false); }
-                    System.out.println("(aserto) el programa es incorrecto. La ejecución del programa ha sido finalizada.");
-                }
+                System.out.println("(aserto) Un programa es incorrecto si alguno de sus " +
+                        "asertos es falso en alguna de sus ejecuciones.");
+            }
+        } else {
+            Boolean expr_booleana = Boolean.valueOf(generador.visitAserto(ctx));
+            if(expr_booleana) {
+                System.out.println("(aserto) Si sus asertos son ciertos entonces el programa se considera correcto");
+                gencodigo_aserto_universal(ctx.asertos());
+            } else {
+                System.out.println("(aserto) Un programa es incorrecto si alguno de sus " +
+                        "asertos es falso en alguna de sus ejecuciones.");
+                gencodigo_aserto_existencial(ctx.asertos());
+
             }
         }
-        pila.push(pila.peek());
     }
+
+    //Generar codigo asertos 3.1 -> Cuantificación universal, ej. PARATODO(p:[0,ultima_posicion(s)],s[i]<=max)
+    public void gencodigo_aserto_universal(Anasint.AsertosContext ctx) {
+        Anasint.CuantificacionContext cuantificacionContext =
+                ctx.cuantificador().cuantificadorUniversal().cuantificacion();
+        String vars = cuantificacionContext.variable().getText();
+        Integer ini = Integer.valueOf(generador.visit(cuantificacionContext.expr_integer(0)));
+        Integer fin = Integer.valueOf(generador.visit(cuantificacionContext.expr_integer(1)));
+        if(ini > fin) {
+            System.out.println();
+        }
+        // TODO : Finalizar asertos universal
+
+    }
+
+    //Generar codigo asertos 3.2 -> Cuantificación existencial ej. EXISTE(x:[0,ultima_posicion(s)],s[x]>10)
+    public void gencodigo_aserto_existencial(Anasint.AsertosContext ctx) {}
+
 
 
     /////////////////////////
     // REGLAS. ATRIBUCIONES.
     /////////////////////////
     public void enterPrograma(Anasint.ProgramaContext ctx) {
-        System.out.println("COMPILADOR");
         init("EntradaCompilador.java");
         open_file();
         gencode_begin_class();
         gencode_begin_main();
     }
     public void enterVariable(Anasint.VariableContext ctx) {
-        gencode_evaluar_variable(ctx.VAR().getText());
+        //gencode_evaluar_variable(ctx.VAR().getText());
     }
 
     public void exitVariables(Anasint.VariablesContext ctx){
@@ -381,11 +485,28 @@ public class Compilador extends AnasintBaseListener {
     }
 
     public void enterAsig(Anasint.AsigContext ctx){
-        gencodigo_asignacion(ctx.asignacion().variable(),ctx.asignacion().expr());
+        System.out.println(ctx.getParent().getText());
+        if(ctx.getParent().getText().startsWith("INSTRUCCIONES")) {
+            int suma = ctx.asignacion().variable().size() + ctx.asignacion().expr_sacar_elem().size();
+            int pos = 0;
+            for (int i = 0; i < (suma * 2 - 1); i = i + 2) { // Por las comas
+                if (ctx.asignacion().getChild(i).getText().contains("[")) {
+                    gencodigo_asignacion(ctx.asignacion().getChild(i), ctx.asignacion().expr(pos));
+                    pos++;
+                } else {
+                    gencodigo_asignacion(ctx.asignacion().getChild(i), ctx.asignacion().expr(pos));
+                    pos++;
+                }
+            }
+        }
     }
 
     public void enterCond(Anasint.CondContext ctx){
         gencodigo_condicional(ctx.condicion().expr_bool(),ctx.condicion().declaracion_instrucciones());
+    }
+
+    public void enterBlq_sino(Anasint.Blq_sinoContext ctx){
+        gencodigo_blq_sino(ctx.declaracion_instrucciones());
     }
 
     public void enterIt(Anasint.ItContext ctx){
@@ -404,13 +525,26 @@ public class Compilador extends AnasintBaseListener {
         gencodigo_break();
     }
 
-    public void enterAserto(Anasint.AsertoContext asertoContext) {
-        gencodigo_asertos(asertoContext);
+    public void enterAserto(Anasint.AsertoContext ctx) {
+        gencodigo_asertos(ctx);
     }
 
+    public void exitDeclaracion_Instrucciones(Anasint.Declaracion_instruccionesContext ctx) {
+//        gencodigo_condicional(tipo, ctx);
+//        gencodigo_iteracion
+//        gencodigo_ruptura
+//        gencodigo_declaracionSubprograma
+//        gencodigo_retorno
+//        gencodigo_mostrar(exprs);
+//        gencodigo_aserto
+    }
     public void exitPrograma(Anasint.ProgramaContext ctx) {
-        gencode_end_main();
-        gencode_end_class();
-        close_file();
+        if(ctx.getParent().getText().startsWith("ruptura")) {
+            gencodigo_break();
+        } else {
+            gencode_end_main();
+            gencode_end_class();
+            close_file();
+        }
     }
 }

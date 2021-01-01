@@ -1,5 +1,4 @@
 public class Generador extends AnasintBaseVisitor<String> {
-
     public String visitExpr(Anasint.ExprContext ctx){
         return (String) visit(ctx.getChild(0));
     }
@@ -21,6 +20,16 @@ public class Generador extends AnasintBaseVisitor<String> {
 
     public String visitExpr_seq(Anasint.Expr_seqContext ctx){
         return (String) visit(ctx.getChild(0));
+    }
+
+    public String visitExpr_func(Anasint.Expr_funcContext ctx){
+        String res = new String();
+        String k = ctx.variable().VAR().getText();
+        res = k+"(";
+        for(int i=0;i<ctx.expr().size();i++){
+
+        }
+        return res;
     }
 
     public String visitVaciaSeq(Anasint.VarSeqContext ctx){
