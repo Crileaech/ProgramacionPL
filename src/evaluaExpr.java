@@ -197,54 +197,68 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
 
     public List<Object> visitFuncion(Anasint.FuncionContext ctx){
 
-        String nomFunc = ctx.variable().VAR().getText();
-
-        Map<String, Object> nombresYvalores = new LinkedHashMap<>();
-        List<String> nombresDev = new ArrayList<>();
-
-        //si el tercer hijo es un paréntesis, es que la función tiene parámetros de entrada
-        //y, por tanto, debemos asignar el nombre que aparece en la declaración de la función
-        //al valor introducido al llamarla
-        if(ctx.params().size()>1){
-            List<String> nombresParamsEntrada = getNombresParamsEntrada(ctx.params(0));
-            for (int i=0; i<subpParams.size(); i++){
-                nombresYvalores.put(nombresParamsEntrada.get(i), subpParams.get(nomFunc).get(i));
-            }
-        }
-
-        List<Anasint.Declaracion_instruccionesContext> instCtx = ctx.instrucciones().declaracion_instrucciones();
-
-        //en cuanto se ve la instrucción dev, se devuelven las variables indicadas
-        for(int i=0; i<instCtx.size(); i++)
-            if(instCtx.get(i).getChild(0).getChild(0).getText().equals("dev"))
-                for(int j=1; j<instCtx.get(i).getChild(0).getChildCount(); j+=2)
-                    nombresDev.add(instCtx.get(i).getChild(0).getChild(j).getText());
-
-        subpParamsAsignados.put(nomFunc, nombresYvalores);
-
-        //creamos un flujo de instrucciones para la función correspondiente
-        System.out.println("(FUNCIÓN "+nomFunc+")");
-        flujoInstrucciones func = new flujoInstrucciones(subpParamsAsignados.get(nomFunc));
-
-        //clonamos en un mapa las asignaciones de la función, y sustituimos las asignaciones globales con las de la función
-        //con el objetivo de que el flujo de instrucciones para la función sólo utilice las variables de la propia función
-        Map<String,Object> asigAnterior = new LinkedHashMap<>(func.asig);
-        func.asig.clear();
-
-        func.asig.putAll(nombresYvalores);
-
-        ParseTreeWalker walker = new ParseTreeWalker();
-        walker.walk(func, ctx);
-        System.out.println("(FIN FUNCIÓN "+nomFunc+")");
-
         List<Object> valores = new ArrayList<>();
-        valores.add("func");
-        for(String s: nombresDev)
-            valores.add(func.asig.get(s));
+        if(flujoInstrucciones.pila.peek()){
+            flujoInstrucciones.pila.push(true);
 
-        //restauramos el mapa de asignaciones global con las antiguas
-        func.asig.putAll(asigAnterior);
 
+            //nombre de la función
+            String nomFunc = ctx.variable().VAR().getText();
+
+            Map<String, Object> nombresYvalores = new LinkedHashMap<>();
+            List<String> nombresDev = new ArrayList<>();
+
+            //si el tercer hijo es un paréntesis, es que la función tiene parámetros de entrada
+            //y, por tanto, debemos asignar el nombre que aparece en la declaración de la función
+            //al valor introducido al llamarla
+            if(ctx.params().size()>1){
+                List<String> nombresParamsEntrada = getNombresParamsEntrada(ctx.params(0));
+                for (int i=0; i<subpParams.size(); i++){
+                    nombresYvalores.put(nombresParamsEntrada.get(i), subpParams.get(nomFunc).get(i));
+                }
+            }
+
+            List<Anasint.Declaracion_instruccionesContext> instCtx = ctx.instrucciones().declaracion_instrucciones();
+
+            //en cuanto se ve la instrucción dev, se devuelven las variables indicadas
+            for(int i=0; i<instCtx.size(); i++) {
+                if (instCtx.get(i).getChild(0).getChild(0).getText().equals("dev")) {
+                    for (int j = 1; j < instCtx.get(i).getChild(0).getChildCount(); j += 2)
+                        nombresDev.add(instCtx.get(i).getChild(0).getChild(j).getText());
+                }
+            }
+
+            subpParamsAsignados.put(nomFunc, nombresYvalores);
+
+            //creamos un flujo de instrucciones para la función correspondiente
+            System.out.println("(FUNCIÓN "+nomFunc+")");
+            flujoInstrucciones func = new flujoInstrucciones(subpParamsAsignados.get(nomFunc));
+
+            //clonamos en un mapa las asignaciones de la función, y sustituimos las asignaciones globales con las de la función
+            //con el objetivo de que el flujo de instrucciones para la función sólo utilice las variables de la propia función
+            Map<String,Object> asigAnterior = new LinkedHashMap<>(func.asig);
+            func.asig.clear();
+
+            func.asig.putAll(nombresYvalores);
+
+            ParseTreeWalker walker = new ParseTreeWalker();
+            walker.walk(func, ctx);
+
+            //si el último elemento de la pila fuera false, es que un aserto no se ha cumplido y por tanto finalizamos la ejecución
+            if(func.pila.peek()){
+                System.out.println("(FIN FUNCIÓN "+nomFunc+")");
+
+
+                valores.add("func");
+                for(String s: nombresDev)
+                    valores.add(func.asig.get(s));
+
+                //restauramos el mapa de asignaciones global con las antiguas
+                func.asig.putAll(asigAnterior);
+            }
+
+            flujoInstrucciones.pila.pop();
+        }
         return valores;
     }
 
