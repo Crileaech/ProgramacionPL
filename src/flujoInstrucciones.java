@@ -86,6 +86,7 @@ public class flujoInstrucciones extends AnasintBaseListener{
 
     public void enterAsignacion(Anasint.AsignacionContext ctx) {
         if(pila.peek()) {
+
             //List<String> vars = ctx.variable().stream().map(v -> v.getText()).collect(Collectors.toList());
             List<Anasint.ExprContext> asign = ctx.expr();
             List<Object> asignEvaluadasAux = asign.stream().map(x -> evalua.visit(x))
@@ -93,20 +94,26 @@ public class flujoInstrucciones extends AnasintBaseListener{
 
             List<Object> asignEvaluadas = new ArrayList<>();
 
+
             //Aplana la lista de asignaciones, porque las funciones devuelven listas cuando tienen múltiples valores,
             //en caso de que haya alguna función que devuelva múltiples valores
             if(asignEvaluadasAux.stream().anyMatch(x -> x instanceof List)) {
                 for (int i = 0; i < asignEvaluadasAux.size(); i++) {
                     if (asignEvaluadasAux.get(i) instanceof List)
-                        asignEvaluadas.addAll((List<Object>)asignEvaluadasAux.get(i));
+                        if(((List<Object>) asignEvaluadasAux.get(i)).get(0).equals("func")) {
+                            ((List<Object>) asignEvaluadasAux.get(i)).remove(0);
+                            asignEvaluadas.addAll((List<Object>)asignEvaluadasAux.get(i));
+                        }
                     else
                         asignEvaluadas.add(asignEvaluadasAux.get(i));
                 }
             }
-            else
+            else {
                 asignEvaluadas.addAll(asignEvaluadasAux);
+            }
 
             Object evaluacion = null;
+
             for(int j = 0; !ctx.getChild(j).getText().equals("="); j++) {
                 if (j<asignEvaluadas.size())
                     evaluacion = asignEvaluadas.get(j);
@@ -178,9 +185,11 @@ public class flujoInstrucciones extends AnasintBaseListener{
         //Si false,false,... -> No se ha ejecutado cond porque pila.peek en enterIt fue false -> No se debe de ejecutar sino.
         //Si true,true,... -> Se ejecutó cond. Luego no debe ser así con sino.
         //Si true,false,... -> Imposible su ejecución.
+        Anasint.CondicionContext padre = (Anasint.CondicionContext) ctx.getParent();
+        Boolean cond = (Boolean) evalua.visit(padre.expr_bool());
         Stack<Boolean> pilaCopia = (Stack<Boolean>) pila.clone();
         pilaCopia.pop();
-        pila.push(!pila.peek()&&pilaCopia.peek());
+        pila.push(!cond&&pilaCopia.peek());
     }
     public void exitBlq_sino(Anasint.Blq_sinoContext ctx) {
         pila.pop();
@@ -218,7 +227,7 @@ public class flujoInstrucciones extends AnasintBaseListener{
         }
     }
 
-    public void enterAserto(Anasint.AsertoContext ctx) {
+    /*public void enterAserto(Anasint.AsertoContext ctx) {
         if(pila.peek()) {
             if(ctx.asertos().expr_bool()!=null) { //en este caso es simple {cierto} {falso} o equivalente.
                 Boolean eval = (Boolean) evalua.visit(ctx.asertos().expr_bool());
@@ -243,7 +252,37 @@ public class flujoInstrucciones extends AnasintBaseListener{
             }
         }
         pila.push(pila.peek());
+    }*/
+
+    public void enterAserto(Anasint.AsertoContext ctx) {
+        if(pila.peek()) {
+            if(ctx.asertos().expr_bool()!=null) { //en este caso es simple {cierto} {falso} o equivalente.
+                Boolean eval = (Boolean) evalua.visit(ctx.asertos().expr_bool());
+                if(eval) {
+                    muestraConIdentación("(aserto) la ejecución del programa está siendo correcta.");
+                } else {
+                    muestraConIdentación("(aserto) el programa es incorrecto. La ejecución del programa ha sido finalizada.");
+                    int tam = pila.size();
+                    pila.clear();
+                    for(int i = 0; i<tam; i++) { pila.push(false); }
+                }
+            } else {
+                Boolean eval = evaluaAsert.visitAserto(ctx);
+                if(eval) {
+                    muestraConIdentación("(aserto) la ejecución del programa está siendo correcta.");
+                } else if(!eval) {
+                    int tam = pila.size();
+                    pila.clear();
+                    for(int i = 0; i<tam; i++) { pila.push(false); }
+                    muestraConIdentación("(aserto) el programa es incorrecto. La ejecución del programa ha sido finalizada.");
+                } else {
+                    muestraConIdentación("(aserto) el aserto es indefinido. No se puede asegurar la corrección del programa.");
+                }
+            }
+        }
+        pila.push(pila.peek());
     }
+
     public void exitAserto(Anasint.AsertoContext ctx) { pila.pop(); }
 
     //dado un mensaje lo muestra con la identación adecuada. La identación base es pila tam 2.

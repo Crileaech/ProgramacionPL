@@ -1,0 +1,223 @@
+ESPECIFICACIÓN INTÉRPRETE:
+
+Objetivo principal: Desarollar un intérprete para P.
+
+OBJETIVO 1: Llevar a cabo la ejecución secuencial de las instrucciones de P.
+
+DECISIONES DE DISEÑO:
+
+    (DECISIÓN 1) Para controlar el flujo de ejecución de las instrucciones haremos uso
+    de una pila de booleanos:
+        -Cuando entremos en un bloque de instrucciones comprobaremos la cima de la pila:
+            -Si false: No se deberán ejecutar las instrucciones del bloque.
+            -Si true: Se deberán ejecutar las instrucciones del bloque. Salvo aquellas
+            en las que su ejecución dependa de una condición adicional como las condiciones
+            o las iteraciones. En cuyo caso se deberá cumplir que cima==true y cond==true.
+        -Cada vez que pasemos por un bloque deberemos introducir un centinela en la pila
+         que indicará a las instrucciones hijas si se deben ejecutar o no.
+        -Cuando salgamos de un bloque deberemos retirar el centinela introducido en la
+        pila.
+
+                                        | false |
+                                        | true  |
+                                        | true  |
+                                        | ...   |
+
+    Consideramos un bloque de instrucciones como un conjunto de instrucciones que
+    jerárquicamente dependen su ejecución de una misma instrucción padre.
+    También se considerará bloque de instrucciones a un trozo de código con una función
+    diferenciadora, como puede ser la zona de declaración de variables o la zona de
+    instrucciones.
+    Todas las instrucciones pertenecen al bloque programa.
+    Como ejemplo, una iteración se considera un bloque por la primera definición, pues
+    las instrucciones que contiene dependen su ejecución de una misma condición iterativa.
+
+    (DECISIÓN 2) Dispondremos de un almacén de asignaciones donde almacenemos los valores
+    asignados a cada una de las variables.
+
+        | var   | asignación |
+        ----------------------
+        | a     | true       |
+        | b     | 2          |
+
+    (DECISIÓN 3) Dado que el programa se considera un bloque nada más empezar la ejecución
+    de nuestro programa introduciremos a la pila true.
+    Cuando finalice la ejecución de todas y cada una de las instrucciones y subprogramas
+    que correspondan quedará un único centinela, que corresponderá con el introducido
+    al principio y que se sacará.
+
+    (DECISIÓN 4) La instrucción ruptura consiste en una instrucción que finaliza las
+    instrucciones del bloque en el que se encuentra. Para su implementación sustituiremos
+    la cima de la pila por un false. Esto hará que las instrucciones del bloque no sean
+    ejecutadas.
+
+    (DECISIÓN 5) JUAN** Las asignaciones se llevarán a cabo si la cima de la pila es true.
+    -Para asignaciones simples del tipo a = expr:
+        -Añadir al almacén de asignaciones el par variable (a) y asignación (evalua expr).
+
+    -Para asignaciones múltiples del tipo a,b = expr1,expr2:
+        -Dada la paralelidad de las asignaciones múltiples evaluaremos todas las expresiones
+        asignadas (visit) y sólo cuando todas estén evaluadas añadiremos las asignaciones al
+        almacén.
+
+    -Las asignaciones también se pueden realizar a una posición en concreto de una secuencia.
+    Ej: s[i] = 9 -> Se asigna en la posición iésima de la secuencia numérica s el número 9.
+
+        todo: añadir comprobación i no excede tam s-1 a código
+    asignacion(asignacion ctx): //a, s[1] = 2, T;
+        si la cima es true:
+            aAsignar = extrae asignados de ctx // [a,s[1]]
+            expresiones = extrae expr de ctx
+            evaluaciones = evalua cada expr de expresiones // [2,true]
+            para cada (asignado,evaluación) en aAsignar y evaluaciones:
+                si asignado es variable:
+                    añade al almacén var y evaluación
+                sino: //s[i]
+                    variable = extraigo variable de asignado //s
+                    pos = extraigo pos de asignado //i
+                    secuencia = obtengo del almacén la secuencia s
+                    si pos excede a secuencia:
+                        error
+                    cambio el elemento i de secuencia por evaluación
+
+
+    Debido a que la evaluación de las expresiones asignadas se realiza de manera secuencial
+    y durante la asignación, no se producirá con total seguridad ningún tipo de ciclicidad.
+
+    (DECISIÓN 6) La instrucción condición define un bloque o dos de instrucciones en caso
+    de existir sino.
+
+    -Llegamos a la instrucción si, posibilidades:
+
+        -Que la cima de la pila sea true y se cumpla la condición del si: Añadimos a la pila
+        true -> Esto permitirá la ejecución de asignaciones, iteraciones y cualquier otra
+        instrucción del bloque si.
+
+        -Que la cima sea true, pero la condición no, añadir a la pila un false:
+            -Si hay sino. Tras añadir el false añadir true -> Se ejecutarán las instrucciones
+            del bloque sino.
+
+        -Si la cima es false -> No ejecutar las instrucciones ni del si, ni del sino en caso
+        de existir. Añadir tanto para el si, como para el sino en caso de existir, false
+        a la pila. Cuando el walker salga del bloque los retirará.
+
+    bloqueCondicion(condicion ctx):
+        si la cima es true:
+            seCumpleCond = evalua ctx.cond
+            añade a pila seCumpleCond
+        sino:
+            añade a pila false
+
+    La pila llegados al bloque sino tendría este aspecto (los valores de la pila podrían ser distintos):
+
+        |  false | -> (1) Representa si se cumplió la condición de si en caso de no haber habido ruptura.
+        |  true  | -> (2) Representa, si true, que la ejecución del bloque si debe realizarse si cumple la condición.
+        |  ...   |
+
+    Para saber si se debe ejecutar el bloque sino necesitamos a (2) -> Si (2) es false el bloque sino no deberá de
+    ejecutarse.
+    Y además debemos conocer si la condición del if se cumplió. Si (2) y no se cumplió la condición entonces bloque
+    sino tendrá centinela true.
+    (1) no corresponde con condición del si pues su valor se ve alterado en caso de estar ruptura en las instrucciones
+    del si.
+
+    bloqueSino(sino ctx):
+        cumpleCondSi = evalua extrae del padre de ctx su cond
+        si no cumpleCondSi y (2):
+            añade a pila true
+        sino:
+            añade a pila false
+
+    (DECISIÓN 7) La instrucción iteración define un bloque de instrucciones que es ejecutado entre 0 y n veces en
+    función de una condición. Si la condición es true -> Se ejecutan las instrucciones del bloque. Si es false ->
+    fin del bloque de instrucciones.
+    todo avanza
+
+    bucleIt(iteracion ctx):
+        si la cima es true
+            añade a pila true
+            llama a ejecutaIteracion(ctx)
+        si la cima es false
+            añade a pila false
+
+    ejecutaIteracion(iteracion ctx):
+        cumpleCond = evalua ctx.cond
+        //se comprueba también la cima de la pila porque podría haber una ruptura entre las instrucciones
+        //del bloque de iteración.
+        mientras cumpleCond y cima pila sean true:
+            ejecuta las instrucciones hijas de ctx
+            cumpleCond = evalua ctx.cond
+        //dado que el flujo de ejecución de las instrucciones lo ejecutamos nosotros, una vez terminamos
+        //debemos añadir un false para que no se ejecute una vez más de la cuenta.
+        retira la cima de la pila
+        añade a pila false
+
+    (DECISIÓN 8) La instrucción mostrar muestra el valor asociado a una variable.
+
+    mostrar(aMostrar ctx):
+        print evalua ctx.expr
+
+    (DECISIÓN 9) Los asertos son condiciones lógicas entre llaves que sirven para la corrección del
+    programa.
+    Un programa es incorrecto si uno de sus asertos es falso en alguna de sus ejecuciones.
+    Tipos de aserto:
+        -{cierto} o {falso} -> Implementación trivial: Si cierto -> la ejecución del programa es correcta.
+                                                       Si falso -> la ejecución del programa es incorrecta.
+
+        -Con condiciones extendidas con dos tipos de cuantificaciones PARATODO y EXISTE.
+
+        -Aserto mal diseñado si su evaluación es indefinida. Casos:
+            -{expr_logica} -> evaluacion de la expr_logica sea null.
+            -CUANT{var:[comienzo,fin],cond} -> que comienzo sea mayor a fin.
+
+        enterAserto(aserto ctx):
+            condicion = ctx.cond
+            si cima de pila es true
+                si condición es cierto
+                    retorna ejecución del programa correcta
+                si condición es falso
+                    retorna ejecución del programa incorrecta
+                si condición indefinida
+                    retorna aserto mal diseñado
+                si condición es extendida
+                    retorna evaluaAserto(ctx)
+
+        ej: {EXISTE(p:[0,3],a[p]==2)}
+        evaluaAserto(aserto ctx):
+            var = extrae variable de ctx // var=p
+            comienzo = extrae el elemento 0 del rango // comienzo = 0
+            fin = extrae el elemento 1 del rango //fin = 3
+            si comienzo > fin
+                retorna aserto indefinido
+            sino
+                añade var comienzo a almacén asignaciones
+                si cuantificador de ctx es existencial
+                    mientras almacen[var] < fin
+                        si cond de ctx es true
+                            retorna el programa es correcto
+                        incrementa en 1 el valor asignado a var en el almacén
+                    retorna el programa es incorrecto
+                sino //es universal
+                    res = evalua cond ctx //a[0] == 2
+                    mientras almacen[var] < fin y res sea true
+                        res = res && evalua cond ctx
+                        incrementa en 1 el valor asignado a var en el almacén
+                    si res es true:
+                        retorna el programa es correcto
+                    sino
+                        retorna el programa es incorrecto
+
+        Ejemplo de ejecución del aserto {EXISTE(p:[0,3],a[p]==2)}:
+
+        -Almacén de asignaciones = [a=[1,2,3,4],...]
+        -enterAserto(ctx) llama a evaluaAserto(ctx):
+            -1: p = 0 ¿a[p]=a[0]==2? -> Condición falsa -> Cuantificador es existencial así que continuamos comprobando
+                                                           para p = p+1
+            -2: p = 1 ¿a[p]=a[1]==2? -> True -> Dado que estamos ante un cuantificador existencial retornamos que el
+                                                programa es correcto.
+
+
+
+
+
+    todo indefinido

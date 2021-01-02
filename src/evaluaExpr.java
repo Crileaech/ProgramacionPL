@@ -87,8 +87,29 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
         return !(Boolean)visit(ctx.expr_bool());
     }
     public Boolean visitExprFuncBool(Anasint.ExprFuncBoolContext ctx) {
-        // TODO: 12/12/20
-        return null;
+        //nombre de la función a la que queremos llamar
+        String nomFunc = ctx.expr_func().variable().VAR().getText();
+
+        //añadimos a un mapa el nombre de la función asociado a una lista con los valores de las variables
+        //que se le pasan como parámetro, ya que la propia función es la que se encarga de asignar
+        //nombre a esas variables
+        subpParams.put(nomFunc, ctx.expr_func().expr().stream().map(v -> visit(v)).collect(Collectors.toList()));
+
+        //lista de subprogramas
+        List<Anasint.Declaracion_subprogramasContext> decSubp = subprogramas.declaracion_subprogramas();
+        Object f = null;
+
+        for(int i=0; i<decSubp.size(); i++)
+            //buscamos la función con el nombre que queremos
+            if (decSubp.get(i).getChild(0).getChild(1).getText().equals(nomFunc)){
+                f = visit(decSubp.get(i).getChild(0));
+            }
+
+        //quitamos el identificador de la función
+        ((List<Object>) f).remove(0);
+
+        //devolvemos el primer objeto que devuelve la función
+        return (Boolean) ((List<Object>) f).get(0);
     }
     public Object visitExpr_sacar_elem(Anasint.Expr_sacar_elemContext ctx) {
         List<Object> elems = (List<Object>) flujoInstrucciones.asig.get(ctx.variable().getText());
@@ -149,7 +170,7 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
         //si el tercer hijo es un paréntesis, es que la función tiene parámetros de entrada
         //y, por tanto, debemos asignar el nombre que aparece en la declaración de la función
         //al valor introducido al llamarla
-        if(ctx.getChild(2).getText().equals("(")){
+        if(ctx.params().size()>1){
             List<String> nombresParamsEntrada = getNombresParamsEntrada(ctx.params(0));
             for (int i=0; i<subpParams.size(); i++){
                 nombresYvalores.put(nombresParamsEntrada.get(i), subpParams.get(nomFunc).get(i));
@@ -169,14 +190,25 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
         //creamos un flujo de instrucciones para la función correspondiente
         System.out.println("(FUNCIÓN "+nomFunc+")");
         flujoInstrucciones func = new flujoInstrucciones(subpParamsAsignados.get(nomFunc));
+
+        //clonamos en un mapa las asignaciones de la función, y sustituimos las asignaciones globales con las de la función
+        //con el objetivo de que el flujo de instrucciones para la función sólo utilice las variables de la propia función
+        Map<String,Object> asigAnterior = new LinkedHashMap<>(func.asig);
+        func.asig.clear();
+
+        func.asig.putAll(nombresYvalores);
+
         ParseTreeWalker walker = new ParseTreeWalker();
         walker.walk(func, ctx);
         System.out.println("(FIN FUNCIÓN "+nomFunc+")");
 
         List<Object> valores = new ArrayList<>();
+        valores.add("func");
         for(String s: nombresDev)
             valores.add(func.asig.get(s));
 
+        //restauramos el mapa de asignaciones global con las antiguas
+        func.asig.putAll(asigAnterior);
 
         return valores;
     }
@@ -186,9 +218,6 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
 
         List<String> f = new ArrayList<>();
         f.add(ctx.variable().VAR().getText());
-        if(ctx.params()!=null)
-            f.addAll(getNombresParamsEntrada(ctx.params()));
-
         return f;
     }
 
@@ -220,6 +249,13 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
     public Integer visitMenosNum(Anasint.MenosNumContext ctx) {
         return -(Integer)visit(ctx.expr_integer());
     }
+
+    /*
+    public Integer visitParentesisNum(Anasint.ParentesisNumContext ctx) {
+        return (Integer) Integer.parseInt(ctx.NUM().getText());
+    }
+    */
+
     public Integer visitNum(Anasint.NumContext ctx) {
         return Integer.parseInt(ctx.getText());
     }

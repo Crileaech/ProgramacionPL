@@ -1,23 +1,42 @@
-  PROGRAMA
-  VARIABLES
-  i, j: NUM;
-  b, b2: LOG;
-  s: SEQ(NUM);
-  SUBPROGRAMAS
+PROGRAMA
+VARIABLES
+a, c, b: LOG;
+s: SEQ(NUM);
+SUBPROGRAMAS
   FUNCION mayor(NUM yyyyyy) dev (SEQ(NUM) e)
   VARIABLES
-  e: SEQ(NUM);
-  n1, n2: NUM;
-  b1, b2: LOG;
   INSTRUCCIONES
-  e = [];
-  n1 = e[2];
-  n2 = 3*x;
-  b = T;
-  b2 = x;
+  t=3;
   FFUNCION
-
-  INSTRUCCIONES
-  i = s[5],5;
-  s = [1,2,3,4,5];
-  comp = T==F;
+INSTRUCCIONES
+a=[5,4,3,2];
+a[0]=6-3;
+c=a[0];
+f=2*3;
+{PARATODO(p:[0,3],a[p]==1)}
+{EXISTE(p:[0,3],a[p]==2)}
+d=T&&!((F||(T&&!F))||(F&&F))||(T&&F);
+k=5*4-3-2-2-6*3;
+b=(a[0]+2)*c*(-3*(2+3));
+t=(2-3);
+si(b>5) entonces
+    mostrar(10);
+    c=2;
+    si(t==0) entonces
+        ruptura;
+        c=3;
+    fsi
+sino
+    c=1;
+fsi
+mientras(c<3) hacer
+    c = c+1;
+    mientras(b>7) hacer
+        b=b-1;
+        mientras(t<2) hacer
+            t=t+1;
+            ruptura;
+        fmientras
+    fmientras
+fmientras
+mostrar(a);

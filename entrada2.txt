@@ -1,23 +1,43 @@
 PROGRAMA
 VARIABLES
-a, c, b: LOG;
+a, c: LOG;
+b: NUM;
 s: SEQ(NUM);
 SUBPROGRAMAS
-  FUNCION mayor(LOG r, NUM i) dev (LOG e)
+  FUNCION mayor(LOG r) dev (LOG e)
   VARIABLES
-  t: NUM;
-  l, k: LOG;
+  t: LOG;
   INSTRUCCIONES
-  l, k = T, F;
-  e = l;
+  t=!r;
+  dev t;
   FFUNCION
-
-  PROCEDIMIENTO cujons()
-  VARIABLES
-  k: NUM;
-  INSTRUCCIONES
-  k=3;
-  FPROCEDIMIENTO
-
 INSTRUCCIONES
-a=mayor(T, 2);
+a=[5,4,3,2];
+a[0]=6-3;
+c=a[0];
+f=2*3;
+d=T&&!((F||(T&&!F))||(F&&F))||(T&&F);
+k=5*4-3-2-2-6*3;
+b=7;
+t=(2-3);
+si(mayor(F)==T) entonces
+    mostrar(10);
+    c=2;
+    si(t!=0) entonces
+        ruptura;
+        c=3;
+    fsi
+sino
+    c=1;
+fsi
+mientras(c<3) hacer
+    c = c+1;
+    mientras(b>7) hacer
+        b=b-1;
+        mientras(t<2) hacer
+            t=t+1;
+            ruptura;
+        fmientras
+    fmientras
+fmientras
+mostrar(a);
