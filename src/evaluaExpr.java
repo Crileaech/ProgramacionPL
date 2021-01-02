@@ -86,30 +86,49 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
     public Boolean visitNegacionBool(Anasint.NegacionBoolContext ctx) {
         return !(Boolean)visit(ctx.expr_bool());
     }
-    public Boolean visitExprFuncBool(Anasint.ExprFuncBoolContext ctx) {
+    public Object visitExprFuncBool(Anasint.ExprFuncBoolContext ctx) {
         //nombre de la función a la que queremos llamar
         String nomFunc = ctx.expr_func().variable().VAR().getText();
 
-        //añadimos a un mapa el nombre de la función asociado a una lista con los valores de las variables
-        //que se le pasan como parámetro, ya que la propia función es la que se encarga de asignar
-        //nombre a esas variables
-        subpParams.put(nomFunc, ctx.expr_func().expr().stream().map(v -> visit(v)).collect(Collectors.toList()));
+        Object ret;
 
-        //lista de subprogramas
-        List<Anasint.Declaracion_subprogramasContext> decSubp = subprogramas.declaracion_subprogramas();
         Object f = null;
 
-        for(int i=0; i<decSubp.size(); i++)
-            //buscamos la función con el nombre que queremos
-            if (decSubp.get(i).getChild(0).getChild(1).getText().equals(nomFunc)){
-                f = visit(decSubp.get(i).getChild(0));
-            }
+        //PREDEFINIDA: última posición de una secuencia
+        List<Object> seq;
+        if(nomFunc.equals("ultima_posicion")) {
+            seq = (List<Object>) flujoInstrucciones.asig.get(ctx.expr_func().expr(0).getText());
 
-        //quitamos el identificador de la función
-        ((List<Object>) f).remove(0);
+            //si ret=-1 es que la secuencia está vacía
+            ret = seq.size()-1;
+        }
+        //PREDEFINIDA: ¿está vacía la secuencia?
+        else if(nomFunc.equals("vacia")){
+            seq = (List<Object>) flujoInstrucciones.asig.get(ctx.expr_func().expr(0).getText());
+            ret = seq.isEmpty();
+        }else {
+            //SI NO ES UNA FUNCIÓN PREDEFINIDA
+            //añadimos a un mapa el nombre de la función asociado a una lista con los valores de las variables
+            //que se le pasan como parámetro, ya que la propia función es la que se encarga de asignar
+            //nombre a esas variables
+            subpParams.put(nomFunc, ctx.expr_func().expr().stream().map(v -> visit(v)).collect(Collectors.toList()));
 
+            //lista de subprogramas
+            List<Anasint.Declaracion_subprogramasContext> decSubp = subprogramas.declaracion_subprogramas();
+
+            for (int i = 0; i < decSubp.size(); i++)
+                //buscamos la función con el nombre que queremos
+                if (decSubp.get(i).getChild(0).getChild(1).getText().equals(nomFunc)) {
+                    f = visit(decSubp.get(i).getChild(0));
+                }
+
+            //quitamos el identificador de la función
+            ((List<Object>) f).remove(0);
+
+            ret = ((List<Object>) f).get(0);;
+        }
         //devolvemos el primer objeto que devuelve la función
-        return (Boolean) ((List<Object>) f).get(0);
+        return ret;
     }
     public Object visitExpr_sacar_elem(Anasint.Expr_sacar_elemContext ctx) {
         List<Object> elems = (List<Object>) flujoInstrucciones.asig.get(ctx.variable().getText());
@@ -142,21 +161,37 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
         //nombre de la función a la que queremos llamar
         String nomFunc = ctx.expr_func().variable().VAR().getText();
 
-        //añadimos a un mapa el nombre de la función asociado a una lista con los valores de las variables
-        //que se le pasan como parámetro, ya que la propia función es la que se encarga de asignar
-        //nombre a esas variables
-        subpParams.put(nomFunc, ctx.expr_func().expr().stream().map(v -> visit(v)).collect(Collectors.toList()));
-
-        //lista de subprogramas
-        List<Anasint.Declaracion_subprogramasContext> decSubp = subprogramas.declaracion_subprogramas();
         Object f = null;
 
-        for(int i=0; i<decSubp.size(); i++)
-            //buscamos la función con el nombre que queremos
-            if (decSubp.get(i).getChild(0).getChild(1).getText().equals(nomFunc)){
-                f = visit(decSubp.get(i).getChild(0));
-            }
+        //PREDEFINIDA: última posición de una secuencia
+        List<Object> seq;
+        if(nomFunc.equals("ultima_posicion")) {
+            seq = (List<Object>) flujoInstrucciones.asig.get(ctx.expr_func().expr(0).getText());
+            //si f=-1 es que la secuencia está vacía
+            f = seq.size()-1;
+        }
+        //PREDEFINIDA: ¿está vacía la secuencia?
+        else if(nomFunc.equals("vacia")){
+            seq = (List<Object>) flujoInstrucciones.asig.get(ctx.expr_func().expr(0).getText());
+            f = seq.isEmpty();
+        }
+        //SI NO ES UNA FUNCIÓN PREDEFINIDA
+        else{
+            //añadimos a un mapa el nombre de la función asociado a una lista con los valores de las variables
+            //que se le pasan como parámetro, ya que la propia función es la que se encarga de asignar
+            //nombre a esas variables
+            subpParams.put(nomFunc, ctx.expr_func().expr().stream().map(v -> visit(v)).collect(Collectors.toList()));
 
+            //lista de subprogramas
+            List<Anasint.Declaracion_subprogramasContext> decSubp = subprogramas.declaracion_subprogramas();
+
+
+            for(int i=0; i<decSubp.size(); i++)
+                //buscamos la función con el nombre que queremos
+                if (decSubp.get(i).getChild(0).getChild(1).getText().equals(nomFunc)){
+                    f = visit(decSubp.get(i).getChild(0));
+                }
+        }
         return f;
     }
 

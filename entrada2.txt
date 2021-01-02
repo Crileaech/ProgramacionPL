@@ -1,43 +1,24 @@
 PROGRAMA
 VARIABLES
-a, c: LOG;
-b: NUM;
-s: SEQ(NUM);
+a: NUM;
+b, b2: LOG;
+s: SEQ(LOG);
+s2: SEQ(LOG);
 SUBPROGRAMAS
-  FUNCION mayor(LOG r) dev (LOG e)
+  FUNCION bucle_1_avance(NUM i) dev (NUM i)
   VARIABLES
-  t: LOG;
   INSTRUCCIONES
-  t=!r;
-  dev t;
+    i=i-1;
+    dev i;
   FFUNCION
 INSTRUCCIONES
-a=[5,4,3,2];
-a[0]=6-3;
-c=a[0];
-f=2*3;
-d=T&&!((F||(T&&!F))||(F&&F))||(T&&F);
-k=5*4-3-2-2-6*3;
-b=7;
-t=(2-3);
-si(mayor(F)==T) entonces
-    mostrar(10);
-    c=2;
-    si(t!=0) entonces
-        ruptura;
-        c=3;
-    fsi
-sino
-    c=1;
-fsi
-mientras(c<3) hacer
-    c = c+1;
-    mientras(b>7) hacer
-        b=b-1;
-        mientras(t<2) hacer
-            t=t+1;
-            ruptura;
-        fmientras
-    fmientras
-fmientras
-mostrar(a);
+
+s=[T,T,F];
+s2=[];
+i=0;
+
+mientras (i <= ultima_posicion(s)) hacer {avance: bucle_1_avance(s, i)}
+    mostrar(i);
+    i = i+1;
+fmientras;
+

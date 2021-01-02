@@ -100,7 +100,7 @@ public class flujoInstrucciones extends AnasintBaseListener{
             if(asignEvaluadasAux.stream().anyMatch(x -> x instanceof List)) {
                 for (int i = 0; i < asignEvaluadasAux.size(); i++) {
                     if (asignEvaluadasAux.get(i) instanceof List)
-                        if(((List<Object>) asignEvaluadasAux.get(i)).get(0).equals("func")) {
+                        if(!((List<Object>) asignEvaluadasAux.get(i)).isEmpty() && ((List<Object>) asignEvaluadasAux.get(i)).get(0).equals("func")) {
                             ((List<Object>) asignEvaluadasAux.get(i)).remove(0);
                             asignEvaluadas.addAll((List<Object>)asignEvaluadasAux.get(i));
                         }

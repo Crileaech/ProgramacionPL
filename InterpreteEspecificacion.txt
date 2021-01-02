@@ -6,7 +6,7 @@ OBJETIVO 1: Llevar a cabo la ejecución secuencial de las instrucciones de P.
 
 DECISIONES DE DISEÑO:
 
-    (DECISIÓN 1) Para controlar el flujo de ejecución de las instrucciones haremos uso
+    (DECISIÓN 1) Para la interpretación del flujo de ejecución de las instrucciones haremos uso
     de una pila de booleanos:
         -Cuando entremos en un bloque de instrucciones comprobaremos la cima de la pila:
             -Si false: No se deberán ejecutar las instrucciones del bloque.
@@ -32,66 +32,77 @@ DECISIONES DE DISEÑO:
     Como ejemplo, una iteración se considera un bloque por la primera definición, pues
     las instrucciones que contiene dependen su ejecución de una misma condición iterativa.
 
-    (DECISIÓN 2) Dispondremos de un almacén de asignaciones donde almacenemos los valores
-    asignados a cada una de las variables.
+    (DECISIÓN 2) Interpretación de las asignaciones: Dispondremos de un almacén de asignaciones
+    donde almacenemos los valores asignados a cada una de las variables.
 
-        | var   | asignación |
-        ----------------------
-        | a     | true       |
-        | b     | 2          |
+                                | var   | asignación |
+                                ----------------------
+                                | a     | true       |
+                                | b     | 2          |
 
-    (DECISIÓN 3) Dado que el programa se considera un bloque nada más empezar la ejecución
-    de nuestro programa introduciremos a la pila true.
-    Cuando finalice la ejecución de todas y cada una de las instrucciones y subprogramas
-    que correspondan quedará un único centinela, que corresponderá con el introducido
-    al principio y que se sacará.
+    **JUAN lo de ["func",1,2]
+    Las asignaciones se llevarán a cabo si la cima de la pila es true.
+        -Para asignaciones simples del tipo a = expr:
+            -Añadir al almacén de asignaciones el par variable (a) y asignación (evalua expr).
 
-    (DECISIÓN 4) La instrucción ruptura consiste en una instrucción que finaliza las
-    instrucciones del bloque en el que se encuentra. Para su implementación sustituiremos
-    la cima de la pila por un false. Esto hará que las instrucciones del bloque no sean
-    ejecutadas.
+        -Para asignaciones múltiples del tipo a,b = expr1,expr2:
+            -Dada la paralelidad de las asignaciones múltiples evaluaremos todas las expresiones
+            asignadas (visit) y sólo cuando todas estén evaluadas añadiremos las asignaciones al
+            almacén.
 
-    (DECISIÓN 5) JUAN** Las asignaciones se llevarán a cabo si la cima de la pila es true.
-    -Para asignaciones simples del tipo a = expr:
-        -Añadir al almacén de asignaciones el par variable (a) y asignación (evalua expr).
+        -Las asignaciones también se pueden realizar a una posición en concreto de una secuencia.
+        Ej: s[i] = 9 -> Se asigna en la posición iésima de la secuencia numérica s el número 9.
 
-    -Para asignaciones múltiples del tipo a,b = expr1,expr2:
-        -Dada la paralelidad de las asignaciones múltiples evaluaremos todas las expresiones
-        asignadas (visit) y sólo cuando todas estén evaluadas añadiremos las asignaciones al
-        almacén.
-
-    -Las asignaciones también se pueden realizar a una posición en concreto de una secuencia.
-    Ej: s[i] = 9 -> Se asigna en la posición iésima de la secuencia numérica s el número 9.
-
-        todo: añadir comprobación i no excede tam s-1 a código
-    asignacion(asignacion ctx): //a, s[1] = 2, T;
-        si la cima es true:
-            aAsignar = extrae asignados de ctx // [a,s[1]]
-            expresiones = extrae expr de ctx
-            evaluaciones = evalua cada expr de expresiones // [2,true]
-            para cada (asignado,evaluación) en aAsignar y evaluaciones:
-                si asignado es variable:
-                    añade al almacén var y evaluación
-                sino: //s[i]
-                    variable = extraigo variable de asignado //s
-                    pos = extraigo pos de asignado //i
-                    secuencia = obtengo del almacén la secuencia s
-                    si pos excede a secuencia:
-                        error
-                    cambio el elemento i de secuencia por evaluación
-
+            todo: añadir comprobación i no excede tam s-1 a código
+        asignacion(asignacion ctx): //a, s[1] = 2, T;
+            si la cima es true:
+                aAsignar = extrae asignados de ctx // [a,s[1]]
+                expresiones = extrae expr de ctx
+                evaluaciones = evalua cada expr de expresiones // [2,true]
+                para cada (asignado,evaluación) en aAsignar y evaluaciones:
+                    si asignado es variable:
+                        añade al almacén var y evaluación
+                    sino: //s[i]
+                        variable = extraigo variable de asignado //s
+                        pos = extraigo pos de asignado //i
+                        secuencia = obtengo del almacén la secuencia s
+                        si pos excede a secuencia:
+                            error
+                        cambio el elemento i de secuencia por evaluación
 
     Debido a que la evaluación de las expresiones asignadas se realiza de manera secuencial
     y durante la asignación, no se producirá con total seguridad ningún tipo de ciclicidad.
 
-    (DECISIÓN 6) La instrucción condición define un bloque o dos de instrucciones en caso
-    de existir sino.
+    Consideramos que una variable es indefinida cuando no ha sido declarada o bien aún no se
+    le ha asignado ningún valor -> null en el almacén de asignaciones.
 
+    (DECISIÓN 3) Interpretación de las declaraciones de variables: Cuando nos encontremos en el
+    bloque de VARIABLES del programa principal añadiremos cada una de estas variables a nuestro
+    almacén de asignaciones con valor asociado null.
+    Si nos encontramos en un subprograma: **JUAN
+
+    (DECISIÓN 4) Interpretación de inicio del programa: Dado que el programa se considera un
+    bloque, nada más empezar la ejecución de nuestro programa introduciremos a la pila true.
+    Cuando finalice la ejecución de todas y cada una de las instrucciones y subprogramas
+    que correspondan quedará un único centinela, que corresponderá con el introducido
+    al principio y que se sacará.
+
+    (DECISIÓN 5) Interpretación de la ruptura: La instrucción ruptura consiste en una instrucción
+    que finaliza la ejecución de las instrucciones del bloque en el que se encuentra. Para su
+    implementación sustituiremos la cima de la pila por un false. Esto hará que las instrucciones
+    del bloque no sean ejecutadas:
+        -Antes de la ruptura: pila=[true,true,true,...] tamaño pila = n
+        -Tras la ruptura: pila=[false,true,true,...] tamaño pila = n
+
+    (DECISIÓN 6) Interpretación de las condiciones: La instrucción condición define un bloque o
+    dos de instrucciones en caso de existir sino.
+    todo probar en entrada2.txt añadir a si(cond) cond=llamada subprograma
     -Llegamos a la instrucción si, posibilidades:
 
         -Que la cima de la pila sea true y se cumpla la condición del si: Añadimos a la pila
         true -> Esto permitirá la ejecución de asignaciones, iteraciones y cualquier otra
-        instrucción del bloque si.
+        instrucción del bloque si. De existir bloque sino, llegados a él añadir false a la
+        pila.
 
         -Que la cima sea true, pero la condición no, añadir a la pila un false:
             -Si hay sino. Tras añadir el false añadir true -> Se ejecutarán las instrucciones
@@ -99,7 +110,7 @@ DECISIONES DE DISEÑO:
 
         -Si la cima es false -> No ejecutar las instrucciones ni del si, ni del sino en caso
         de existir. Añadir tanto para el si, como para el sino en caso de existir, false
-        a la pila. Cuando el walker salga del bloque los retirará.
+        a la pila. Cuando salgamos del bloque los retiraremos.
 
     bloqueCondicion(condicion ctx):
         si la cima es true:
@@ -128,9 +139,9 @@ DECISIONES DE DISEÑO:
         sino:
             añade a pila false
 
-    (DECISIÓN 7) La instrucción iteración define un bloque de instrucciones que es ejecutado entre 0 y n veces en
-    función de una condición. Si la condición es true -> Se ejecutan las instrucciones del bloque. Si es false ->
-    fin del bloque de instrucciones.
+    (DECISIÓN 7) Interpretación de las iteraciones: La instrucción iteración define un bloque de instrucciones
+    que es ejecutado entre 0 y n veces en función de una condición. Si la condición es true -> Se ejecutan las
+    instrucciones del bloque. Si es false -> fin del bloque de instrucciones.
     todo avanza
 
     bucleIt(iteracion ctx):
@@ -152,13 +163,14 @@ DECISIONES DE DISEÑO:
         retira la cima de la pila
         añade a pila false
 
-    (DECISIÓN 8) La instrucción mostrar muestra el valor asociado a una variable.
+    (DECISIÓN 8) Interpretación de la instrucción mostrar: La instrucción mostrar muestra el valor asociado
+    a una variable.
 
-    mostrar(aMostrar ctx):
-        print evalua ctx.expr
+        mostrar(aMostrar ctx):
+            print evalua ctx.expr
 
-    (DECISIÓN 9) Los asertos son condiciones lógicas entre llaves que sirven para la corrección del
-    programa.
+    (DECISIÓN 9) Interpretación de los asertos: Los asertos son condiciones lógicas entre llaves que sirven
+    para la corrección del programa.
     Un programa es incorrecto si uno de sus asertos es falso en alguna de sus ejecuciones.
     Tipos de aserto:
         -{cierto} o {falso} -> Implementación trivial: Si cierto -> la ejecución del programa es correcta.
@@ -190,7 +202,7 @@ DECISIONES DE DISEÑO:
             si comienzo > fin
                 retorna aserto indefinido
             sino
-                añade var comienzo a almacén asignaciones
+                añade var y comienzo al almacén asignaciones
                 si cuantificador de ctx es existencial
                     mientras almacen[var] < fin
                         si cond de ctx es true
@@ -215,9 +227,135 @@ DECISIONES DE DISEÑO:
                                                            para p = p+1
             -2: p = 1 ¿a[p]=a[1]==2? -> True -> Dado que estamos ante un cuantificador existencial retornamos que el
                                                 programa es correcto.
+    todo indefinido a codigo
 
+    (DECISIÓN 10) expr_func como instrucción **JUAN
 
+    (DECISIÓN 11) dev **JUAN
 
+    (DECISIÓN 12) Interpretación de las evaluaciones: La evaluación de las expresiones se realizarán de manera recursiva.
+    Reconocemos tres tipos de expresiones principales: expr_bool, que corresponde con las expresiones de tipo LOG,
+    expr_integer, que corresponde con las expresiones de tipo NUM y expr_seq, corresponde con las expresiones de tipo
+    SEQ(NUM) y SEQ(LOG).
 
+        -evaluar(expr_integer):
+            (CASO BASE) si la expresión es NUM -> Interpretar NUM como Integer
+            (CASO BASE) si la expresión es varInt -> extrae del almacén de asignaciones el valor de la variable
+            (RECURSIVO) si la expresión es expr_sacar_elem -> evaluar(expr_sacar_elem)
+            (RECURSIVO) si la expresión es parentesisOpInteger => PA a=expr_integer c=(POR|MAS|MENOS) b=expr_integer PC
+                        si c es POR: evaluar(a) * evaluar(b)
+                        si c es MAS: evaluar(a) + evaluar(b)
+                        si c es MENOS: evaluar(a) - evaluar(b)
+            (RECURSIVO) si la expresión es opInteger => a=expr_integer c=(POR|MAS|MENOS) b=expr_integer
+                        si c es POR: evaluar(a) * evaluar(b)
+                        si c es MAS: evaluar(a) + evaluar(b)
+                        si c es MENOS: evaluar(a) - evaluar(b)
+            (RECURSIVO) si la expresión es exprFuncInt -> evaluar(expr_func)
+            (RECURSIVO) si la expresión es menosNum => RESTA expr_integer -> -evaluar(expr_integer)
 
-    todo indefinido
+        -evaluar(expr_integer):
+            (CASO BASE) si la expresión es T o cierto -> Interpretar como true
+            (CASO BASE) si la expresión es F o false -> Interpretar como false
+            (CASO BASE) si la expresión es varBool -> extrae del almacén de asignaciones el valor de la variable
+            (RECURSIVO) si la expresión es expr_sacar_elem -> evaluar(expr_sacar_elem)
+            (RECURSIVO) si la expresión es compararBool => a=expr_bool c=(IGUALL|DISTINTO) b=expr_bool
+                        si c es IGUALL: evaluar(a) == evaluar(b)
+                        si c es DISTINTO: evaluar(a) != evaluar(b)
+            (RECURSIVO) si la expresión es negaciónBool => NO expr_bool -> !evaluar(expr_bool)
+            (RECURSIVO) si la expresión es parentesisOpBool => PA a=expr_bool c=(AND|OR) b=expr_bool PC
+                        si c es AND: evaluar(a) && evaluar(b)
+                        si c es OR: evaluar(a) || evaluar(b)
+            (RECURSIVO) si la expresión es opBool => a=expr_bool c=(AND|OR) b=expr_bool
+                        si c es AND: evaluar(a) && evaluar(b)
+                        si c es OR: evaluar(a) || evaluar(b)
+            (RECURSIVO) si la expresión es compararSeq => a=expr_seq c=(IGUALL|DISTINTO) b=expr_seq
+                        si c es IGUALL: evaluar(a) == evaluar(b)
+                        si c es DISTINTO: evaluar(a) != evaluar(b)
+            (RECURSIVO) si la expresión es compararInteger => a=expr_integer c=(MENORIGUAL|MAYORIGUAL|MENOR|MAYOR|IGUALL|DISTINTO) b=expr_integer
+                        si c es MENORIGUAL: evaluar(a) <= evaluar(b)
+                        si c es MAYORIGUAL: evaluar(a) >= evaluar(b)
+                        si c es MENOR: evaluar(a) < evaluar(b)
+                        si c es MAYOR: evaluar(a) > evaluar(b)
+                        si c es IGUALL: evaluar(a) == evaluar(b)
+                        si c es DISTINTO: evaluar(a) != evaluar(b)
+            (RECURSIVO) si la expresión es exprFuncBool -> evaluar(expr_func)
+
+        -evaluar(expr_seq):
+            (CASO BASE) si la expresión es vaciaSeq => CA CC -> Intepretar como lista vacía
+            (CASO BASE) si la expresión es varSeq -> extrae del almacén de asignaciones el valor de la variable
+            (RECURSIVO) si la expresión es de tipo seq => CA (expr COMA)* expr CC
+                        -> Interpretar como una lista a la que para cada expr se le añade evaluar(expr)
+            (RECURSIVO) si la expresión es exprFuncSeq -> evaluar(expr_func)
+
+        -evaluar(expr_func): **JUAN
+
+        todo comprobar que el indice no excede
+        -evaluar(expr_sacar_elem): Es el tipo nombreVar[i].
+            secuencia = extraemos del almacén de asignaciones el valor asociado a nombre var.
+            Retornamos el elemento en la posición i de la secuencia.
+            Si i excede a la secuencia -> Valor indefinido.
+
+GRAMÁTICA ATRIBUIDA:
+
+    almacen_asignaciones (global)
+
+    programa: PROGRAMA variables subprogramas instrucciones EOF;
+    variables: VARIABLES (declaracion_variables)*;
+    subprogramas: SUBPROGRAMAS (declaracion_subprogramas)*;
+    instrucciones: INSTRUCCIONES (declaracion_instrucciones)*;
+
+    declaracion_variables: identificador PyC;
+
+    identificador: elementales
+                 | secuencias
+                 ;
+
+    elementales: (VAR COMA)* VAR DOSPTOS tipos_elementales; {Añadimos cada VAR a almacén_asignaciones con valor por
+                                                             defecto null}
+
+    secuencias: VAR DOSPTOS tipos_no_elementales; {Añadimos VAR a almacén_asignaciones con valor por defecto null}
+
+    tipos: tipos_elementales
+         | tipos_no_elementales
+         ;
+
+    tipos_elementales: NUMERO
+                     | BOOL
+                     ;
+
+    tipos_no_elementales: SEQ_NUM
+                        | SEQ_BOOL
+                        ;
+
+    //---SUBPROGRAMAS--- **JUAN
+    variable: VAR;
+
+    declaracion_subprogramas: funcion
+                            | procedimiento
+                            ;
+
+    funcion: FUNCION variable PA (params)? PC RETURN PA params PC variables instrucciones FFUNCION;
+
+    procedimiento: PROCEDIMIENTO variable PA (params)? PC variables instrucciones FPROCEDIMIENTO;
+
+    params: tipos variable
+          | tipos variable COMA params
+          ;
+
+    ...
+    asignacion: ((variable=v|expr_sacar_elem=s[i]) COMA)* (variable=v|expr_sacar_elem=s[i]) IGUAL (expr COMA)* (expr) PyC;
+                {Para cada v añadimos v a almacén_asignaciones con valor asociado evalua(expr)}
+                {Para cada s[i] extraemos s de almacén_asignaciones y le añadimos evalua(expr) en la posición i}
+    ...
+    asertos: LA ( expr_bool | cuantificador ) LC;
+
+    cuantificador: cuantificadorUniversal
+                 | cuantificadorExistencial
+                 ;
+
+    cuantificadorUniversal: FORALL cuantificacion;
+
+    cuantificadorExistencial: EXISTS cuantificacion;
+
+    cuantificacion: PA variable DOSPTOS CA expr_integer=a COMA expr_integer=b CC COMA expr_bool PC;
+                    {Añadir variable a almacen_asignaciones con valor asociado evalua(a)}

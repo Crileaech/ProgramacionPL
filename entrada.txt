@@ -1,30 +1,31 @@
 PROGRAMA
 VARIABLES
-a, c, b: LOG;
+a, c: LOG;
+b: NUM;
 s: SEQ(NUM);
 SUBPROGRAMAS
-  FUNCION mayor(NUM yyyyyy) dev (SEQ(NUM) e)
+  FUNCION mayor(LOG r) dev (LOG e)
   VARIABLES
+  t: LOG;
   INSTRUCCIONES
-  t=3;
+  t=!r;
+  dev t;
   FFUNCION
 INSTRUCCIONES
 a=[5,4,3,2];
 a[0]=6-3;
 c=a[0];
 f=2*3;
-{PARATODO(p:[0,3],a[p]==1)}
-{EXISTE(p:[0,3],a[p]==2)}
 d=T&&!((F||(T&&!F))||(F&&F))||(T&&F);
 k=5*4-3-2-2-6*3;
-b=(a[0]+2)*c*(-3*(2+3));
+b=7;
 t=(2-3);
-si(b>5) entonces
+si(mayor(F)==T) entonces
     mostrar(10);
     c=2;
-    si(t==0) entonces
+    si(t!=0) entonces
         ruptura;
-        c=3;
+        c=1;
     fsi
 sino
     c=1;
