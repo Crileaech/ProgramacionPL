@@ -4,6 +4,13 @@ VARIABLES
     l:LOG;
     s:SEQ(NUM);
 SUBPROGRAMAS
+    FUNCION PRUEBA (NUM i, NUM j) dev (NUM d)
+        VARIABLES
+        d:NUM;
+        INSTRUCCIONES
+        d=1;
+        dev d;
+    FFUNCION
 
 INSTRUCCIONES
     i=0;
