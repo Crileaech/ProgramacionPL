@@ -4,18 +4,16 @@ public class EntradaCompilador
  static Integer i,j;
  static Boolean l;
  static Integer[] s;
-public static  Object PRUEBA(Integer i,Integer j){
- Integer d;
- d=1;
- return d; }
  public static void main(String[] args) {
-  i=0;
-  l=true;
-  if(l==true){
   i=1;
-}
-  else{
-  i=2;
+  System.out.println("(Compilador) i ---> "+i);
+  j=4;
+  System.out.println("(Compilador) j ---> "+j);
+  s=new Integer[]{14,25,65,10};
+  System.out.println("(Compilador) s ---> "+s);
+  if(s[i]>15){
+  System.out.println(s[i]);
+    System.out.println("(Compilador) i ---> "+i);
 }
  }
 }

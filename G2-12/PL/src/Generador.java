@@ -47,7 +47,8 @@ public class Generador extends AnasintBaseVisitor<String> {
         String res = new String();
         if((ctx.expr(0).getText().equals("true")) ||(ctx.expr(0).getText().equals("false"))){
             esInteger = false;
-        }else if(Compilador.almacen_definiciones_Seq_Bool.containsKey(ctx.expr(0).getText())){
+        }else if(Compilador.almacen_definiciones_Seq_Bool.containsKey(ctx.expr(0).getText()) ||
+            Compilador.almacen_definiciones_Seq_Bool_Temporal.containsKey(ctx.expr(0).getText())){
             esInteger = false;
         }
         if(esInteger) {

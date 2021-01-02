@@ -4,21 +4,18 @@ VARIABLES
     l:LOG;
     s:SEQ(NUM);
 SUBPROGRAMAS
-    FUNCION PRUEBA (NUM i, NUM j) dev (NUM d)
-        VARIABLES
-        d:NUM;
-        INSTRUCCIONES
-        d=1;
-        dev d;
-    FFUNCION
-
 INSTRUCCIONES
-    i=0;
-    l=T;
-    si (l==T) entonces
-        i=1;
-    sino
-        i=2;
-    fsi
+    i=1;
+    j=4;
+    s=[14,25,65,10];
+
+        si (s[i]>15) entonces
+        ruptura;
+        mientras (i<3) hacer
+            mostrar(s[i]);
+            i=i+1;
+            fmientras
+        fsi
+
 
 
