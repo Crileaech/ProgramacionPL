@@ -450,10 +450,84 @@ public class Compilador extends AnasintBaseListener {
     }
 
     private void gencodigo_llamada_funcion(Anasint.FuncionContext ctx) {
+        String aux = new String();
+        String aux2 = ctx.getChild(3).getText();
+        System.out.println(ctx.getChild(3).getText());
+        if(aux2.equals(")")){
+
+        }else{
+            String[] partes = aux2.split(",");
+            for(int i=0; i< partes.length;i++){
+                if(partes[i].startsWith("NUM")){
+                    aux +="Integer ";
+                    System.out.println(partes[i].substring(3,partes[i].length()));
+                    aux += partes[i].substring(3,partes[i].length());
+                }
+                if(partes[i].startsWith("LOG")){
+                    aux +="Boolean ";
+                    aux += partes[i].substring(3,partes[i].length());
+                }
+                if(partes[i].startsWith("SEQ(NUM)")){
+                    aux +="Integer[] ";
+                    aux += partes[i].substring(8,partes[i].length());
+                }
+                if(partes[i].startsWith("SEQ(BOOL)")){
+                    aux +="Boolean[] ";
+                    aux += partes[i].substring(9,partes[i].length());
+                }
+
+                if((i+1)< partes.length){
+                    aux += ",";
+                }
+            }
+        }
+        try{
+            fichero.write("public static Object "+ctx.variable().VAR().getText()+"("+aux+"){\n");
+        }catch (IOException e){
+
+        }
+
 
     }
 
     private void gencodigo_llamada_procedimeinto(Anasint.ProcedimientoContext ctx){
+        String aux = new String();
+        String aux2 = ctx.getChild(3).getText();
+        System.out.println(ctx.getChild(3).getText());
+        if(aux2.equals(")")){
+
+        }else{
+            String[] partes = aux2.split(",");
+            for(int i=0; i< partes.length;i++){
+                if(partes[i].startsWith("NUM")){
+                    aux +="Integer ";
+                    System.out.println(partes[i].substring(3,partes[i].length()));
+                    aux += partes[i].substring(3,partes[i].length());
+                }
+                if(partes[i].startsWith("LOG")){
+                    aux +="Boolean ";
+                    aux += partes[i].substring(3,partes[i].length());
+                }
+                if(partes[i].startsWith("SEQ(NUM)")){
+                    aux +="Integer[] ";
+                    aux += partes[i].substring(8,partes[i].length());
+                }
+                if(partes[i].startsWith("SEQ(BOOL)")){
+                    aux +="Boolean[] ";
+                    aux += partes[i].substring(9,partes[i].length());
+                }
+
+                if((i+1)< partes.length){
+                    aux += ",";
+                }
+            }
+        }
+        try{
+            fichero.write("public static Object "+ctx.variable().VAR().getText()+"("+aux+"){\n");
+        }catch (IOException e){
+
+        }
+
 
     }
 
@@ -474,40 +548,64 @@ public class Compilador extends AnasintBaseListener {
             }
         } else { //En este caso llamada a cuantificadores.
             Boolean expr_booleana = Boolean.valueOf(generador.visitAserto(ctx));
-            if(expr_booleana) {
+            if(expr_booleana && ctx.getText().startsWith("{PARATODO ( "+ctx) && ctx.getText().endsWith(")}") ) {
                 System.out.println("(aserto) Si todos sus asertos son ciertos entonces el programa se considera correcto");
-                gencodigo_aserto_universal(ctx.asertos());
-            } else {
+                this.gencodigo_aserto_universal(ctx.asertos());
+            } else if(ctx.getText().startsWith("{EXISTE ( "+ctx) && ctx.getText().endsWith(")}")){
                 System.out.println("(aserto) Un programa es correcto si alguno de sus " +
                         "asertos es cierto en alguna de sus ejecuciones.");
-                gencodigo_aserto_existencial(ctx.asertos());
+                this.gencodigo_aserto_existencial(ctx.asertos());
 
             }
         }
     }
 
     //Generar codigo asertos 3.1 -> Cuantificación universal, ej. PARATODO(p:[0,ultima_posicion(s)],s[i]<=max)
-    public void gencodigo_aserto_universal(Anasint.AsertosContext ctx) {
+    private Boolean gencodigo_aserto_universal(Anasint.AsertosContext ctx) {
+        Map<String,Object> asig = new LinkedHashMap<>();
         Anasint.CuantificacionContext cuantificacionContext =
                 ctx.cuantificador().cuantificadorUniversal().cuantificacion();
         String vars = cuantificacionContext.variable().getText();
         int ini = Integer.parseInt(generador.visit(cuantificacionContext.expr_integer(0)));
         int fin = Integer.parseInt(generador.visit(cuantificacionContext.expr_integer(1)));
         if(ini > fin) {
-            System.out.println("");
+            return null;
         }
+        asig.put(vars, ini);
         // TODO : Finalizar asertos universal
+        boolean res = Boolean.parseBoolean(generador.visit(cuantificacionContext.expr_bool()));
+        while(res && (Integer)asig.get(vars)<=fin) {
+            res = res && Boolean.parseBoolean(generador.visit(cuantificacionContext.expr_bool()));
+            asig.put(vars,(Integer)asig.get(vars)+1);
+        }
+        return res;
 
     }
 
     //Generar codigo asertos 3.2 -> Cuantificación existencial ej. EXISTE(x:[0,ultima_posicion(s)],s[x]>10)
-    public void gencodigo_aserto_existencial(Anasint.AsertosContext ctx) {
+    private Boolean gencodigo_aserto_existencial(Anasint.AsertosContext ctx) {
+        Map<String,Object> asig = new LinkedHashMap<>();
+
         Anasint.CuantificacionContext cuantificacionExistencialContext = ctx.cuantificador()
                 .cuantificadorExistencial().cuantificacion();
         String var = cuantificacionExistencialContext.variable().getText();
 
         int ini = Integer.parseInt(generador.visit(cuantificacionExistencialContext.expr_integer(0)));
         int fin = Integer.parseInt(generador.visit(cuantificacionExistencialContext.expr_integer(1)));
+
+        if(ini > fin ) {return null;}
+        asig.put(var,ini);
+        while((Integer)asig.get(var)<=fin) {
+            boolean res = Boolean.parseBoolean(generador.visit(cuantificacionExistencialContext.expr_bool()));
+            if(res) { return true; }
+            asig.put(var,(Integer)asig.get(var)+1);
+        }
+        return false;
+
+    }
+
+    // Generar código bucle_1_avance
+    public void gencodigo_bucle_1_avance(Anasint.Expr_avanzaContext expr_avanzaContext){
 
     }
 
@@ -609,12 +707,12 @@ public class Compilador extends AnasintBaseListener {
 //        gencodigo_aserto
     }
     public void exitPrograma(Anasint.ProgramaContext ctx) {
-        if(ctx.getParent().getText().startsWith("ruptura")) {
-            gencodigo_break();
-        } else {
+//        if(ctx.getParent().getText().startsWith("ruptura")) {
+//            gencodigo_break();
+//        } else {
             gencode_end_main();
             gencode_end_class();
             close_file();
-        }
+//        }
     }
 }
