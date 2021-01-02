@@ -9,7 +9,6 @@ SUBPROGRAMAS
   t=3;
   FFUNCION
 INSTRUCCIONES
-t=(6O);
 a=[5,4,3,2];
 a[0]=6-3;
 c=a[0];

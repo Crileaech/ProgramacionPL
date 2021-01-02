@@ -55,7 +55,6 @@ expr: expr_integer
     ;
 
 expr_integer: expr_sacar_elem                                                 #sacarElemInteger
-            | PA NUM PC                                              #parentesisNum
             | PA expr_integer (POR) expr_integer PC                           #parentesisOpInteger
             | PA expr_integer (SUMA|RESTA) expr_integer PC                    #parentesisOpInteger
             | expr_integer (POR) expr_integer                                 #opInteger

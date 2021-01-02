@@ -18,13 +18,13 @@ DECISIONES DE DISEÑO:
         -Cuando salgamos de un bloque deberemos retirar el centinela introducido en la
         pila.
 
-        | false |
-        | true  |
-        | true  |
-        | ...   |
+                                        | false |
+                                        | true  |
+                                        | true  |
+                                        | ...   |
 
     Consideramos un bloque de instrucciones como un conjunto de instrucciones que
-    jerárquicamente dependen de una misma instrucción padre.
+    jerárquicamente dependen su ejecución de una misma instrucción padre.
     También se considerará bloque de instrucciones a un trozo de código con una función
     diferenciadora, como puede ser la zona de declaración de variables o la zona de
     instrucciones.
@@ -60,14 +60,26 @@ DECISIONES DE DISEÑO:
         asignadas (visit) y sólo cuando todas estén evaluadas añadiremos las asignaciones al
         almacén.
 
-        todo añadir caso s[i] = 5;
-    asignacion(asignacion ctx):
+    -Las asignaciones también se pueden realizar a una posición en concreto de una secuencia.
+    Ej: s[i] = 9 -> Se asigna en la posición iésima de la secuencia numérica s el número 9.
+
+        todo: añadir comprobación i no excede tam s-1 a código
+    asignacion(asignacion ctx): //a, s[1] = 2, T;
         si la cima es true:
-            variables = extrae variables de ctx
+            aAsignar = extrae asignados de ctx // [a,s[1]]
             expresiones = extrae expr de ctx
-            evaluaciones = evalua cada expr de expresiones
-            para cada (var,evaluación) en variables y evaluaciones:
-                añade al almacén var y evaluación
+            evaluaciones = evalua cada expr de expresiones // [2,true]
+            para cada (asignado,evaluación) en aAsignar y evaluaciones:
+                si asignado es variable:
+                    añade al almacén var y evaluación
+                sino: //s[i]
+                    variable = extraigo variable de asignado //s
+                    pos = extraigo pos de asignado //i
+                    secuencia = obtengo del almacén la secuencia s
+                    si pos excede a secuencia:
+                        error
+                    cambio el elemento i de secuencia por evaluación
+
 
     Debido a que la evaluación de las expresiones asignadas se realiza de manera secuencial
     y durante la asignación, no se producirá con total seguridad ningún tipo de ciclicidad.
@@ -116,3 +128,96 @@ DECISIONES DE DISEÑO:
         sino:
             añade a pila false
 
+    (DECISIÓN 7) La instrucción iteración define un bloque de instrucciones que es ejecutado entre 0 y n veces en
+    función de una condición. Si la condición es true -> Se ejecutan las instrucciones del bloque. Si es false ->
+    fin del bloque de instrucciones.
+    todo avanza
+
+    bucleIt(iteracion ctx):
+        si la cima es true
+            añade a pila true
+            llama a ejecutaIteracion(ctx)
+        si la cima es false
+            añade a pila false
+
+    ejecutaIteracion(iteracion ctx):
+        cumpleCond = evalua ctx.cond
+        //se comprueba también la cima de la pila porque podría haber una ruptura entre las instrucciones
+        //del bloque de iteración.
+        mientras cumpleCond y cima pila sean true:
+            ejecuta las instrucciones hijas de ctx
+            cumpleCond = evalua ctx.cond
+        //dado que el flujo de ejecución de las instrucciones lo ejecutamos nosotros, una vez terminamos
+        //debemos añadir un false para que no se ejecute una vez más de la cuenta.
+        retira la cima de la pila
+        añade a pila false
+
+    (DECISIÓN 8) La instrucción mostrar muestra el valor asociado a una variable.
+
+    mostrar(aMostrar ctx):
+        print evalua ctx.expr
+
+    (DECISIÓN 9) Los asertos son condiciones lógicas entre llaves que sirven para la corrección del
+    programa.
+    Un programa es incorrecto si uno de sus asertos es falso en alguna de sus ejecuciones.
+    Tipos de aserto:
+        -{cierto} o {falso} -> Implementación trivial: Si cierto -> la ejecución del programa es correcta.
+                                                       Si falso -> la ejecución del programa es incorrecta.
+
+        -Con condiciones extendidas con dos tipos de cuantificaciones PARATODO y EXISTE.
+
+        -Aserto mal diseñado si su evaluación es indefinida. Casos:
+            -{expr_logica} -> evaluacion de la expr_logica sea null.
+            -CUANT{var:[comienzo,fin],cond} -> que comienzo sea mayor a fin.
+
+        enterAserto(aserto ctx):
+            condicion = ctx.cond
+            si cima de pila es true
+                si condición es cierto
+                    retorna ejecución del programa correcta
+                si condición es falso
+                    retorna ejecución del programa incorrecta
+                si condición indefinida
+                    retorna aserto mal diseñado
+                si condición es extendida
+                    retorna evaluaAserto(ctx)
+
+        ej: {EXISTE(p:[0,3],a[p]==2)}
+        evaluaAserto(aserto ctx):
+            var = extrae variable de ctx // var=p
+            comienzo = extrae el elemento 0 del rango // comienzo = 0
+            fin = extrae el elemento 1 del rango //fin = 3
+            si comienzo > fin
+                retorna aserto indefinido
+            sino
+                añade var comienzo a almacén asignaciones
+                si cuantificador de ctx es existencial
+                    mientras almacen[var] < fin
+                        si cond de ctx es true
+                            retorna el programa es correcto
+                        incrementa en 1 el valor asignado a var en el almacén
+                    retorna el programa es incorrecto
+                sino //es universal
+                    res = evalua cond ctx //a[0] == 2
+                    mientras almacen[var] < fin y res sea true
+                        res = res && evalua cond ctx
+                        incrementa en 1 el valor asignado a var en el almacén
+                    si res es true:
+                        retorna el programa es correcto
+                    sino
+                        retorna el programa es incorrecto
+
+        Ejemplo de ejecución del aserto {EXISTE(p:[0,3],a[p]==2)}:
+
+        -Almacén de asignaciones = [a=[1,2,3,4],...]
+        -enterAserto(ctx) llama a evaluaAserto(ctx):
+            -1: p = 0 ¿a[p]=a[0]==2? -> Condición falsa -> Cuantificador es existencial así que continuamos comprobando
+                                                           para p = p+1
+            -2: p = 1 ¿a[p]=a[1]==2? -> True -> Dado que estamos ante un cuantificador existencial retornamos que el
+                                                programa es correcto.
+
+
+
+
+
+    todo indefinido

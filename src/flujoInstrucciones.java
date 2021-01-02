@@ -84,7 +84,6 @@ public class flujoInstrucciones extends AnasintBaseListener{
                         String antes = seq.toString();
                         seq.set(pos, evaluacion);
                         String dsps = seq.toString();
-                        asig.put(nombreVar,seq);
                         String exprAsignada = evaluacion.toString();
                         //si el valor a asignar viene de una operación, deseo que se observe la operación realizada.
                         if (!asign.get(j).getText().equals(exprAsignada))
@@ -190,11 +189,13 @@ public class flujoInstrucciones extends AnasintBaseListener{
                 Boolean eval = evaluaAsert.visitAserto(ctx);
                 if(eval) {
                     muestraConIdentación("(aserto) la ejecución del programa está siendo correcta.");
-                } else {
+                } else if(!eval) {
                     int tam = pila.size();
                     pila.clear();
                     for(int i = 0; i<tam; i++) { pila.push(false); }
                     muestraConIdentación("(aserto) el programa es incorrecto. La ejecución del programa ha sido finalizada.");
+                } else {
+                    muestraConIdentación("(aserto) el aserto es indefinido. No se puede asegurar la corrección del programa.");
                 }
             }
         }
