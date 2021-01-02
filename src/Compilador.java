@@ -439,9 +439,22 @@ public class Compilador extends AnasintBaseListener {
     }
 
     //Generar codigo llamada a procedimiento o función
-    public void gencodigo_subprogramas(Anasint.SubprogramasContext subprogramasContext){
+    public void gencodigo_subprogramas(Anasint.Declaracion_subprogramasContext subprogramasContext){
         // No será necesario generar código de subprograma
         // Si es posible que sea llamado en declaración de instrucciones
+        if(subprogramasContext.getText().startsWith("FUNCION ")){
+            gencodigo_llamada_funcion(subprogramasContext.funcion());
+        } else if (subprogramasContext.getText().startsWith("PROCEDIMIENTO ")){
+            gencodigo_llamada_procedimeinto(subprogramasContext.procedimiento());
+        }
+    }
+
+    private void gencodigo_llamada_funcion(Anasint.FuncionContext ctx) {
+
+    }
+
+    private void gencodigo_llamada_procedimeinto(Anasint.ProcedimientoContext ctx){
+
     }
 
     //Generar codigo asertos
@@ -451,7 +464,7 @@ public class Compilador extends AnasintBaseListener {
         // 3.1 -> Cuantificación universal, ej. PARATODO(p:[0,ultima_posicion(s)],s[i]<=max)
         // 3.2 -> Cuantificación existencial ej. EXISTE(x:[0,ultima_posicion(s)],s[x]>10)
     public void gencodigo_asertos(Anasint.AsertoContext ctx){
-        if(ctx.asertos().expr_bool() != null) {
+        if(ctx.asertos().expr_bool() != null) { //En este caso {cierto} {falso} o equivalente.
             Boolean expr_booleana = Boolean.valueOf(generador.visit(ctx.asertos().expr_bool()));
             if(expr_booleana){
                 System.out.println("(aserto) Si sus asertos son ciertos entonces el programa se considera correcto");
@@ -459,14 +472,14 @@ public class Compilador extends AnasintBaseListener {
                 System.out.println("(aserto) Un programa es incorrecto si alguno de sus " +
                         "asertos es falso en alguna de sus ejecuciones.");
             }
-        } else {
+        } else { //En este caso llamada a cuantificadores.
             Boolean expr_booleana = Boolean.valueOf(generador.visitAserto(ctx));
             if(expr_booleana) {
-                System.out.println("(aserto) Si sus asertos son ciertos entonces el programa se considera correcto");
+                System.out.println("(aserto) Si todos sus asertos son ciertos entonces el programa se considera correcto");
                 gencodigo_aserto_universal(ctx.asertos());
             } else {
-                System.out.println("(aserto) Un programa es incorrecto si alguno de sus " +
-                        "asertos es falso en alguna de sus ejecuciones.");
+                System.out.println("(aserto) Un programa es correcto si alguno de sus " +
+                        "asertos es cierto en alguna de sus ejecuciones.");
                 gencodigo_aserto_existencial(ctx.asertos());
 
             }
@@ -478,17 +491,25 @@ public class Compilador extends AnasintBaseListener {
         Anasint.CuantificacionContext cuantificacionContext =
                 ctx.cuantificador().cuantificadorUniversal().cuantificacion();
         String vars = cuantificacionContext.variable().getText();
-        Integer ini = Integer.valueOf(generador.visit(cuantificacionContext.expr_integer(0)));
-        Integer fin = Integer.valueOf(generador.visit(cuantificacionContext.expr_integer(1)));
+        int ini = Integer.parseInt(generador.visit(cuantificacionContext.expr_integer(0)));
+        int fin = Integer.parseInt(generador.visit(cuantificacionContext.expr_integer(1)));
         if(ini > fin) {
-            System.out.println();
+            System.out.println("");
         }
         // TODO : Finalizar asertos universal
 
     }
 
     //Generar codigo asertos 3.2 -> Cuantificación existencial ej. EXISTE(x:[0,ultima_posicion(s)],s[x]>10)
-    public void gencodigo_aserto_existencial(Anasint.AsertosContext ctx) {}
+    public void gencodigo_aserto_existencial(Anasint.AsertosContext ctx) {
+        Anasint.CuantificacionContext cuantificacionExistencialContext = ctx.cuantificador()
+                .cuantificadorExistencial().cuantificacion();
+        String var = cuantificacionExistencialContext.variable().getText();
+
+        int ini = Integer.parseInt(generador.visit(cuantificacionExistencialContext.expr_integer(0)));
+        int fin = Integer.parseInt(generador.visit(cuantificacionExistencialContext.expr_integer(1)));
+
+    }
 
 
 
