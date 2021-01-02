@@ -39,7 +39,7 @@ DECISIONES DE DISEÑO:
                                 ----------------------
                                 | a     | true       |
                                 | b     | 2          |
-                                | c     | null       | -> c es indefinida
+
     **JUAN lo de ["func",1,2]
     Las asignaciones se llevarán a cabo si la cima de la pila es true.
         -Para asignaciones simples del tipo a = expr:
@@ -294,3 +294,68 @@ DECISIONES DE DISEÑO:
             secuencia = extraemos del almacén de asignaciones el valor asociado a nombre var.
             Retornamos el elemento en la posición i de la secuencia.
             Si i excede a la secuencia -> Valor indefinido.
+
+GRAMÁTICA ATRIBUIDA:
+
+    almacen_asignaciones (global)
+
+    programa: PROGRAMA variables subprogramas instrucciones EOF;
+    variables: VARIABLES (declaracion_variables)*;
+    subprogramas: SUBPROGRAMAS (declaracion_subprogramas)*;
+    instrucciones: INSTRUCCIONES (declaracion_instrucciones)*;
+
+    declaracion_variables: identificador PyC;
+
+    identificador: elementales
+                 | secuencias
+                 ;
+
+    elementales: (VAR COMA)* VAR DOSPTOS tipos_elementales; {Añadimos cada VAR a almacén_asignaciones con valor por
+                                                             defecto null}
+
+    secuencias: VAR DOSPTOS tipos_no_elementales; {Añadimos VAR a almacén_asignaciones con valor por defecto null}
+
+    tipos: tipos_elementales
+         | tipos_no_elementales
+         ;
+
+    tipos_elementales: NUMERO
+                     | BOOL
+                     ;
+
+    tipos_no_elementales: SEQ_NUM
+                        | SEQ_BOOL
+                        ;
+
+    //---SUBPROGRAMAS--- **JUAN
+    variable: VAR;
+
+    declaracion_subprogramas: funcion
+                            | procedimiento
+                            ;
+
+    funcion: FUNCION variable PA (params)? PC RETURN PA params PC variables instrucciones FFUNCION;
+
+    procedimiento: PROCEDIMIENTO variable PA (params)? PC variables instrucciones FPROCEDIMIENTO;
+
+    params: tipos variable
+          | tipos variable COMA params
+          ;
+
+    ...
+    asignacion: ((variable=v|expr_sacar_elem=s[i]) COMA)* (variable=v|expr_sacar_elem=s[i]) IGUAL (expr COMA)* (expr) PyC;
+                {Para cada v añadimos v a almacén_asignaciones con valor asociado evalua(expr)}
+                {Para cada s[i] extraemos s de almacén_asignaciones y le añadimos evalua(expr) en la posición i}
+    ...
+    asertos: LA ( expr_bool | cuantificador ) LC;
+
+    cuantificador: cuantificadorUniversal
+                 | cuantificadorExistencial
+                 ;
+
+    cuantificadorUniversal: FORALL cuantificacion;
+
+    cuantificadorExistencial: EXISTS cuantificacion;
+
+    cuantificacion: PA variable DOSPTOS CA expr_integer=a COMA expr_integer=b CC COMA expr_bool PC;
+                    {Añadir variable a almacen_asignaciones con valor asociado evalua(a)}
