@@ -221,7 +221,7 @@ public class Compilador extends AnasintBaseListener {
         }catch(IOException e){}
     }
 
-    // Generar código condicional (Falta conseguir que las instrucciones se ejecuten dentro de las llaves)
+    // Generar código condicional
     public void gencodigo_condicional(Anasint.Expr_boolContext expr, List<Anasint.Declaracion_instruccionesContext> ls){
         try{
             gencode_espacios();
@@ -271,7 +271,7 @@ public class Compilador extends AnasintBaseListener {
 
             }
             fichero.write("}\n");
-        }catch (IOException e){
+        } catch (IOException e){
 
         }
     }
@@ -329,12 +329,54 @@ public class Compilador extends AnasintBaseListener {
 
 
     }
-    // Generar código iteración (ocurre lo mismo que en condicional)
+
+    // Generar código iteración
     public void gencodigo_iteracion(Anasint.Expr_boolContext expr,List<Anasint.Declaracion_instruccionesContext> ls){
         try{
-            Anasint.Declaracion_instruccionesContext aux;
             gencode_espacios();
-            fichero.write("while("+generador.visit(expr)+"){");
+            fichero.write("while("+generador.visit(expr)+"){\n");
+            System.out.println(ls.get(0).getText());
+            for(int i=0;i<ls.size();i++){
+                if(ls.get(i).getText().startsWith("mientras ") || ls.get(i).getText().startsWith("mientras")){
+                    Anasint.ItContext aux = (Anasint.ItContext) ls.get(i);
+                    gencodigo_iteracion(aux.iteracion().expr_bool(),aux.iteracion().declaracion_instrucciones());
+                }
+
+                else if(ls.get(i).getText().startsWith("si ") || ls.get(i).getText().startsWith("si")){
+                    Anasint.CondContext aux = (Anasint.CondContext) ls.get(i);
+                    gencodigo_condicional(aux.condicion().expr_bool(),aux.condicion().declaracion_instrucciones());
+                    gencodigo_blq_sino(aux.condicion().declaracion_instrucciones());
+                }
+                else if(ls.get(i).getText().startsWith("ruptura ") || ls.get(i).getText().startsWith("ruptura")){
+                    //TODO
+                    gencodigo_break();
+                }
+                else if(ls.get(i).getText().startsWith("dev ") || ls.get(i).getText().startsWith("dev")){
+                    //TODO
+                    Anasint.DevContext dev = (Anasint.DevContext) ls.get(i);
+                    gencodigo_devolucion(dev.devolucion().expr());
+                }
+                else if(ls.get(i).getText().startsWith("{ ") || ls.get(i).getText().startsWith("{")){
+                    //TODO
+                }
+                else if(ls.get(i).getChild(0).getChild(1).getText().startsWith("(")){
+                    //TODO
+                }else{
+                    Anasint.AsigContext aux = (Anasint.AsigContext) ls.get(i);
+                    int suma = aux.asignacion().variable().size() + aux.asignacion().expr_sacar_elem().size();
+                    int pos = 0;
+                    for (int j = 0; j < (suma * 2 - 1); j = j + 2) { // Por las comas
+                        if (aux.asignacion().getChild(j).getText().contains("[")) {
+                            gencodigo_asignacion(aux.asignacion().getChild(j), aux.asignacion().expr(pos));
+                            pos++;
+                        } else {
+                            gencodigo_asignacion(aux.asignacion().getChild(j), aux.asignacion().expr(pos));
+                            pos++;
+                        }
+                    }
+                }
+
+            }
             fichero.write("}\n");
         }catch (IOException e){
 
@@ -395,6 +437,13 @@ public class Compilador extends AnasintBaseListener {
 
         }
     }
+
+    //Generar codigo llamada a procedimiento o función
+    public void gencodigo_subprogramas(Anasint.SubprogramasContext subprogramasContext){
+        // No será necesario generar código de subprograma
+        // Si es posible que sea llamado en declaración de instrucciones
+    }
+
     //Generar codigo asertos
     // 1 -> Si sus asertos son ciertos entonces el programa se considera correcto
     // 2 -> Un programa es incorrecto si alguno de sus asertos es falso en alguna de sus ejecuciones.
