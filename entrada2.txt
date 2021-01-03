@@ -9,20 +9,28 @@ SUBPROGRAMAS
   VARIABLES
   INSTRUCCIONES
     i=ultima_posicion(s)-i;
+
     dev i;
   FFUNCION
    FUNCION prueba(NUM j) dev (NUM i,NUM k)
     VARIABLES
+    i, min, max: NUM;
+    s: SEQ;
   INSTRUCCIONES
-    i=j-1;
+    s=[3,4,2,7,9,0,11];
+    min=0;
+    max=10;
+    i=0;
     k=j+1;
+    { PARATODO(p:[0,ultima_posicion(s)],s[p]<=max && s[p]>=min) }
+    mostrar(5);
     dev i,k;
     FFUNCION
 INSTRUCCIONES
 i=0;
 s=[3,4,2,7,9,0,11];
 t = ultima_posicion(s);
-mientras (i <= ultima_posicion(s)) hacer {avance: bucle_1_avance(s, i)}
+mientras (i <= ultima_posicion(s)) hacer
     mostrar(i);
     i = i+1;
 fmientras
