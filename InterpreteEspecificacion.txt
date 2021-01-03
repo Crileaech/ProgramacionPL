@@ -95,7 +95,7 @@ DECISIONES DE DISEÑO:
 
     (DECISIÓN 6) Interpretación de las condiciones: La instrucción condición define un bloque o
     dos de instrucciones en caso de existir sino.
-    todo probar en entrada2.txt añadir a si(cond) cond=llamada subprograma
+
     -Llegamos a la instrucción si, posibilidades:
 
         -Que la cima de la pila sea true y se cumpla la condición del si: Añadimos a la pila
@@ -226,7 +226,6 @@ DECISIONES DE DISEÑO:
                                                            para p = p+1
             -2: p = 1 ¿a[p]=a[1]==2? -> True -> Dado que estamos ante un cuantificador existencial retornamos que el
                                                 programa es correcto.
-    todo indefinido a codigo
 
     (DECISIÓN 10) expr_func como instrucción **JUAN
 

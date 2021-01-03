@@ -272,7 +272,7 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
             subpParamsAsignados.put(nomFunc, nombresYvalores);
 
             //creamos un flujo de instrucciones para la función correspondiente
-            flujoInstrucciones.muestraConIdentación("(FUNCIÓN "+nomFunc+")");
+            flujoInstrucciones.muestraConIdentación("(FUNCIÓN "+nomFunc+")",1);
             flujoInstrucciones func = new flujoInstrucciones(subpParamsAsignados.get(nomFunc));
 
             //clonamos en un mapa las asignaciones de la función, y sustituimos las asignaciones globales con las de la función
@@ -307,8 +307,8 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
                 //restauramos el mapa de asignaciones global con las antiguas
                 func.asig.clear();
                 func.asig.putAll(asigAnterior);
-                flujoInstrucciones.muestraConIdentación("(devolución)" + textoADevolver);
-                flujoInstrucciones.muestraConIdentación("(FIN FUNCIÓN "+nomFunc+")");
+                flujoInstrucciones.muestraConIdentación("(devolución)" + textoADevolver, 1);
+                flujoInstrucciones.muestraConIdentación("(FIN FUNCIÓN "+nomFunc+")", 1);
 
             }
             //me recorro la instrucción dev. Si los hijos son variables añado a valores lo que hay en el almacén.

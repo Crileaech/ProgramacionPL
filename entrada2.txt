@@ -44,7 +44,7 @@ mientras (i <= ultima_posicion(s)) hacer {avance: bucle_1_avance(s, i)}
 fmientras
 s2=[];
 min=2;
-kxnk = pruebaAserto(s);
+kxnk = pruebaAserto([1,2,3,4,5,6,20]);
 min,max=prueba(6);
 a,b = prueba(2);
 
