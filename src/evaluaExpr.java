@@ -191,38 +191,7 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
     //Asignar una función a una variable
 
     public Object visitExprFuncInt(Anasint.ExprFuncIntContext ctx) {
-        //nombre de la función a la que queremos llamar
-        String nomFunc = ctx.expr_func().variable().VAR().getText();
-        Object f = null;
-        //PREDEFINIDA: última posición de una secuencia
-        List<Object> seq;
-        if(nomFunc.equals("ultima_posicion")) {
-            seq = (List<Object>) flujoInstrucciones.asig.get(ctx.expr_func().expr(0).getText());
-
-            //si f=-1 es que la secuencia está vacía
-            f = seq.size()-1;
-        }
-        //PREDEFINIDA: ¿está vacía la secuencia?
-        else if(nomFunc.equals("vacia")){
-            seq = (List<Object>) flujoInstrucciones.asig.get(ctx.expr_func().expr(0).getText());
-            f = seq.isEmpty();
-        }
-        //SI NO ES UNA FUNCIÓN PREDEFINIDA
-        else{
-            //añadimos a un mapa el nombre de la función asociado a una lista con los valores de las variables
-            //que se le pasan como parámetro, ya que la propia función es la que se encarga de asignar
-            //nombre a esas variables
-            subpParams.put(nomFunc, ctx.expr_func().expr().stream().map(v -> visit(v)).collect(Collectors.toList()));
-            //lista de subprogramas
-            List<Anasint.Declaracion_subprogramasContext> decSubp = subprogramas.declaracion_subprogramas();
-
-            for(int i=0; i<decSubp.size(); i++)
-                //buscamos la función con el nombre que queremos
-                if (decSubp.get(i).getChild(0).getChild(1).getText().equals(nomFunc)){
-                    f = visit(decSubp.get(i).getChild(0));
-                }
-        }
-        return f;
+        return visit(ctx.expr_func());
     }
 
     public List<Object> visitFuncion(Anasint.FuncionContext ctx){
@@ -251,7 +220,7 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
         subpParamsAsignados.put(nomFunc, nombresYvalores);
 
         //creamos un flujo de instrucciones para la función correspondiente
-        System.out.println("(FUNCIÓN "+nomFunc+")");
+        flujoInstrucciones.muestraConIdentación("(FUNCIÓN "+nomFunc+")");
         flujoInstrucciones func = new flujoInstrucciones(subpParamsAsignados.get(nomFunc));
 
         //clonamos en un mapa las asignaciones de la función, y sustituimos las asignaciones globales con las de la función
@@ -263,7 +232,7 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
 
         ParseTreeWalker walker = new ParseTreeWalker();
         walker.walk(func, ctx);
-        System.out.println("(FIN FUNCIÓN "+nomFunc+")");
+        flujoInstrucciones.muestraConIdentación("(FIN FUNCIÓN "+nomFunc+")");
 
         List<Object> valores = new ArrayList<>();
         valores.add("func");

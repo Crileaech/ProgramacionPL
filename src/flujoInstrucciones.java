@@ -48,6 +48,7 @@ public class flujoInstrucciones extends AnasintBaseListener{
         evalua = new evaluaExpr(ctx.subprogramas());
     }
     public void exitPrograma(Anasint.ProgramaContext ctx) {
+        System.out.println("FIN INTÉRPRETE");
         pila.pop();
     }
 
@@ -89,14 +90,10 @@ public class flujoInstrucciones extends AnasintBaseListener{
 
     public void enterAsignacion(Anasint.AsignacionContext ctx) {
         if(pila.peek()) {
-
-            //List<String> vars = ctx.variable().stream().map(v -> v.getText()).collect(Collectors.toList());
             List<Anasint.ExprContext> asign = ctx.expr();
             List<Object> asignEvaluadasAux = asign.stream().map(x -> evalua.visit(x))
                     .collect(Collectors.toList());
-
             List<Object> asignEvaluadas = new ArrayList<>();
-
 
             //Aplana la lista de asignaciones, porque las funciones devuelven listas cuando tienen múltiples valores,
             //en caso de que haya alguna función que devuelva múltiples valores
@@ -106,7 +103,14 @@ public class flujoInstrucciones extends AnasintBaseListener{
                         if(!((List<Object>) asignEvaluadasAux.get(i)).isEmpty() && ((List<Object>) asignEvaluadasAux.get(i)).get(0).equals("func")) {
                             ((List<Object>) asignEvaluadasAux.get(i)).remove(0);
                             asignEvaluadas.addAll((List<Object>)asignEvaluadasAux.get(i));
-                            asign.add(i,asign.get(i));
+                            //si devuelve más de una cosa la funciójn debemos añadir a la lista asign ExprContext de la función
+                            //para que aparezca al lado del valor el nombre de la función (de donde viene). Es un detalle esté-
+                            //tico.
+                            for(int j = 1; j < ((List<Object>)asignEvaluadasAux.get(i)).size(); j++) {
+                                asign.add(i, asign.get(i));
+                            }
+                        } else {
+                            asignEvaluadas.add(asignEvaluadasAux.get(i));
                         }
                     } else {
                         asignEvaluadas.add(asignEvaluadasAux.get(i));
