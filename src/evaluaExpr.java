@@ -1,3 +1,4 @@
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
@@ -72,8 +73,20 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
         }
     }
     public Boolean visitCompararInteger(Anasint.CompararIntegerContext ctx) {
-        Integer n1 = (Integer) visit(ctx.getChild(0));
-        Integer n2 = (Integer) visit(ctx.getChild(2));
+        Integer n1; Integer n2;
+        /*if(esFuncion(ctx.getChild(0))) {
+            n1 = (Integer) ((List<Object>) visit(ctx.getChild(0))).get(1);
+        } else {
+            n1 = (Integer) visit(ctx.getChild(0));
+        }
+        if(esFuncion(ctx.getChild(2))) {
+            System.out.println(esFuncion(ctx.getChild(2)));
+            n2 = (Integer) ((List<Object>) visit(ctx.getChild(2))).get(1);
+        } else {
+            n2 = (Integer) visit(ctx.getChild(2));
+        }*/
+        n1 = (Integer) visit(ctx.getChild(0));
+        n2 = (Integer) visit(ctx.getChild(2));
         String comp = ctx.getChild(1).getText();
         if(comp.equals("<=")) return n1<=n2;
         else if(comp.equals(">=")) return n1>=n2;
@@ -312,5 +325,11 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
     public Object visitVarInt(Anasint.VarIntContext ctx) {
         //puede ser una variable log, num o seq
         return (Object) flujoInstrucciones.asig.get(ctx.getText());
+    }
+
+    public Boolean esFuncion(ParseTree ctx) {
+        System.out.println(ctx.getClass());
+        return Anasint.Expr_funcContext.class==ctx.getClass()
+                    || Anasint.Expr_funcContext.class==ctx.getChild(0).getClass();
     }
 }

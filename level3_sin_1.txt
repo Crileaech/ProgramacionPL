@@ -24,11 +24,17 @@ SUBPROGRAMAS
              INSTRUCCIONES
                  dev 5;
         FFUNCION
+        FUNCION prueba2(SEQ(NUM) s) dev (NUM r)
+             VARIABLES
+             INSTRUCCIONES
+                 dev ultima_posicion(s);
+        FFUNCION
 
 
 INSTRUCCIONES
 { cierto }
    s=[3,4,2,7,9,0,11];
+   t = prueba2(s);
    i=0;
    mostrar(i);
    min=s[i];
