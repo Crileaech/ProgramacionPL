@@ -534,12 +534,7 @@ public class Compilador extends AnasintBaseListener {
         }
 
         private void gencodigo_asertos(Anasint.AsertosContext ctx){
-            String expr = new String();
-            if(ctx.expr_bool() != null){
-                expr = generador.visit(ctx.expr_bool());
-            }else{
 
-            }
         }
 
 
