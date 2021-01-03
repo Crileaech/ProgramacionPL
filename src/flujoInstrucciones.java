@@ -94,7 +94,6 @@ public class flujoInstrucciones extends AnasintBaseListener{
             List<Object> asignEvaluadasAux = asign.stream().map(x -> evalua.visit(x))
                     .collect(Collectors.toList());
             List<Object> asignEvaluadas = new ArrayList<>();
-
             //Aplana la lista de asignaciones, porque las funciones devuelven listas cuando tienen múltiples valores,
             //en caso de que haya alguna función que devuelva múltiples valores
             if(asignEvaluadasAux.stream().anyMatch(x -> x instanceof List)) {
@@ -102,6 +101,9 @@ public class flujoInstrucciones extends AnasintBaseListener{
                     if (asignEvaluadasAux.get(i) instanceof List) {
                         if(!((List<Object>) asignEvaluadasAux.get(i)).isEmpty() && ((List<Object>) asignEvaluadasAux.get(i)).get(0).equals("func")) {
                             ((List<Object>) asignEvaluadasAux.get(i)).remove(0);
+                            if(((List<Object>) asignEvaluadasAux.get(i)).size()==0) {
+                                asignEvaluadas.add("indef");
+                            }
                             asignEvaluadas.addAll((List<Object>)asignEvaluadasAux.get(i));
                             //si devuelve más de una cosa la funciójn debemos añadir a la lista asign ExprContext de la función
                             //para que aparezca al lado del valor el nombre de la función (de donde viene). Es un detalle esté-
@@ -147,15 +149,19 @@ public class flujoInstrucciones extends AnasintBaseListener{
                     }
                 } else {
                     Anasint.VariableContext elem = (Anasint.VariableContext) ctx.getChild(j*2);
-                    asig.put(elem.getText(), evaluacion);
-                    String exprAsignada = evaluacion.toString();
-                    //si una asignación es una expresión compuesta, quiero que se observe a la
-                    //dcha de donde viene el resultado.
+                    if(evaluacion.equals("indef")) {
+                        muestraConIdentación("(asignación) " + elem.getText() + " <- indefinido");
+                    } else {
+                        asig.put(elem.getText(), evaluacion);
+                        String exprAsignada = evaluacion.toString();
+                        //si una asignación es una expresión compuesta, quiero que se observe a la
+                        //dcha de donde viene el resultado.
 
-                    if (j<asign.size()&&!asign.get(j).getText().equals(exprAsignada)&&!asig.get(elem.getText()).getClass().equals(ArrayList.class))
-                        exprAsignada+= " (" + asign.get(j).getText() + ")";
-                    if(pila.peek())
-                        muestraConIdentación("(asignación) " + elem.getText() + " <- " + exprAsignada);
+                        if (j<asign.size()&&!asign.get(j).getText().equals(exprAsignada)&&!asig.get(elem.getText()).getClass().equals(ArrayList.class))
+                            exprAsignada+= " (" + asign.get(j).getText() + ")";
+                        if(pila.peek())
+                            muestraConIdentación("(asignación) " + elem.getText() + " <- " + exprAsignada);
+                    }
                 }
             }
         }

@@ -141,7 +141,11 @@ DECISIONES DE DISEÑO:
     (DECISIÓN 7) Interpretación de las iteraciones: La instrucción iteración define un bloque de instrucciones
     que es ejecutado entre 0 y n veces en función de una condición. Si la condición es true -> Se ejecutan las
     instrucciones del bloque. Si es false -> fin del bloque de instrucciones.
-    todo avanza
+    Las iteraciones además, pueden presentar una función avanza. El objetivo de la función avanza es testar
+    que el bucle avanza a término. Si los valores devueltos por avanza no decrecen tras cada iteración.
+    se considera que la iteración es errónea.
+
+    valorAnteriorAvanza = indefinido //será una variable que almacene el valor anterior de la función avanza.
 
     bucleIt(iteracion ctx):
         si la cima es true
@@ -157,10 +161,19 @@ DECISIONES DE DISEÑO:
         mientras cumpleCond y cima pila sean true:
             ejecuta las instrucciones hijas de ctx
             cumpleCond = evalua ctx.cond
+            compruebaAvanza(ctx.avanza)
         //dado que el flujo de ejecución de las instrucciones lo ejecutamos nosotros, una vez terminamos
         //debemos añadir un false para que no se ejecute una vez más de la cuenta.
         retira la cima de la pila
         añade a pila false
+
+    compruebaAvanza(avanza ctx):
+        si valorAnteriorAvanza es indefinido
+            valorAnteriorAvanza = ejecuta de ctx la funcion
+        sino
+            valorActualAvanza = ejecuta de ctx la funcion
+            si valorActualAvanza es mayor o igual a valorAnteriorAvanza //los valores no decrecen. Estamos ante iteración errónea.
+                finaliza ejecución programa
 
     (DECISIÓN 8) Interpretación de la instrucción mostrar: La instrucción mostrar muestra el valor asociado
     a una variable.

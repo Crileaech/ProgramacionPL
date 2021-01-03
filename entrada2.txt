@@ -30,6 +30,18 @@ SUBPROGRAMAS
         j=4;
         dev T;
       FFUNCION
+    FUNCION pruebaruptura(SEQ(NUM) s) dev (LOG t)
+      VARIABLES
+      INSTRUCCIONES
+        t=T;
+        ruptura;
+        si(s[0]<10) entonces
+            ruptura;
+            t=F
+        fsi
+        j=4;
+        dev T;
+      FFUNCION
 INSTRUCCIONES
 i=0;
 f=menor(1);
@@ -44,9 +56,11 @@ mientras (i <= ultima_posicion(s)) hacer {avance: bucle_1_avance(s, i)}
 fmientras
 s2=[];
 min=2;
+p,min,max = pruebaruptura(s),prueba(6);
 kxnk = pruebaAserto([1,2,3,4,5,6,20]);
 min,max=prueba(6);
 a,b = prueba(2);
+
 
 
 

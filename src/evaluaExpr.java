@@ -288,22 +288,27 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
                 String textoADevolver = "";
                 valores.add("func");
                 for(int i=0; i<instCtx.size(); i++) {
-                    if(instCtx.get(i).getChild(0).getChild(0).getText().equals("dev")) {
-                        Anasint.DevolucionContext dev = (Anasint.DevolucionContext) instCtx.get(i).getChild(0);
-                        for(int j=1; j<dev.getChildCount(); j+=2) {
-                            if(dev.getChild(j).getChild(0).getChild(0).getClass()
-                                    ==Anasint.VariableContext.class) {
-                                valores.add(func.asig.get(dev.getChild(j).getText()));
-                                textoADevolver += " " + dev.getChild(j).getText() + "="
-                                        + valores.get(valores.size()-1) + ",";
-                            } else {
-                                valores.add(visit(dev.getChild(j)));
-                                textoADevolver += " " + valores.get(valores.size()-1) + ",";
+                    if(instCtx.get(i).getChild(0).getChild(0)!=null) {
+                        if(instCtx.get(i).getChild(0).getChild(0).getText().equals("dev")) {
+                            Anasint.DevolucionContext dev = (Anasint.DevolucionContext) instCtx.get(i).getChild(0);
+                            for(int j=1; j<dev.getChildCount(); j+=2) {
+                                if(dev.getChild(j).getChild(0).getChild(0).getClass()
+                                        ==Anasint.VariableContext.class) {
+                                    valores.add(func.asig.get(dev.getChild(j).getText()));
+                                    textoADevolver += " " + dev.getChild(j).getText() + "="
+                                            + valores.get(valores.size()-1) + ",";
+                                } else {
+                                    valores.add(visit(dev.getChild(j)));
+                                    textoADevolver += " " + valores.get(valores.size()-1) + ",";
+                                }
+
                             }
+                            textoADevolver = textoADevolver.substring(0, textoADevolver.length()-1);
                         }
+                    } else {
+                        break;
                     }
                 }
-                textoADevolver = textoADevolver.substring(0, textoADevolver.length()-1);
                 //restauramos el mapa de asignaciones global con las antiguas
                 func.asig.clear();
                 func.asig.putAll(asigAnterior);
