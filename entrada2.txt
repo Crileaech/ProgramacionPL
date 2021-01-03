@@ -18,10 +18,19 @@ SUBPROGRAMAS
     k=j+1;
     dev i,k;
     FFUNCION
+    FUNCION menor(NUM i) dev (LOG q)
+    VARIABLES
+    INSTRUCCIONES
+      dev i<2;
+    FFUNCION
 INSTRUCCIONES
 i=0;
+f=menor(1);
 s=[3,4,2,7,9,0,11];
 t = ultima_posicion(s);
+si(menor(1)) entonces
+    mostrar(4);
+fsi
 mientras (i <= ultima_posicion(s)) hacer {avance: bucle_1_avance(s, i)}
     mostrar(i);
     i = i+1;

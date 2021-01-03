@@ -53,7 +53,6 @@ DECISIONES DE DISEÑO:
         -Las asignaciones también se pueden realizar a una posición en concreto de una secuencia.
         Ej: s[i] = 9 -> Se asigna en la posición iésima de la secuencia numérica s el número 9.
 
-            todo: añadir comprobación i no excede tam s-1 a código
         asignacion(asignacion ctx): //a, s[1] = 2, T;
             si la cima es true:
                 aAsignar = extrae asignados de ctx // [a,s[1]]
@@ -289,7 +288,6 @@ DECISIONES DE DISEÑO:
 
         -evaluar(expr_func): **JUAN
 
-        todo comprobar que el indice no excede
         -evaluar(expr_sacar_elem): Es el tipo nombreVar[i].
             secuencia = extraemos del almacén de asignaciones el valor asociado a nombre var.
             Retornamos el elemento en la posición i de la secuencia.

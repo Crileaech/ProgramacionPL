@@ -165,7 +165,15 @@ public class flujoInstrucciones extends AnasintBaseListener{
         if(pila.peek()) {
             Anasint.Blq_sinoContext blqSino = ctx.blq_sino();
             Boolean tieneElse = blqSino!=null;
-            Boolean cond = (Boolean) evalua.visit(ctx.expr_bool());
+            Boolean cond;
+            Object eval = evalua.visit(ctx.expr_bool());
+            if(eval instanceof List) {
+                //Si procede de una función el visit retorna ["func",T]
+                cond = (Boolean)((List<Object>) eval).get(1);
+            } else {
+                //Si no procede de una función el visit retorna true/false
+                cond = (Boolean) eval;
+            }
             //si se cumple cond debe asignarse a la pila para que las instrucciones del
             //if sean ejecutadas. Sino se añadirá false
             muestraConIdentación("(condicional) " + ctx.expr_bool().getText(), false);
@@ -232,7 +240,6 @@ public class flujoInstrucciones extends AnasintBaseListener{
         if(pila.peek()) {
             pila.pop();
             pila.push(false);
-            muestraConIdentación("(devolución)");
         }
     }
 

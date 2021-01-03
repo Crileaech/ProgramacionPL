@@ -1,11 +1,11 @@
 PROGRAMA
 
 VARIABLES
-   i,max,min:NUM;
+   /*i,max,min:NUM;
    s:SEQ(NUM);
-
+*/
 SUBPROGRAMAS
-   FUNCION bucle_1_avance(SEQ(NUM) seq, NUM pos) dev (NUM r)
+   /*FUNCION bucle_1_avance(SEQ(NUM) seq, NUM pos) dev (NUM r)
      VARIABLES
      INSTRUCCIONES
         mostrar(seq);
@@ -13,34 +13,37 @@ SUBPROGRAMAS
         r=ultima_posicion(seq)-pos;
         dev r;
    FFUNCION
+
       FUNCION prueba(NUM i) dev (NUM r)
            VARIABLES
            INSTRUCCIONES
                r=i+1;
                dev r;
-      FFUNCION
+      FFUNCION*/
         FUNCION prueba1(NUM i) dev (NUM r)
              VARIABLES
              INSTRUCCIONES
                  dev 5;
         FFUNCION
+        /*
         FUNCION prueba2(SEQ(NUM) s) dev (NUM r)
              VARIABLES
              INSTRUCCIONES
                  dev ultima_posicion(s);
-        FFUNCION
+        FFUNCION*/
 
 
 INSTRUCCIONES
-{ cierto }
+//{ cierto }
    s=[3,4,2,7,9,0,11];
-   t = prueba2(s);
+   j = s[7];
+/*   t = prueba2(s);
    h= T&&F;
    i=0;
-   mostrar(i);
-   min=s[i];
-   max=s[i];
-   mientras (i<=ultima_posicion(s)) hacer {avance: bucle_1_avance(s,i)}
+   mostrar(i);*/
+   min=0;
+   max=11;
+   /*mientras (i<=ultima_posicion(s)) hacer {avance: bucle_1_avance(s,i)}
       si (s[i]>max) entonces
          max=s[i];
       fsi
@@ -50,5 +53,5 @@ INSTRUCCIONES
       mostrar(min,max);
       { PARATODO(p:[0,i],s[p]<=max && s[p]>=min) }
       i=i+1;
-   fmientras
+   fmientras*/
 { PARATODO(p:[0,prueba1(5)],prueba1(5)<=max && s[p]>=min) }

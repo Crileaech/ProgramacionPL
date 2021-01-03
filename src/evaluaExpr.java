@@ -1,3 +1,4 @@
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -222,14 +223,10 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
     public Object visitExpr_sacar_elem(Anasint.Expr_sacar_elemContext ctx) {
         List<Object> elems = (List<Object>) flujoInstrucciones.asig.get(ctx.variable().getText());
         Integer index = (Integer) visit(ctx.expr_integer());
-        if(index>elems.size()) {
+        if(index>=elems.size()) {
             System.out.println("ERROR: El índice excede la secuencia. (" + ctx.getText() + ").");
             System.out.println("Ejecución finalizada.");
-            int tam = flujoInstrucciones.pila.size();
-            flujoInstrucciones.pila.clear();
-            for(int i=0; i<tam; i++) {
-                flujoInstrucciones.pila.push(false);
-            }
+            flujoInstrucciones.finalizaEjecución();
             return null;
         }
         return elems.get(index);
@@ -253,6 +250,7 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
 
         String nomFunc = ctx.variable().VAR().getText();
         Map<String, Object> nombresYvalores = new LinkedHashMap<>();
+        //si se llama desde un aserto no mostrar nada para no ensuciar la consola.
 
         //si el tercer hijo es un paréntesis, es que la función tiene parámetros de entrada
         //y, por tanto, debemos asignar el nombre que aparece en la declaración de la función
@@ -272,6 +270,7 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
 
         //creamos un flujo de instrucciones para la función correspondiente
         flujoInstrucciones.muestraConIdentación("(FUNCIÓN "+nomFunc+")");
+
         flujoInstrucciones func = new flujoInstrucciones(subpParamsAsignados.get(nomFunc));
 
         //clonamos en un mapa las asignaciones de la función, y sustituimos las asignaciones globales con las de la función
@@ -283,27 +282,34 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
 
         ParseTreeWalker walker = new ParseTreeWalker();
         walker.walk(func, ctx);
-        flujoInstrucciones.muestraConIdentación("(FIN FUNCIÓN "+nomFunc+")");
+
 
         List<Object> valores = new ArrayList<>();
         valores.add("func");
         //me recorro la instrucción dev. Si los hijos son variables añado a valores lo que hay en el almacén.
         //Si lo que hay es algo que no son variables lo evaluo y lo añado en valores.
+        String textoADevolver = "";
         for(int i=0; i<instCtx.size(); i++) {
             if(instCtx.get(i).getChild(0).getChild(0).getText().equals("dev")) {
                 Anasint.DevolucionContext dev = (Anasint.DevolucionContext) instCtx.get(i).getChild(0);
                 for(int j=1; j<dev.getChildCount(); j+=2) {
-                    if(dev.getChild(j).getClass()==Anasint.VariablesContext.class) {
+                    if(dev.getChild(j).getChild(0).getChild(0).getClass()
+                            ==Anasint.VariableContext.class) {
                         valores.add(func.asig.get(dev.getChild(j).getText()));
+                        textoADevolver += " " + dev.getChild(j).getText() + "="
+                                + valores.get(valores.size()-1) + ",";
                     } else {
                         valores.add(visit(dev.getChild(j)));
+                        textoADevolver += " " + valores.get(valores.size()-1) + ",";
                     }
                 }
             }
         }
+        textoADevolver = textoADevolver.substring(0, textoADevolver.length()-1);
         //restauramos el mapa de asignaciones global con las antiguas
         func.asig.putAll(asigAnterior);
-
+        flujoInstrucciones.muestraConIdentación("(devolución)" + textoADevolver);
+        flujoInstrucciones.muestraConIdentación("(FIN FUNCIÓN "+nomFunc+")");
         return valores;
     }
 
@@ -370,9 +376,14 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
         return (Object) flujoInstrucciones.asig.get(ctx.getText());
     }
 
-    public Boolean esFuncion(ParseTree ctx) {
-        System.out.println(ctx.getClass());
-        return Anasint.Expr_funcContext.class==ctx.getClass()
-                    || Anasint.Expr_funcContext.class==ctx.getChild(0).getClass();
+    public Boolean enAserto(Anasint.FuncionContext ctx) {
+        ParserRuleContext padre = ctx.getParent();
+        while(padre!=null && padre.getClass()!=Anasint.Declaracion_instruccionesContext.class) {
+            if(padre.getClass()==Anasint.CuantificacionContext.class) {
+                return true;
+            }
+            padre = padre.getParent();
+        }
+        return false;
     }
 }
