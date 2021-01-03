@@ -102,57 +102,56 @@ public class flujoInstrucciones extends AnasintBaseListener{
             //en caso de que haya alguna función que devuelva múltiples valores
             if(asignEvaluadasAux.stream().anyMatch(x -> x instanceof List)) {
                 for (int i = 0; i < asignEvaluadasAux.size(); i++) {
-                    if (asignEvaluadasAux.get(i) instanceof List)
+                    if (asignEvaluadasAux.get(i) instanceof List) {
                         if(!((List<Object>) asignEvaluadasAux.get(i)).isEmpty() && ((List<Object>) asignEvaluadasAux.get(i)).get(0).equals("func")) {
                             ((List<Object>) asignEvaluadasAux.get(i)).remove(0);
                             asignEvaluadas.addAll((List<Object>)asignEvaluadasAux.get(i));
+                            asign.add(i,asign.get(i));
                         }
-                    else
+                    } else {
                         asignEvaluadas.add(asignEvaluadasAux.get(i));
+                    }
                 }
             }
             else {
                 asignEvaluadas.addAll(asignEvaluadasAux);
             }
-
             Object evaluacion = null;
-
-            for(int j = 0; !ctx.getChild(j).getText().equals("="); j++) {
+            for(int j = 0; j<asign.size(); j++) {
                 if (j<asignEvaluadas.size())
                     evaluacion = asignEvaluadas.get(j);
                 if(evaluacion==null) {
                     break;
                 }
-                if(!ctx.getChild(j).getText().equals(",")) {
-                    if(ctx.getChild(j).getClass()==Anasint.Expr_sacar_elemContext.class) {
-                        Anasint.Expr_sacar_elemContext elem = (Anasint.Expr_sacar_elemContext) ctx.getChild(j);
-                        String nombreVar = elem.getChild(0).getText();
-                        int pos = Integer.parseInt(elem.getChild(2).getText());
-                        List<Object> seq = (List<Object>) asig.get(nombreVar);
-                        String antes = seq.toString();
-                        seq.set(pos, evaluacion);
-                        String dsps = seq.toString();
-                        asig.put(nombreVar,seq);
-                        String exprAsignada = evaluacion.toString();
-                        //si el valor a asignar viene de una operación, deseo que se observe la operación realizada.
-                        if (!asign.get(j).getText().equals(exprAsignada))
-                            exprAsignada+= " (" + asign.get(j).getText() + ")";
+                if(ctx.getChild(j*2).getClass()==Anasint.Expr_sacar_elemContext.class) {
+                    Anasint.Expr_sacar_elemContext elem = (Anasint.Expr_sacar_elemContext) ctx.getChild(j*2);
+                    String nombreVar = elem.getChild(0).getText();
+                    int pos = Integer.parseInt(elem.getChild(2).getText());
+                    List<Object> seq = (List<Object>) asig.get(nombreVar);
+                    String antes = seq.toString();
+                    seq.set(pos, evaluacion);
+                    String dsps = seq.toString();
+                    asig.put(nombreVar,seq);
+                    String exprAsignada = evaluacion.toString();
+                    //si el valor a asignar viene de una operación, deseo que se observe la operación realizada.
+                    if (!asign.get(j).getText().equals(exprAsignada))
+                        exprAsignada+= " (" + asign.get(j).getText() + ")";
 
-                        if(pila.peek()) {
-                            muestraConIdentación("(asignación) " + elem.getText() + " <- "
-                                    + exprAsignada + ". Antes: " + antes + ". Ahora: " + dsps);
-                        }
-                    } else {
-                        Anasint.VariableContext elem = (Anasint.VariableContext) ctx.getChild(j);
-                        asig.put(elem.getText(), evaluacion);
-                        String exprAsignada = evaluacion.toString();
-                        //si una asignación es una expresión compuesta, quiero que se observe a la
-                        //dcha de donde viene el resultado.
-                        if (j<asign.size()&&!asign.get(j).getText().equals(exprAsignada)&&!asig.get(elem.getText()).getClass().equals(ArrayList.class))
-                            exprAsignada+= " (" + asign.get(j).getText() + ")";
-                        if(pila.peek())
-                            muestraConIdentación("(asignación) " + elem.getText() + " <- " + exprAsignada);
+                    if(pila.peek()) {
+                        muestraConIdentación("(asignación) " + elem.getText() + " <- "
+                                + exprAsignada + ". Antes: " + antes + ". Ahora: " + dsps);
                     }
+                } else {
+                    Anasint.VariableContext elem = (Anasint.VariableContext) ctx.getChild(j*2);
+                    asig.put(elem.getText(), evaluacion);
+                    String exprAsignada = evaluacion.toString();
+                    //si una asignación es una expresión compuesta, quiero que se observe a la
+                    //dcha de donde viene el resultado.
+
+                    if (j<asign.size()&&!asign.get(j).getText().equals(exprAsignada)&&!asig.get(elem.getText()).getClass().equals(ArrayList.class))
+                        exprAsignada+= " (" + asign.get(j).getText() + ")";
+                    if(pila.peek())
+                        muestraConIdentación("(asignación) " + elem.getText() + " <- " + exprAsignada);
                 }
             }
         }

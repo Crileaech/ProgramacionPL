@@ -125,9 +125,7 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
     public Object visitExprFuncBool(Anasint.ExprFuncBoolContext ctx) {
         //nombre de la función a la que queremos llamar
         String nomFunc = ctx.expr_func().variable().VAR().getText();
-
         Object ret;
-
         Object f = null;
 
         //PREDEFINIDA: última posición de una secuencia
@@ -193,16 +191,14 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
     //Asignar una función a una variable
 
     public Object visitExprFuncInt(Anasint.ExprFuncIntContext ctx) {
-
         //nombre de la función a la que queremos llamar
         String nomFunc = ctx.expr_func().variable().VAR().getText();
-
         Object f = null;
-
         //PREDEFINIDA: última posición de una secuencia
         List<Object> seq;
         if(nomFunc.equals("ultima_posicion")) {
             seq = (List<Object>) flujoInstrucciones.asig.get(ctx.expr_func().expr(0).getText());
+
             //si f=-1 es que la secuencia está vacía
             f = seq.size()-1;
         }

@@ -1,48 +1,30 @@
 PROGRAMA
 VARIABLES
-a, min, max: NUM;
-b, b2: LOG;
+/*a,b, min, max: NUM;
+b2: LOG;
 s: SEQ(NUM);
-s2: SEQ(LOG);
+s2: SEQ(LOG);*/
 SUBPROGRAMAS
-  FUNCION bucle_1_avance(SEQ(NUM) s, NUM i) dev (NUM i)
+  /*FUNCION bucle_1_avance(SEQ(NUM) s, NUM i) dev (NUM i)
   VARIABLES
-  s: SEQ(NUM);
-  min, max: NUM;
   INSTRUCCIONES
-<<<<<<< HEAD
     i=ultima_posicion(s)-i;
-=======
-    s=[3,4,2,7,9,0,11];
-
-    min=0;
-    max=5;
-
-    { PARATODO(p:[0,i],s[p]<=max && s[p]>=min) }
-
->>>>>>> 08898c447e90703e78db7e950d9b471f143e15a7
     dev i;
-  FFUNCION
+  FFUNCION*/
+    FUNCION prueba(NUM j) dev (NUM i,NUM k)
+    VARIABLES
+  INSTRUCCIONES
+    i=j-1;
+    k=j+1;
+    dev i,k;
+    FFUNCION
 INSTRUCCIONES
-
-s=[3,4,2,7,9,0,11];
-s2=[];
-<<<<<<< HEAD
+/*s=[3,4,2,7,9,0,11];
 i=0;
 t = ultima_posicion(s);
-mientras (i <= ultima_posicion(s)) hacer {avance: bucle_1_avance(s,i)}
-=======
-i=5;
-min=2;
-max=3;
-
-x = bucle_1_avance(0);
-
-mostrar(5);
-
 mientras (i <= ultima_posicion(s)) hacer {avance: bucle_1_avance(s, i)}
->>>>>>> 08898c447e90703e78db7e950d9b471f143e15a7
     mostrar(i);
     i = i+1;
-fmientras;
+fmientras*/
+a,b,c = prueba(2),7;
 
