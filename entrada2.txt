@@ -23,6 +23,13 @@ SUBPROGRAMAS
     INSTRUCCIONES
       dev i<2;
     FFUNCION
+    FUNCION pruebaAserto(SEQ(NUM) s) dev (LOG t)
+      VARIABLES
+      INSTRUCCIONES
+        { PARATODO(p:[0,ultima_posicion(s)],s[p]<=10) }
+        j=4;
+        dev T;
+      FFUNCION
 INSTRUCCIONES
 i=0;
 f=menor(1);
@@ -37,7 +44,9 @@ mientras (i <= ultima_posicion(s)) hacer {avance: bucle_1_avance(s, i)}
 fmientras
 s2=[];
 min=2;
+kxnk = pruebaAserto(s);
 min,max=prueba(6);
 a,b = prueba(2);
+
 
 

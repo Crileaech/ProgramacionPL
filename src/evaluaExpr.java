@@ -247,69 +247,74 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
     }
 
     public List<Object> visitFuncion(Anasint.FuncionContext ctx){
-
-        String nomFunc = ctx.variable().VAR().getText();
-        Map<String, Object> nombresYvalores = new LinkedHashMap<>();
-        //si se llama desde un aserto no mostrar nada para no ensuciar la consola.
-
-        //si el tercer hijo es un paréntesis, es que la función tiene parámetros de entrada
-        //y, por tanto, debemos asignar el nombre que aparece en la declaración de la función
-        //al valor introducido al llamarla
-        if(ctx.params().size()>1){
-            List<String> nombresParamsEntrada = getNombresParamsEntrada(ctx);
-            for (int i=0; i<subpParams.get(nomFunc).size(); i++){
-                nombresYvalores.put(nombresParamsEntrada.get(i), subpParams.get(nomFunc).get(i));
-            }
-        }
-
-        List<Anasint.Declaracion_instruccionesContext> instCtx = ctx.instrucciones().declaracion_instrucciones();
-
-        //en cuanto se ve la instrucción dev, se devuelven las variables indicadas
-
-        subpParamsAsignados.put(nomFunc, nombresYvalores);
-
-        //creamos un flujo de instrucciones para la función correspondiente
-        flujoInstrucciones.muestraConIdentación("(FUNCIÓN "+nomFunc+")");
-
-        flujoInstrucciones func = new flujoInstrucciones(subpParamsAsignados.get(nomFunc));
-
-        //clonamos en un mapa las asignaciones de la función, y sustituimos las asignaciones globales con las de la función
-        //con el objetivo de que el flujo de instrucciones para la función sólo utilice las variables de la propia función
-        Map<String,Object> asigAnterior = new LinkedHashMap<>(func.asig);
-        func.asig.clear();
-
-        func.asig.putAll(nombresYvalores);
-
-        ParseTreeWalker walker = new ParseTreeWalker();
-        walker.walk(func, ctx);
-
-
         List<Object> valores = new ArrayList<>();
-        valores.add("func");
-        //me recorro la instrucción dev. Si los hijos son variables añado a valores lo que hay en el almacén.
-        //Si lo que hay es algo que no son variables lo evaluo y lo añado en valores.
-        String textoADevolver = "";
-        for(int i=0; i<instCtx.size(); i++) {
-            if(instCtx.get(i).getChild(0).getChild(0).getText().equals("dev")) {
-                Anasint.DevolucionContext dev = (Anasint.DevolucionContext) instCtx.get(i).getChild(0);
-                for(int j=1; j<dev.getChildCount(); j+=2) {
-                    if(dev.getChild(j).getChild(0).getChild(0).getClass()
-                            ==Anasint.VariableContext.class) {
-                        valores.add(func.asig.get(dev.getChild(j).getText()));
-                        textoADevolver += " " + dev.getChild(j).getText() + "="
-                                + valores.get(valores.size()-1) + ",";
-                    } else {
-                        valores.add(visit(dev.getChild(j)));
-                        textoADevolver += " " + valores.get(valores.size()-1) + ",";
-                    }
+        if(flujoInstrucciones.pila.peek()) {
+            flujoInstrucciones.pila.push(true);
+
+            String nomFunc = ctx.variable().VAR().getText();
+            Map<String, Object> nombresYvalores = new LinkedHashMap<>();
+            //si se llama desde un aserto no mostrar nada para no ensuciar la consola.
+
+            //si el tercer hijo es un paréntesis, es que la función tiene parámetros de entrada
+            //y, por tanto, debemos asignar el nombre que aparece en la declaración de la función
+            //al valor introducido al llamarla
+            if(ctx.params().size()>1){
+                List<String> nombresParamsEntrada = getNombresParamsEntrada(ctx);
+                for (int i=0; i<subpParams.get(nomFunc).size(); i++){
+                    nombresYvalores.put(nombresParamsEntrada.get(i), subpParams.get(nomFunc).get(i));
                 }
             }
+
+            List<Anasint.Declaracion_instruccionesContext> instCtx = ctx.instrucciones().declaracion_instrucciones();
+
+            //en cuanto se ve la instrucción dev, se devuelven las variables indicadas
+
+            subpParamsAsignados.put(nomFunc, nombresYvalores);
+
+            //creamos un flujo de instrucciones para la función correspondiente
+            flujoInstrucciones.muestraConIdentación("(FUNCIÓN "+nomFunc+")");
+            flujoInstrucciones func = new flujoInstrucciones(subpParamsAsignados.get(nomFunc));
+
+            //clonamos en un mapa las asignaciones de la función, y sustituimos las asignaciones globales con las de la función
+            //con el objetivo de que el flujo de instrucciones para la función sólo utilice las variables de la propia función
+            Map<String,Object> asigAnterior = new LinkedHashMap<>(func.asig);
+            func.asig.clear();
+            func.asig.putAll(nombresYvalores);
+
+            ParseTreeWalker walker = new ParseTreeWalker();
+            walker.walk(func, ctx);
+
+            if(flujoInstrucciones.pila.peek()) {
+                String textoADevolver = "";
+                valores.add("func");
+                for(int i=0; i<instCtx.size(); i++) {
+                    if(instCtx.get(i).getChild(0).getChild(0).getText().equals("dev")) {
+                        Anasint.DevolucionContext dev = (Anasint.DevolucionContext) instCtx.get(i).getChild(0);
+                        for(int j=1; j<dev.getChildCount(); j+=2) {
+                            if(dev.getChild(j).getChild(0).getChild(0).getClass()
+                                    ==Anasint.VariableContext.class) {
+                                valores.add(func.asig.get(dev.getChild(j).getText()));
+                                textoADevolver += " " + dev.getChild(j).getText() + "="
+                                        + valores.get(valores.size()-1) + ",";
+                            } else {
+                                valores.add(visit(dev.getChild(j)));
+                                textoADevolver += " " + valores.get(valores.size()-1) + ",";
+                            }
+                        }
+                    }
+                }
+                textoADevolver = textoADevolver.substring(0, textoADevolver.length()-1);
+                //restauramos el mapa de asignaciones global con las antiguas
+                func.asig.clear();
+                func.asig.putAll(asigAnterior);
+                flujoInstrucciones.muestraConIdentación("(devolución)" + textoADevolver);
+                flujoInstrucciones.muestraConIdentación("(FIN FUNCIÓN "+nomFunc+")");
+
+            }
+            //me recorro la instrucción dev. Si los hijos son variables añado a valores lo que hay en el almacén.
+            //Si lo que hay es algo que no son variables lo evaluo y lo añado en valores.
+            flujoInstrucciones.pila.pop();
         }
-        textoADevolver = textoADevolver.substring(0, textoADevolver.length()-1);
-        //restauramos el mapa de asignaciones global con las antiguas
-        func.asig.putAll(asigAnterior);
-        flujoInstrucciones.muestraConIdentación("(devolución)" + textoADevolver);
-        flujoInstrucciones.muestraConIdentación("(FIN FUNCIÓN "+nomFunc+")");
         return valores;
     }
 
