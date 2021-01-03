@@ -87,7 +87,7 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
         return !(Boolean)visit(ctx.expr_bool());
     }
 
-    public List<Object> visitExpr_func(Anasint.Expr_funcContext ctx) {
+    public Object visitExpr_func(Anasint.Expr_funcContext ctx) {
         //nombre de la función a la que queremos llamar
         String nomFunc = ctx.variable().VAR().getText();
         Object f = null;
@@ -119,7 +119,7 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
                     f = visit(decSubp.get(i).getChild(0));
                 }
         }
-        return (List<Object>) f;
+        return  f;
     }
 
     public Object visitExprFuncBool(Anasint.ExprFuncBoolContext ctx) {

@@ -1,17 +1,17 @@
 PROGRAMA
 VARIABLES
-/*a,b, min, max: NUM;
+a,b, min, max: NUM;
 b2: LOG;
 s: SEQ(NUM);
-s2: SEQ(LOG);*/
+s2: SEQ(LOG);
 SUBPROGRAMAS
-  /*FUNCION bucle_1_avance(SEQ(NUM) s, NUM i) dev (NUM i)
+  FUNCION bucle_1_avance(SEQ(NUM) s, NUM i) dev (NUM i)
   VARIABLES
   INSTRUCCIONES
     i=ultima_posicion(s)-i;
     dev i;
-  FFUNCION*/
-    FUNCION prueba(NUM j) dev (NUM i,NUM k)
+  FFUNCION
+   FUNCION prueba(NUM j) dev (NUM i,NUM k)
     VARIABLES
   INSTRUCCIONES
     i=j-1;
@@ -19,14 +19,13 @@ SUBPROGRAMAS
     dev i,k;
     FFUNCION
 INSTRUCCIONES
-
-/*i=0;
+i=0;
+s=[3,4,2,7,9,0,11];
 t = ultima_posicion(s);
 mientras (i <= ultima_posicion(s)) hacer {avance: bucle_1_avance(s, i)}
     mostrar(i);
     i = i+1;
-fmientras*/
-s=[3,4,2,7,9,0,11];
+fmientras
 s2=[];
 min=2;
 min,max=prueba(6);
