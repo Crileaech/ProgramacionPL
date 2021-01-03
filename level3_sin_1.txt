@@ -19,12 +19,16 @@ SUBPROGRAMAS
                r=i+1;
                dev r;
       FFUNCION
+        FUNCION prueba1(NUM i) dev (NUM r)
+             VARIABLES
+             INSTRUCCIONES
+                 dev 5;
+        FFUNCION
 
 
 INSTRUCCIONES
 { cierto }
    s=[3,4,2,7,9,0,11];
-   o = prueba(5);
    i=0;
    mostrar(i);
    min=s[i];
@@ -40,4 +44,4 @@ INSTRUCCIONES
       { PARATODO(p:[0,i],s[p]<=max && s[p]>=min) }
       i=i+1;
    fmientras
-{ PARATODO(p:[0,ultima_posicion(s)],s[p]<=max && s[p]>=min) }
+{ PARATODO(p:[0,prueba1(5)],s[p]<=max && s[p]>=min) }

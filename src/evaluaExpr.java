@@ -197,7 +197,6 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
 
         String nomFunc = ctx.variable().VAR().getText();
         Map<String, Object> nombresYvalores = new LinkedHashMap<>();
-        List<String> nombresDev = new ArrayList<>();
 
         //si el tercer hijo es un paréntesis, es que la función tiene parámetros de entrada
         //y, por tanto, debemos asignar el nombre que aparece en la declaración de la función
@@ -212,10 +211,6 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
         List<Anasint.Declaracion_instruccionesContext> instCtx = ctx.instrucciones().declaracion_instrucciones();
 
         //en cuanto se ve la instrucción dev, se devuelven las variables indicadas
-        for(int i=0; i<instCtx.size(); i++)
-            if(instCtx.get(i).getChild(0).getChild(0).getText().equals("dev"))
-                for(int j=1; j<instCtx.get(i).getChild(0).getChildCount(); j+=2)
-                    nombresDev.add(instCtx.get(i).getChild(0).getChild(j).getText());
 
         subpParamsAsignados.put(nomFunc, nombresYvalores);
 
@@ -236,9 +231,20 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
 
         List<Object> valores = new ArrayList<>();
         valores.add("func");
-        for(String s: nombresDev)
-            valores.add(func.asig.get(s));
-
+        //me recorro la instrucción dev. Si los hijos son variables añado a valores lo que hay en el almacén.
+        //Si lo que hay es algo que no son variables lo evaluo y lo añado en valores.
+        for(int i=0; i<instCtx.size(); i++) {
+            if(instCtx.get(i).getChild(0).getChild(0).getText().equals("dev")) {
+                Anasint.DevolucionContext dev = (Anasint.DevolucionContext) instCtx.get(i).getChild(0);
+                for(int j=1; j<dev.getChildCount(); j+=2) {
+                    if(dev.getChild(j).getClass()==Anasint.VariablesContext.class) {
+                        valores.add(func.asig.get(dev.getChild(j).getText()));
+                    } else {
+                        valores.add(visit(dev.getChild(j)));
+                    }
+                }
+            }
+        }
         //restauramos el mapa de asignaciones global con las antiguas
         func.asig.putAll(asigAnterior);
 
