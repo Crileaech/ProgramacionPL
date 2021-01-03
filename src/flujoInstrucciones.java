@@ -13,6 +13,9 @@ public class flujoInstrucciones extends AnasintBaseListener{
     public static Map<String,Object> asig = new LinkedHashMap<>();
     //iterador es una clase con un visitor para poder gestionar el flujo de ejecución de las iteraciones, ya que
     //no permite hacerlo los listener.
+
+    //ayuda a las funciones a comprobar que todo
+
     private iterador it = new iterador();
     //evaluaExpr es una clase que dado un Anasint.ExprContext retorna su valor. Si le pasas 3+c -> lo calcula.
     private evaluaExpr evalua;
@@ -134,8 +137,11 @@ public class flujoInstrucciones extends AnasintBaseListener{
                         //si el valor a asignar viene de una operación, deseo que se observe la operación realizada.
                         if (!asign.get(j).getText().equals(exprAsignada))
                             exprAsignada+= " (" + asign.get(j).getText() + ")";
-                        muestraConIdentación("(asignación) " + elem.getText() + " <- "
-                                + exprAsignada +  ". Antes: " + antes + ". Ahora: " + dsps);
+
+                        if(pila.peek()) {
+                            muestraConIdentación("(asignación) " + elem.getText() + " <- "
+                                    + exprAsignada + ". Antes: " + antes + ". Ahora: " + dsps);
+                        }
                     } else {
                         Anasint.VariableContext elem = (Anasint.VariableContext) ctx.getChild(j);
                         asig.put(elem.getText(), evaluacion);
@@ -144,7 +150,8 @@ public class flujoInstrucciones extends AnasintBaseListener{
                         //dcha de donde viene el resultado.
                         if (j<asign.size()&&!asign.get(j).getText().equals(exprAsignada)&&!asig.get(elem.getText()).getClass().equals(ArrayList.class))
                             exprAsignada+= " (" + asign.get(j).getText() + ")";
-                        muestraConIdentación("(asignación) " + elem.getText() + " <- " + exprAsignada);
+                        if(pila.peek())
+                            muestraConIdentación("(asignación) " + elem.getText() + " <- " + exprAsignada);
                     }
                 }
             }
