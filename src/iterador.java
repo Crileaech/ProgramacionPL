@@ -58,18 +58,25 @@ public class iterador extends AnasintBaseVisitor<Object>{
     }
 
     private Boolean avanza(Anasint.Expr_avanzaContext ctx, evaluaExpr evalua) {
-        if(valorAnteriorAvanza==null) {
-            List<Object> valoresDevueltos = (List<Object>) evalua.visit(ctx.expr_func());
-            valorAnteriorAvanza = (Integer) valoresDevueltos.get(1);
-        } else {
-            List<Object> valoresDevueltos = (List<Object>) evalua.visit(ctx.expr_func());
-            Integer valorActual = (Integer) valoresDevueltos.get(1);
-            if(valorActual>=valorAnteriorAvanza) {
-                flujoInstrucciones.finalizaEjecución();
-                flujoInstrucciones.muestraConIdentación("(fin iteración) Iteración errónea." +
-                        " Los valores de avanza no decrecen", 1);
-                return false;
+        if(ctx!=null) {
+            if(valorAnteriorAvanza==null) {
+                flujoInstrucciones.muestraConIdentación("----AVANZA----");
+                List<Object> valoresDevueltos = (List<Object>) evalua.visit(ctx.expr_func());
+                flujoInstrucciones.muestraConIdentación("--FIN AVANZA--");
+                valorAnteriorAvanza = (Integer) valoresDevueltos.get(1);
+            } else {
+                flujoInstrucciones.muestraConIdentación("----AVANZA----");
+                List<Object> valoresDevueltos = (List<Object>) evalua.visit(ctx.expr_func());
+                flujoInstrucciones.muestraConIdentación("--FIN AVANZA--");
+                Integer valorActual = (Integer) valoresDevueltos.get(1);
+                if(valorActual>=valorAnteriorAvanza) {
+                    flujoInstrucciones.finalizaEjecución();
+                    flujoInstrucciones.muestraConIdentación("(fin iteración) Iteración errónea." +
+                            " Los valores de avanza no decrecen", 1);
+                    return false;
+                }
             }
+
         }
         return true;
     }

@@ -1,0 +1,18 @@
+PROGRAMA
+VARIABLES
+   a,b:LOG;
+   i,j:NUM;
+   s:SEQ(NUM);
+   t:SEQ(LOG);
+SUBPROGRAMAS
+INSTRUCCIONES
+   i=0;
+   mientras (i<10) hacer
+      i,s[i]=i+1,i+1;
+   fmientras
+   i=-1*(j - ultima_posicion(s));
+   a=T;
+   a=T+1;
+   s=[i,1];
+   t=[a,F,b];
+   t=[vacia(s)];
