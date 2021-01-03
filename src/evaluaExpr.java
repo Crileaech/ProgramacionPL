@@ -202,54 +202,59 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
 
             String nomFunc = ctx.variable().VAR().getText();
             Map<String, Object> nombresYvalores = new LinkedHashMap<>();
-            List<String> nombresDev = new ArrayList<>();
 
             //si el tercer hijo es un paréntesis, es que la función tiene parámetros de entrada
             //y, por tanto, debemos asignar el nombre que aparece en la declaración de la función
             //al valor introducido al llamarla
-            if (ctx.params().size() > 1) {
+            if(ctx.params().size()>1){
                 List<String> nombresParamsEntrada = getNombresParamsEntrada(ctx);
-                for (int i = 0; i < subpParams.get(nomFunc).size(); i++) {
+                for (int i=0; i<subpParams.get(nomFunc).size(); i++){
                     nombresYvalores.put(nombresParamsEntrada.get(i), subpParams.get(nomFunc).get(i));
                 }
             }
+
             List<Anasint.Declaracion_instruccionesContext> instCtx = ctx.instrucciones().declaracion_instrucciones();
 
             //en cuanto se ve la instrucción dev, se devuelven las variables indicadas
-            for (int i = 0; i < instCtx.size(); i++)
-                if (instCtx.get(i).getChild(0).getChild(0).getText().equals("dev"))
-                    for (int j = 1; j < instCtx.get(i).getChild(0).getChildCount(); j += 2)
-                        nombresDev.add(instCtx.get(i).getChild(0).getChild(j).getText());
 
             subpParamsAsignados.put(nomFunc, nombresYvalores);
 
-            //creamos un flujo de instrucciones para la función correspondiente
-            flujoInstrucciones.muestraConIdentación("(FUNCIÓN " + nomFunc + ")");
-            flujoInstrucciones func = new flujoInstrucciones(subpParamsAsignados.get(nomFunc));
-
             //clonamos en un mapa las asignaciones de la función, y sustituimos las asignaciones globales con las de la función
             //con el objetivo de que el flujo de instrucciones para la función sólo utilice las variables de la propia función
-            Map<String, Object> asigAnterior = new LinkedHashMap<>(func.asig);
-            func.asig.clear();
+            Map<String,Object> asigAnterior = new LinkedHashMap<>(flujoInstrucciones.asig);
+            flujoInstrucciones.asig.clear();
+
+            //creamos un flujo de instrucciones para la función correspondiente
+            flujoInstrucciones.muestraConIdentación("(FUNCIÓN "+nomFunc+")");
+            flujoInstrucciones func = new flujoInstrucciones(subpParamsAsignados.get(nomFunc));
 
             func.asig.putAll(nombresYvalores);
 
             ParseTreeWalker walker = new ParseTreeWalker();
             walker.walk(func, ctx);
 
-            //si ha habido un aserto, ha tenido que introducir true/false en función de si estaba bien o mal,
-            //antes de completar la ejecución y devolver nada, comprobamos.
             if(flujoInstrucciones.pila.peek()) {
-                flujoInstrucciones.muestraConIdentación("(FIN FUNCIÓN " + nomFunc + ")");
+                flujoInstrucciones.muestraConIdentación("(FIN FUNCIÓN "+nomFunc+")");
 
                 valores.add("func");
-                for (String s : nombresDev)
-                    valores.add(func.asig.get(s));
-
-                //restauramos el mapa de asignaciones global con las antiguas
+                //me recorro la instrucción dev. Si los hijos son variables añado a valores lo que hay en el almacén.
+                //Si lo que hay es algo que no son variables lo evaluo y lo añado en valores.
+                for(int i=0; i<instCtx.size(); i++) {
+                    if(instCtx.get(i).getChild(0).getChild(0).getText().equals("dev")) {
+                        Anasint.DevolucionContext dev = (Anasint.DevolucionContext) instCtx.get(i).getChild(0);
+                        for(int j=1; j<dev.getChildCount(); j+=2) {
+                            if(dev.getChild(j).getClass()==Anasint.VariablesContext.class) {
+                                valores.add(func.asig.get(dev.getChild(j).getText()));
+                            } else {
+                                valores.add(visit(dev.getChild(j)));
+                            }
+                        }
+                    }
+                }
+                func.asig.clear();
                 func.asig.putAll(asigAnterior);
-            }
 
+            }
             flujoInstrucciones.pila.pop();
         }
 

@@ -19,7 +19,7 @@ SUBPROGRAMAS
   INSTRUCCIONES
     s=[3,4,2,7,9,0,11];
     min=0;
-    max=10;
+    max=12;
     i=0;
     k=j+1;
     { PARATODO(p:[0,ultima_posicion(s)],s[p]<=max && s[p]>=min) }
@@ -29,7 +29,6 @@ SUBPROGRAMAS
 INSTRUCCIONES
 i=0;
 s=[3,4,2,7,9,0,11];
-t = ultima_posicion(s);
 mientras (i <= ultima_posicion(s)) hacer
     mostrar(i);
     i = i+1;

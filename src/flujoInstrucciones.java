@@ -48,6 +48,7 @@ public class flujoInstrucciones extends AnasintBaseListener{
         evalua = new evaluaExpr(ctx.subprogramas());
     }
     public void exitPrograma(Anasint.ProgramaContext ctx) {
+        System.out.println(asig);
         System.out.println("FIN INTÉRPRETE");
         pila.pop();
     }
