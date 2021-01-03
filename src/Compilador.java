@@ -606,9 +606,17 @@ public class Compilador extends AnasintBaseListener {
 
     // Generar código bucle_1_avance
     public void gencodigo_bucle_1_avance(Anasint.Expr_avanzaContext expr_avanzaContext){
+        // 1 -> Comprueba que instrucción iteración avanza
+        // 2 -> Tiene parametros de entrada var_condicion devuelve num >= 0
+        // s[3,4,2,7,9,0,11]; r = [6,5,4,3,2,1,0]
+        // {avance: bucle_1_avance(s, i)}
+        String ident = expr_avanzaContext.getText();
+        // recorrer la iteracion
+            // si secuecnia de valores s-- entonce syout ( Una iteración es correcta )
+            // sino println (Una iteración es errónea )
+
 
     }
-
 
 
     /////////////////////////
