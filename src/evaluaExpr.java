@@ -112,7 +112,6 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
             subpParams.put(nomFunc, ctx.expr().stream().map(v -> visit(v)).collect(Collectors.toList()));
             //lista de subprogramas
             List<Anasint.Declaracion_subprogramasContext> decSubp = subprogramas.declaracion_subprogramas();
-
             for(int i=0; i<decSubp.size(); i++)
                 //buscamos la función con el nombre que queremos
                 if (decSubp.get(i).getChild(0).getChild(1).getText().equals(nomFunc)){
@@ -249,7 +248,7 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
     public List<String> getNombresParamsEntrada(Anasint.FuncionContext ctx){
         List<String> acum = new ArrayList<>();
         acum.add(ctx.params().get(0).variable().VAR().getText());
-        return getNombresParamsEntrada(ctx.params().get(1), acum);
+        return getNombresParamsEntrada(ctx.params().get(0).params(), acum);
     }
 
     public List<String> getNombresParamsEntrada(Anasint.ParamsContext params, List<String> acum){
