@@ -16,7 +16,6 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
         subprogramas = ctx;
     }
 
-
     //Almacén de los valores de los parámetros de los subprogramas ANTES de que la función
     //asigne los parámetros a una variable en la declaración de la misma, estructura:
     //Map<NombreSubprograma,List<valorVariable>>
@@ -83,9 +82,46 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
         else if(comp.equals("==")) return n1.equals(n2);
         else return !n1.equals(n2);
     }
+
     public Boolean visitNegacionBool(Anasint.NegacionBoolContext ctx) {
         return !(Boolean)visit(ctx.expr_bool());
     }
+
+    public List<Object> visitExpr_func(Anasint.Expr_funcContext ctx) {
+        //nombre de la función a la que queremos llamar
+        String nomFunc = ctx.variable().VAR().getText();
+        Object f = null;
+
+        //PREDEFINIDA: última posición de una secuencia
+        List<Object> seq;
+        if(nomFunc.equals("ultima_posicion")) {
+            seq = (List<Object>) flujoInstrucciones.asig.get(ctx.expr(0).getText());
+            //si f=-1 es que la secuencia está vacía
+            f = seq.size()-1;
+        }
+        //PREDEFINIDA: ¿está vacía la secuencia?
+        else if(nomFunc.equals("vacia")){
+            seq = (List<Object>) flujoInstrucciones.asig.get(ctx.expr(0).getText());
+            f = seq.isEmpty();
+        }
+        //SI NO ES UNA FUNCIÓN PREDEFINIDA
+        else{
+            //añadimos a un mapa el nombre de la función asociado a una lista con los valores de las variables
+            //que se le pasan como parámetro, ya que la propia función es la que se encarga de asignar
+            //nombre a esas variables
+            subpParams.put(nomFunc, ctx.expr().stream().map(v -> visit(v)).collect(Collectors.toList()));
+            //lista de subprogramas
+            List<Anasint.Declaracion_subprogramasContext> decSubp = subprogramas.declaracion_subprogramas();
+
+            for(int i=0; i<decSubp.size(); i++)
+                //buscamos la función con el nombre que queremos
+                if (decSubp.get(i).getChild(0).getChild(1).getText().equals(nomFunc)){
+                    f = visit(decSubp.get(i).getChild(0));
+                }
+        }
+        return (List<Object>) f;
+    }
+
     public Object visitExprFuncBool(Anasint.ExprFuncBoolContext ctx) {
         //nombre de la función a la que queremos llamar
         String nomFunc = ctx.expr_func().variable().VAR().getText();
@@ -181,10 +217,8 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
             //que se le pasan como parámetro, ya que la propia función es la que se encarga de asignar
             //nombre a esas variables
             subpParams.put(nomFunc, ctx.expr_func().expr().stream().map(v -> visit(v)).collect(Collectors.toList()));
-
             //lista de subprogramas
             List<Anasint.Declaracion_subprogramasContext> decSubp = subprogramas.declaracion_subprogramas();
-
 
             for(int i=0; i<decSubp.size(); i++)
                 //buscamos la función con el nombre que queremos
@@ -198,7 +232,6 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
     public List<Object> visitFuncion(Anasint.FuncionContext ctx){
 
         String nomFunc = ctx.variable().VAR().getText();
-
         Map<String, Object> nombresYvalores = new LinkedHashMap<>();
         List<String> nombresDev = new ArrayList<>();
 
@@ -206,12 +239,11 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
         //y, por tanto, debemos asignar el nombre que aparece en la declaración de la función
         //al valor introducido al llamarla
         if(ctx.params().size()>1){
-            List<String> nombresParamsEntrada = getNombresParamsEntrada(ctx.params(0));
-            for (int i=0; i<subpParams.size(); i++){
+            List<String> nombresParamsEntrada = getNombresParamsEntrada(ctx);
+            for (int i=0; i<subpParams.get(nomFunc).size(); i++){
                 nombresYvalores.put(nombresParamsEntrada.get(i), subpParams.get(nomFunc).get(i));
             }
         }
-
         List<Anasint.Declaracion_instruccionesContext> instCtx = ctx.instrucciones().declaracion_instrucciones();
 
         //en cuanto se ve la instrucción dev, se devuelven las variables indicadas
@@ -248,12 +280,20 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
         return valores;
     }
 
-        //función que devuelve una lista con todos los nombres de los parámetros de la función
-    public List<String> getNombresParamsEntrada(Anasint.ParamsContext ctx){
+    //función que devuelve una lista con todos los nombres de los parámetros de la función
+    public List<String> getNombresParamsEntrada(Anasint.FuncionContext ctx){
+        List<String> acum = new ArrayList<>();
+        acum.add(ctx.params().get(0).variable().VAR().getText());
+        return getNombresParamsEntrada(ctx.params().get(1), acum);
+    }
 
-        List<String> f = new ArrayList<>();
-        f.add(ctx.variable().VAR().getText());
-        return f;
+    public List<String> getNombresParamsEntrada(Anasint.ParamsContext params, List<String> acum){
+        acum.add(params.variable().VAR().getText());
+        if(params.getChildCount()>2) {
+            return getNombresParamsEntrada(params.params(),acum);
+        } else {
+            return acum;
+        }
     }
 
     //FIN: Asignar una función a una variable

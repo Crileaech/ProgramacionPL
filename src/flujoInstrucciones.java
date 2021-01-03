@@ -186,10 +186,9 @@ public class flujoInstrucciones extends AnasintBaseListener{
         //Si true,true,... -> Se ejecutó cond. Luego no debe ser así con sino.
         //Si true,false,... -> Imposible su ejecución.
         Anasint.CondicionContext padre = (Anasint.CondicionContext) ctx.getParent();
-        Boolean cond = (Boolean) evalua.visit(padre.expr_bool());
         Stack<Boolean> pilaCopia = (Stack<Boolean>) pila.clone();
         pilaCopia.pop();
-        pila.push(!cond&&pilaCopia.peek());
+        pila.push(pilaCopia.peek()&&!(Boolean) evalua.visit(padre.expr_bool()));
     }
     public void exitBlq_sino(Anasint.Blq_sinoContext ctx) {
         pila.pop();
@@ -226,33 +225,6 @@ public class flujoInstrucciones extends AnasintBaseListener{
             muestraConIdentación("(devolución)");
         }
     }
-
-    /*public void enterAserto(Anasint.AsertoContext ctx) {
-        if(pila.peek()) {
-            if(ctx.asertos().expr_bool()!=null) { //en este caso es simple {cierto} {falso} o equivalente.
-                Boolean eval = (Boolean) evalua.visit(ctx.asertos().expr_bool());
-                if(eval) {
-                    muestraConIdentación("(aserto) la ejecución del programa está siendo correcta.");
-                } else {
-                    muestraConIdentación("(aserto) el programa es incorrecto. La ejecución del programa ha sido finalizada.");
-                    int tam = pila.size();
-                    pila.clear();
-                    for(int i = 0; i<tam; i++) { pila.push(false); }
-                }
-            } else {
-                Boolean eval = evaluaAsert.visitAserto(ctx);
-                if(eval) {
-                    muestraConIdentación("(aserto) la ejecución del programa está siendo correcta.");
-                } else {
-                    int tam = pila.size();
-                    pila.clear();
-                    for(int i = 0; i<tam; i++) { pila.push(false); }
-                    muestraConIdentación("(aserto) el programa es incorrecto. La ejecución del programa ha sido finalizada.");
-                }
-            }
-        }
-        pila.push(pila.peek());
-    }*/
 
     public void enterAserto(Anasint.AsertoContext ctx) {
         if(pila.peek()) {
@@ -317,5 +289,11 @@ public class flujoInstrucciones extends AnasintBaseListener{
             r+="\t";
         }
         System.out.println(r + mens);
+    }
+
+    public static void finalizaEjecución() {
+        int tam = pila.size();
+        pila.clear();
+        for(int i = 0; i<tam; i++) { pila.push(false); }
     }
 }

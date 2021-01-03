@@ -5,10 +5,10 @@ b, b2: LOG;
 s: SEQ(LOG);
 s2: SEQ(LOG);
 SUBPROGRAMAS
-  FUNCION bucle_1_avance(NUM i) dev (NUM i)
+  FUNCION bucle_1_avance(SEQ(NUM) s, NUM i) dev (NUM i)
   VARIABLES
   INSTRUCCIONES
-    i=i-1;
+    i=ultima_posicion(s)-i;
     dev i;
   FFUNCION
 INSTRUCCIONES
@@ -16,8 +16,8 @@ INSTRUCCIONES
 s=[T,T,F];
 s2=[];
 i=0;
-
-mientras (i <= ultima_posicion(s)) hacer {avance: bucle_1_avance(s, i)}
+t = ultima_posicion(s);
+mientras (i <= ultima_posicion(s)) hacer {avance: bucle_1_avance(s,i)}
     mostrar(i);
     i = i+1;
 fmientras;
