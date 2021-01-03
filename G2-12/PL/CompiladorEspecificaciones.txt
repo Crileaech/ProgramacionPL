@@ -1,9 +1,14 @@
-ISEÑO COMPILADOR PROGRAMACION P --> Java
+DISEÑO COMPILADOR PROGRAMACION P --> Java
 -----------------------------
+Compilar un lenguaje significa compilar cada sentencia del lenguaje.
+Compilar una sentencia de un lenguaje es traducirla a otro lenguaje
+preservando en lo posible el significado de la sentencia original.
 
-DISEÑO
-------
 OBJETIVO:
+    Construir un compilador para el lenguaje P que traduzca a Java
+
+DECISIÓN DISEÑO
+-----------------
  Compilador de lenguaje P a lenguaje Java
  P es un lenguaje de programación secuencial con asertos.
  La idea es usar asertos para verificar la corrección del programa.
@@ -31,7 +36,77 @@ OBJETIVO:
  la expresión asociada a x mostrando por pantalla el
  resultado.
 
-(1) Definir la esquema de traducción de un programa P
+=============================================================================
+
+EJEMPLOS DE COMPILACIONES: proponer un conjunto de ejemplos de traducción.
+Es que dicho conjunto sea válido y razonablemente completo.
+
+// EJEMPLO 1 -> Instrucción de asiganacón errónea
+//        VARIABLES
+//            x:NUM;
+//        INSTRUCCIONES
+//            {ERROR DE COMPILACION DECLARACION DE INSTRUCCION}
+//            x=x+1 //error x+1 no tiene valor porque x no tiene valor
+
+// EJEMPLO 2 -> Instrucción de condición con error no evalua ni cierto, falso o indefinido
+//    si (s[i]>i) entonces //condicion
+//        max=s[i]; //bloque
+//    fsi
+
+// EJEMPLO 3 -> Instrucción de itración en P errónea si valores devueltos por su función de avance
+// no decrecen en cada iteración sucesiva.
+// Por ejemplo, la función bucle_1_avance devuelve
+// la siguiente secuencia de valores para la iteración asociada: 6,5,4,3,2,1,0
+// i=0;
+// max=s[i];
+// mientras (i<=ultima_posicion(s)) hacer {avance: bucle_1_avance(s, i)}
+//      si (s[i]>max) entonces
+//          max=s[i];
+//      fsi
+//      i=i+1;
+//  fmientras
+
+//  EJEMPLO4 -> La instruccion llamada a funcion (declaración de subprogramas en P)
+//  errónea si no coincide en número y tipo con la correspondiente secuencia de parámetros declarados
+//      x,y = mayor(1); // llamada a función con un parámetro tipo NUM.
+                        // Se requiere un parámetro tipo SEQ en su declaración
+
+// EJEMPLO 5 -> Instrucción de mostrar será errónea si no pasamos por parámetros
+//  que lista de variables queremos mostrar por consola
+// mostrar()
+
+// EJEMPLO 6 -> La última de las instrucciones es el aserto se considera erróneo
+// si este se evalua como idefinido
+// PROGRAMA
+// VARIABLES
+//    i,max,min:NUM;
+//    s:SEQ(NUM);
+//  SUBPROGRAMAS
+//  INSTRUCCIONES
+//      {  }
+//      s=[3,4,2,7,9,0,11];
+//      i=0;
+//      mostrar(i);
+//      min=s[i];
+//      max=s[i];
+//      mientras (i<=ultima_posicion(s)) hacer
+//          si (s[i]>max) entonces
+//              max=s[i];
+//          fsi
+//          si (s[i]<min) entonces
+//              min=s[i];
+//          fsi
+//          mostrar(min,max);
+//          { PARATODO() }
+//          i=i+1;
+//      fmientras
+//      { PARATODO() }
+
+
+=================================================================================
+DECISIÓN 1
+
+ Definir la esquema de traducción de un programa P
 
     import java.io.*;
     public class _Programa
@@ -50,41 +125,39 @@ OBJETIVO:
         VARIABLES
             i,max,min:NUM;
             s:SEQ(NUM);
-       alamacen_variables=[(i,0),(max,0),(min,0),(s,[i+1]))]
+       Map<String,Object> almacen_variables = new HashMap<>();
+       List<Object> secuencias = new ArrayList<>();
+       alamacen_variables=[(i,NUM),(max,NUM),(min,NUM),(s,[i+1]))]
+
    (c) generar codigo para declaracion de subprogramas que en P
        pueden ser funciones o procedimientos.
-   (d) generar codigo para cada instrucción
 
-      (d.1) No se genera código para la definición de subprogramas
-           (aunque sea necesario para generar código de instrucciones)
+   (d) generar codigo para cada instrucción:
 
-      (d.2) generar codigo para evaluación de variables
-
-            (a) Las variables con definición cíclica hay que
-                detectarlas y simular en Java su evaluación en P.
-
-            (b) Las variables con definición no cíclica hay que
-                simular en Java su evaluación en P. La definición no cíclica obliga
-                a secuenciar las variables de las que depende las variables evaluadas.
-
-                si (test(VAR)=CICLO) entonces
-   	               generar codigo para evaluación de
-   	               variable indefinida
-   	            si no
-   	               generar codigo para evaluación de
-   	               variable definida
-   	        (c)
+      (d.1) Generar código para evaluar la instrucción de La asignación en P puede ser simple o múltiple
+      (d.2) Generar código para evaluar la instrucción de Las condiciones en P
+      (d.3) Generar código para evaluar la instrucción de La iteración en P
+      (d.4) Generar código para evaluar la instrucción de ruptura de control en P
+      (d.5) No se genera código para la definición de subprogramas
+            (aunque sea necesario para generar código de instrucciones)
+      (d.6) Generar código para evaluar la instrucción de mostrar en P
+      (d.7) Generar código para evaluar la instrucción de asertos
 
 
-//DECISIÓN 3:
+
+
+=============================================================================
+
+DECISIÓN 2:
  Teniendo en cuenta las decisiones anteriores, el programa Java resultante
  de la compilación será la composición secuencial del código
  correspondiente a cada secuencia.
  El estado inicial sólo se genera una vez y se comparte por todas
  las secuencias.
 
+=============================================================================
 
-   	Gramática atribuida resultante:
+//GRAMÁTICA ATRIBUIDA: resultante:
    	------------------------------
     almacen_variables (global)
 
@@ -179,23 +252,25 @@ expr_avanza: LA AVANZA DOSPTOS expr_func LC;
 
 expr_func: variable PA (expr) (COMA expr)* PC;
 
-    instrucciones : #(INSTRUCCIONES (declaracion_instrucciones)*)
+instrucciones : #(INSTRUCCIONES (declaracion_instrucciones)*)
 
   //---INSTRUCCIONES---
 
-  declaracion_instrucciones: asignacion   #asig
-                           | condicion    #cond
-                           | iteracion    #it
-                           | BREAK PyC    #break
-                           | devolucion   #dev
-                           | mostrar      #show
-                           | asertos      #aserto
-                           | expr_func PyC #exprfun
-                           ; {generar codigo para el tipo de declaracion de instrucciones};
+  declaracion_instrucciones: asignacion   #asig  {generar codigo para el tipo de declaracion de instrucciones asignacion}
+                           | condicion    #cond  {generar codigo para el tipo de declaracion de instrucciones condicional}
+                           | iteracion    #it    {generar codigo para el tipo de declaracion de instrucciones iteracion}
+                           | BREAK PyC    #break {generar codigo para el tipo de declaracion de instrucciones ruptura}
+                           | devolucion   #dev   {generar codigo para el tipo de declaracion de instrucciones devolucion}
+                           | mostrar      #show  {generar codigo para el tipo de declaracion de instrucciones mostrar}
+                           | asertos      #aserto {generar codigo para el tipo de declaracion de instrucciones asertos}
+                           | expr_func PyC #exprfun {generar codigo para las expresiones}
+                           ;
 
-  devolucion: RETURN (expr COMA)* expr PyC;
+  devolucion: RETURN (expr{generar codigo para expresión} COMA)* expr PyC;
 
-  asignacion: (variable COMA)* variable IGUAL (expr COMA)* (expr) PyC;
+  asignacion: (variable COMA)* variable IGUAL (expr{generar codigo para expresión} COMA)* (expr) PyC
+            {generar codigo para el tipo de declaracion de instrucciones asignacion}
+            ;
 
   condicion: IF PA expr_bool PC THEN (declaracion_instrucciones)+ (blq_sino)? ENDIF;
 
@@ -203,7 +278,7 @@ expr_func: variable PA (expr) (COMA expr)* PC;
 
   iteracion: WHILE PA expr_bool PC DO (expr_avanza)? (declaracion_instrucciones)+ ENDWHILE;
 
-  mostrar: MOSTRAR PA (expr COMA)* expr PC PyC;
+  mostrar: MOSTRAR PA (expr{generar codigo para expresión} COMA)* expr PC PyC;
 
   asertos: LA ( expr_bool | cuantificador ) LC;
 
@@ -216,6 +291,7 @@ expr_func: variable PA (expr) (COMA expr)* PC;
   cuantificadorExistencial: EXISTS cuantificacion;
 
   cuantificacion: PA variable DOSPTOS CA expr_integer COMA expr_integer CC COMA expr_bool PC;
+
 ----------------------------------------------------
 
 generar codigo declaracion clase:
@@ -232,9 +308,6 @@ generar codigo fin main:
 generar codigo fin clase:
    escribir en fichero: }
 
-generar codigo para evaluación de variable VAR indefinida:
-   escribir en fichero:
-         System.out.println("(Compilador) "+VAR+" ---> INDEF");
 
 generar codigo para evaluación de variable VAR definida:
       dep = calcular las variables de las que depende VAR
@@ -250,8 +323,25 @@ generar codigo para evaluación de variable VAR definida:
 generar codigo para expresión:
      si la expresion es un NUMERO entonces el código generado es el propio numero
      si la expresion es una VAR entonces el código generado es la propia VAR
-     si la expresion es una suma entonces el código generado es la composición del
+     si la expresion es un PRODUCTO entonces el código generado es la composición del
+       código generado para la subexpresión izquierda, el código * y
+       código generado para la subexpresión derecha en funcion donde encontramos los tokens PA y PC
+     si la expresion es una SUMA entonces el código generado es la composición del
         código generado para la subexpresión izquierda, el código + y
         código generado para la subexpresión derecha
-    si la expresion es una resta,producto o división entonces el código generado es
-       similar al código de la suma salvo el operador aritmético.
+     si la expresion es una RESTA entonces el código generado es la composición del
+        código generado para la subexpresión izquierda, el código - y
+        código generado para la subexpresión derecha
+
+generar código para cada instrucción:
+    si la instrucción es una asignacion analizamos parte iquierda de la variable y tras asignacion la expresión
+    si la instrucción es una condicional analizamos la condicion y comprobamos si el bloque cumple o no la esta
+        tendremos en cuenta la operaciones de igualdades y desigualdadesd.
+        La prioridad que presenta y el uso de parentesis que romperá la prioridad por defecto
+    si la instrucción es una iteracion tendremos un bloque con una condición este se repite
+        hasta que la condición sea falsa.
+        Puede tener aociado funcion avance devolviendo una expresión NUMERO mayor o igual a valor cero
+    si la instrucción es de ruptura lleva al programa fuera del bloque donde esta esté localizada
+    si la instrucción es una declaración de subprogramas llamamos a SUBPROGRAMAS en zona de INSTRUCCIONES // x,y = mayor(s); //llamada a funcion
+    si la instrucciión es mostrar por consola enseñamos los valores de una lista de variables
+    si la instrucción es un aserto mostraremos el resultado entre llaves tras su evaluación puede ser verdadero o falso

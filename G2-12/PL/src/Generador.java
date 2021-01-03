@@ -32,8 +32,9 @@ public class Generador extends AnasintBaseVisitor<String> {
         String k = ctx.variable().VAR().getText();
         res = k+"(";
         for(int i=0;i<ctx.expr().size();i++){
-
+            res += visit(ctx.expr(i));
         }
+        res +=")";
         return res;
     }
 
