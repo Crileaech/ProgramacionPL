@@ -149,6 +149,7 @@ DECISIÓN 1
 =============================================================================
 
 DECISIÓN 2:
+
  Teniendo en cuenta las decisiones anteriores, el programa Java resultante
  de la compilación será la composición secuencial del código
  correspondiente a cada secuencia.
@@ -196,6 +197,7 @@ DECISIÓN 2:
                         ;
 
 //---SUBPROGRAMAS---
+
 variable: VAR {actualizar estado con una definicion por defecto para VAR})*)
                                            {generar codigo declaracion variables};
 
@@ -282,8 +284,8 @@ instrucciones : #(INSTRUCCIONES (declaracion_instrucciones)*)
 
   asertos: LA ( expr_bool | cuantificador ) LC;
 
-  cuantificador: cuantificadorUniversal
-               | cuantificadorExistencial
+  cuantificador: cuantificadorUniversal {generar codigo de cuantificador universal}
+               | cuantificadorExistencial {generar codigo de cuantificador existencial}
                ;
 
   cuantificadorUniversal: FORALL cuantificacion;

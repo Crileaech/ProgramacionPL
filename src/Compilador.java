@@ -558,6 +558,12 @@ public class Compilador extends AnasintBaseListener {
 
             }
         }
+        try{
+            gencode_espacios();
+            String res = ctx.asertos().getText();
+            fichero.write("System.out.println("+res+")\n");
+            gencode_espacios();
+        } catch (IOException e){}
     }
 
     //Generar codigo asertos 3.1 -> Cuantificación universal, ej. PARATODO(p:[0,ultima_posicion(s)],s[i]<=max)
@@ -605,18 +611,28 @@ public class Compilador extends AnasintBaseListener {
     }
 
     // Generar código bucle_1_avance
-    public void gencodigo_bucle_1_avance(Anasint.Expr_avanzaContext expr_avanzaContext){
-        // 1 -> Comprueba que instrucción iteración avanza
-        // 2 -> Tiene parametros de entrada var_condicion devuelve num >= 0
-        // s[3,4,2,7,9,0,11]; r = [6,5,4,3,2,1,0]
-        // {avance: bucle_1_avance(s, i)}
-        String ident = expr_avanzaContext.getText();
-        // recorrer la iteracion
-            // si secuecnia de valores s-- entonce syout ( Una iteración es correcta )
-            // sino println (Una iteración es errónea )
-
-
-    }
+//    public void gencodigo_bucle_1_avance(Anasint.Expr_avanzaContext expr_avanzaContext){
+//        // 1 -> Comprueba que instrucción iteración avanza
+//        // 2 -> Tiene parametros de entrada var_condicion devuelve num >= 0
+//        // s[3,4,2,7,9,0,11]; r = [6,5,4,3,2,1,0]
+//        // {avance: bucle_1_avance(s, i)}
+//        String ident = expr_avanzaContext.getText();
+////        Integer [] s = new Integer[]{3,4,2,7,9,0,11};
+//        Integer s = Integer.parseInt(String.valueOf(expr_avanzaContext.expr_func().expr()));
+//        Integer r = Integer.parseInt(String.valueOf(expr_avanzaContext.expr_func()));
+//        // recorrer la iteracion
+//        for(Integer secuencia: s){
+//            if(secuencia-- && r>=0){
+//                // si secuecnia de valores s-- entonce syout ( Una iteración es correcta )
+//                System.out.println("Una iteración es correcta");
+//            } else {
+//                // sino println (Una iteración es errónea )
+//                System.out.println("Una iteración es errónea");
+//
+//            }
+//        }
+//
+//    }
 
 
     /////////////////////////
