@@ -13,10 +13,18 @@ SUBPROGRAMAS
         r=ultima_posicion(seq)-pos;
         dev r;
    FFUNCION
+      FUNCION prueba(NUM i) dev (NUM r)
+           VARIABLES
+           INSTRUCCIONES
+               r=i+1;
+               dev r;
+      FFUNCION
+
 
 INSTRUCCIONES
 { cierto }
    s=[3,4,2,7,9,0,11];
+   o = prueba(5);
    i=0;
    mostrar(i);
    min=s[i];

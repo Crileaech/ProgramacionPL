@@ -208,6 +208,7 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
                 nombresYvalores.put(nombresParamsEntrada.get(i), subpParams.get(nomFunc).get(i));
             }
         }
+
         List<Anasint.Declaracion_instruccionesContext> instCtx = ctx.instrucciones().declaracion_instrucciones();
 
         //en cuanto se ve la instrucción dev, se devuelven las variables indicadas
@@ -248,7 +249,11 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
     public List<String> getNombresParamsEntrada(Anasint.FuncionContext ctx){
         List<String> acum = new ArrayList<>();
         acum.add(ctx.params().get(0).variable().VAR().getText());
-        return getNombresParamsEntrada(ctx.params().get(0).params(), acum);
+        if(ctx.params().get(0).params()!=null) {
+            return getNombresParamsEntrada(ctx.params().get(0).params(), acum);
+        } else {
+            return acum;
+        }
     }
 
     public List<String> getNombresParamsEntrada(Anasint.ParamsContext params, List<String> acum){

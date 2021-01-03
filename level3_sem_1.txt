@@ -12,6 +12,7 @@ SUBPROGRAMAS
         dev r;
    FFUNCION
 
+
    FUNCION f(NUM pos) dev (NUM r)
         VARIABLES
         INSTRUCCIONES
@@ -28,6 +29,7 @@ SUBPROGRAMAS
 INSTRUCCIONES
    { T }
    s=[3,4,2,7,9,0,11];
+   o = prueba(5);
    j=1;
    i=0+j;
    mostrar(i);
