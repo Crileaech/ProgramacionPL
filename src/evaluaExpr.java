@@ -223,7 +223,18 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
         return ret;
     }
     public Object visitExpr_sacar_elem(Anasint.Expr_sacar_elemContext ctx) {
-        List<Object> elems = (List<Object>) flujoInstrucciones.asig.get(ctx.variable().getText());
+        //dos posibilidades expr_func(param)[i] o s[i] -> expr_func funcion que retorna secuencia. s variable que almacena
+        //secuencia.
+        List<Object> elems;
+        if(ctx.expr_func()!=null) {
+            elems = (List<Object>) visit(ctx.expr_func());
+            //si expr_func retorna secuencia ["func", [T,F,T..]]
+            //se da por supuesto que la función retornará secuencia porque sino lo hace es
+            //error semántico NO de intérprete
+            elems = (List<Object>) elems.get(1);
+        } else {
+            elems = (List<Object>) flujoInstrucciones.asig.get(ctx.variable().getText());
+        }
         Integer index = (Integer) visit(ctx.expr_integer());
         if(index>=elems.size()) {
             System.out.println("ERROR: El índice excede la secuencia. (" + ctx.getText() + ").");
@@ -238,7 +249,19 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
     }
     public Object visitSeq(Anasint.SeqContext ctx) {
         List<Object> seq = new ArrayList<>();
-        for(Anasint.ExprContext expr: ctx.expr()) { seq.add(visit(expr)); }
+        for(Anasint.ExprContext expr: ctx.expr()) {
+            Object exprVisitada = visit(expr);
+            if(exprVisitada instanceof List) {
+                if(((List<Object>) exprVisitada).get(0).equals("func")) {
+                    ((List<Object>) exprVisitada).remove(0);
+                    seq.addAll((List<Object>) exprVisitada);
+                } else {
+                    seq.add(exprVisitada);
+                }
+            } else {
+                seq.add(exprVisitada);
+            }
+        }
         return seq;
     }
 
@@ -262,6 +285,8 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
             }
 
             List<Anasint.Declaracion_instruccionesContext> instCtx = ctx.instrucciones().declaracion_instrucciones();
+
+            //en cuanto se ve la instrucción dev, se devuelven las variables indicadas
 
             subpParamsAsignados.put(nomProc, nombresYvalores);
 
