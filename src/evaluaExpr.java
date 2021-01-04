@@ -263,8 +263,6 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
 
             List<Anasint.Declaracion_instruccionesContext> instCtx = ctx.instrucciones().declaracion_instrucciones();
 
-            //en cuanto se ve la instrucción dev, se devuelven las variables indicadas
-
             subpParamsAsignados.put(nomProc, nombresYvalores);
 
             //clonamos en un mapa las asignaciones de la función, y sustituimos las asignaciones globales con las de la función
