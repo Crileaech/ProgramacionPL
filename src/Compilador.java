@@ -1,4 +1,3 @@
-import org.antlr.runtime.RecognitionException;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
@@ -25,18 +24,18 @@ public class Compilador extends AnasintBaseListener {
     int aux_subprogramas=0; // para decidir si las variables se declaran en el programa principal o en un subprograma.
     int ruptura_condicional=0; // para decidir si hay una ruptura dentro de un condicional.
     int hayElse=0; // para decidir si hay else dentro de un if.
-    String tipo = new String(); // tipo de la función.
+    String tipo; // tipo de la función.
 
     ///////////////////////////
     // METODOS GLOBALES
     //////////////////////////
     //Nombre del fichero sin la extensión
     public void init(String f){
-        SalidaCompilador=new String(f.substring(0,17)); }
+        SalidaCompilador=f.substring(0,17); }
     //Abrir fichero
     private void open_file(){
         try{
-            fichero = new FileWriter("src/"+SalidaCompilador+".java");
+            fichero = new FileWriter("src/"+SalidaCompilador+"java");
         }catch(IOException e)
         {System.out.println("open_file (exception): "+e.toString());}
     }
@@ -49,33 +48,25 @@ public class Compilador extends AnasintBaseListener {
     }
     //Declarar variable con definición por defecto
     public void declarar_variable_Integer_Temporal(List<TerminalNode> var) {
-        String aux = new String();
-        for (int i = 0; i < var.size(); i++) {
-            aux = var.get(i).getText();
+        String aux;
+        for (TerminalNode nodo: var) {
+            aux = nodo.getText();
             almacen_definiciones_Integer_Temporal.put(aux, null);
         }
     }
     //Declarar variable con definición por defecto
-    public void declarar_variable_Seq_Integer_Temporal(String var) {
-        almacen_definiciones_Seq_Integer_Temporal.put(var, null);
-    }
-    //Declarar variable con definición por defecto
     public void declarar_variable_Bool_Temporal(List<TerminalNode> var) {
-        String aux = new String();
-        for (int i = 0; i < var.size(); i++) {
-            aux = var.get(i).getText();
+        String aux;
+        for (TerminalNode nodo: var) {
+            aux = nodo.getText();
             almacen_definiciones_Bool_Temporal.put(aux, null);
         }
     }
     //Declarar variable con definición por defecto
-    public void declarar_variable_Seq_Bool_Temporal(String var) {
-        almacen_definiciones_Seq_Bool_Temporal.put(var, null);
-    }
-    //Declarar variable con definición por defecto
     public void declarar_variable_Integer(List<TerminalNode> var) {
-        String aux = new String();
-        for (int i = 0; i < var.size(); i++) {
-            aux = var.get(i).getText();
+        String aux;
+        for (TerminalNode nodo: var) {
+            aux = nodo.getText();
             almacen_definiciones_Integer.put(aux, null);
         }
     }
@@ -85,9 +76,9 @@ public class Compilador extends AnasintBaseListener {
     }
     //Declarar variable con definición por defecto
     public void declarar_variable_Bool(List<TerminalNode> var) {
-        String aux = new String();
-        for (int i = 0; i < var.size(); i++) {
-            aux = var.get(i).getText();
+        String aux;
+        for (TerminalNode nodo: var) {
+            aux = nodo.getText();
             almacen_definiciones_Bool.put(aux, null);
         }
     }
@@ -97,22 +88,6 @@ public class Compilador extends AnasintBaseListener {
     }
     //definición por defecto (null equivaldría a 0)
 
-    //Actualizar la definición de una variable
-    public void definir_variable_Integer(String var, Anasint.ExprContext expr){
-        almacen_definiciones_Integer.put(var,expr);
-    }
-    //Actualizar la definición de una variable
-    public void definir_variable_Seq_Integer(String var, Anasint.ExprContext expr){
-        almacen_definiciones_Seq_Integer.put(var,expr);
-    }
-    //Actualizar la definición de una variable
-    public void definir_variable_Bool(String var, Anasint.ExprContext expr){
-        almacen_definiciones_Bool.put(var,expr);
-    }
-    //Actualizar la definición de una variable
-    public void definir_variable_Seq_Bool(String var, Anasint.ExprContext expr){
-        almacen_definiciones_Seq_Bool.put(var,expr);
-    }
     //Escribir espacios en blanco en fichero de salida
     private void gencode_espacios(){
         try{
@@ -125,7 +100,7 @@ public class Compilador extends AnasintBaseListener {
     //Generar código para v = exp
     public void gencodigo_asignacion(ParseTree var, Anasint.ExprContext exp){
         String txt_exp="0";
-        String v = new String();
+        String v;
         v = var.getText();
         if (exp != null)
             txt_exp = generador.visit(exp);
@@ -149,7 +124,9 @@ public class Compilador extends AnasintBaseListener {
             gencode_espacios();
             fichero.write("{\n");
             espacios++;
-        }catch(IOException e){}
+        }catch(IOException e){
+            System.out.println("Error: "+e.toString());
+        }
     }
     //Generar código comienzo main
     private void gencode_begin_main(){
@@ -157,7 +134,7 @@ public class Compilador extends AnasintBaseListener {
             gencode_espacios();
             fichero.write("public static void main(String[] args) {\n");
             espacios++;
-        }catch(IOException e){}
+        }catch(IOException e){System.out.println("Error: "+e.toString());}
     }
     //Generar código fin main
     private void gencode_end_main(){
@@ -165,7 +142,9 @@ public class Compilador extends AnasintBaseListener {
             espacios--;
             gencode_espacios();
             fichero.write("}\n");
-        }catch(IOException e){}
+        }catch(IOException e){
+            System.out.println("Error: "+e.toString());
+        }
     }
     //Generar código fin clase
     private void gencode_end_class(){
@@ -173,7 +152,9 @@ public class Compilador extends AnasintBaseListener {
             espacios--;
             gencode_espacios();
             fichero.write("}");
-        }catch(IOException e){}
+        }catch(IOException e){
+            System.out.println("Error: "+e.toString());
+        }
     }
     //Generar código declaración de variables Integer
     private void gencode_declarar_variables_Integer(){
@@ -190,7 +171,9 @@ public class Compilador extends AnasintBaseListener {
                 }
                 fichero.write(";\n");
             }
-        }catch(IOException e){}
+        }catch(IOException e){
+            System.out.println("Error: "+e.toString());
+        }
     }
     //Generar código declaración de variables de secuencia de Integer
     private void gencode_declarar_variables_Seq_Integer(){
@@ -207,7 +190,9 @@ public class Compilador extends AnasintBaseListener {
                 }
                 fichero.write(";\n");
             }
-        }catch(IOException e){}
+        }catch(IOException e){
+            System.out.println("Error: "+e.toString());
+        }
     }
     //Generar código declaración de variables Bool
     private void gencode_declarar_variables_Bool(){
@@ -224,7 +209,9 @@ public class Compilador extends AnasintBaseListener {
                 }
                 fichero.write(";\n");
             }
-        }catch(IOException e){}
+        }catch(IOException e){
+            System.out.println("Error: "+e.toString());
+        }
     }
     //Generar código declaración de variables de tipo secuencia de Boolean
     private void gencode_declarar_variables_Seq_Bool(){
@@ -241,7 +228,9 @@ public class Compilador extends AnasintBaseListener {
                 }
                 fichero.write(";\n");
             }
-        }catch(IOException e){}
+        }catch(IOException e){
+            System.out.println("Error: "+e.toString());
+        }
     }
     //Genera código declaración de variables de tipo Integer para subprogramas
     private void gencode_declarar_variables_Integer_Temporal(){
@@ -258,7 +247,9 @@ public class Compilador extends AnasintBaseListener {
                 }
                 fichero.write(";\n");
             }
-        }catch(IOException e){}
+        }catch(IOException e){
+            System.out.println("Error: "+e.toString());
+        }
     }
     //Genera código declaración de variables de tipo secuencia de Integer para subprogramas
     private void gencode_declarar_variables_Seq_Integer_Temporal(){
@@ -275,7 +266,9 @@ public class Compilador extends AnasintBaseListener {
                 }
                 fichero.write(";\n");
             }
-        }catch(IOException e){}
+        }catch(IOException e){
+            System.out.println("Error: "+e.toString());
+        }
     }
     //Genera código declaración de variables de tipo Boolean para subprogramas
     private void gencode_declarar_variables_Bool_Temporal(){
@@ -292,7 +285,9 @@ public class Compilador extends AnasintBaseListener {
                 }
                 fichero.write(";\n");
             }
-        }catch(IOException e){}
+        }catch(IOException e){
+            System.out.println("Error: "+e.toString());
+        }
     }
     //Genera código declaración de variables de tipo secuencia de Boolean para subprogramas
     private void gencode_declarar_variables_Seq_Bool_Temporal(){
@@ -309,7 +304,9 @@ public class Compilador extends AnasintBaseListener {
                 }
                 fichero.write(";\n");
             }
-        }catch(IOException e){}
+        }catch(IOException e){
+            System.out.println("Error: "+e.toString());
+        }
     }
 
     //Generar código mostrar el valor de variable en una evaluación
@@ -318,65 +315,66 @@ public class Compilador extends AnasintBaseListener {
             gencode_espacios();
             fichero.write("System.out.println(\"(Compilador) "+
                     var+" ---> \""+"+"+var+");\n");
-        }catch(IOException e){}
+        }catch(IOException e){
+            System.out.println("Error: "+e.toString());
+        }
     }
 
     // Generar código condicional
-    public void gencodigo_condicional(Anasint.Expr_boolContext expr, List<Anasint.Declaracion_instruccionesContext> ls) {
+    public void gencodigo_condicional(Anasint.Expr_boolContext expr) {
 
         try {
             gencode_espacios();
             fichero.write("if(" + generador.visit(expr) + "){\n");
         } catch (IOException e) {
+            System.out.println("Error: "+e.toString());
         }
     }
     //Genera código de los bloques else
-        public void gencodigo_blq_sino(List<Anasint.Declaracion_instruccionesContext> ls){
+        public void gencodigo_blq_sino(){
             try{
                 hayElse++;
                 gencode_espacios();
                 fichero.write("}else{\n");
             }catch (IOException e){
-
+                System.out.println("Error: "+e.toString());
             }
 
 
         }
         // Generar código iteración
-        public void gencodigo_iteracion(Anasint.Expr_boolContext expr,List<Anasint.Declaracion_instruccionesContext> ls){
+        public void gencodigo_iteracion(Anasint.Expr_boolContext expr){
             try{
                 gencode_espacios();
                 fichero.write("while("+generador.visit(expr)+"){\n");
             }catch (IOException e){
-
+                System.out.println("Error: "+e.toString());
             }
         }
         // Genera código funciones
         private void gencodigo_funcion(Anasint.FuncionContext ctx){
             tipo="";
-            String aux = new String();
+            String aux = "";
 
             String aux2 = ctx.getChild(3).getText();
-            if(aux2.equals(")")){
-
-            }else{
+            if(!aux2.equals(")")){
                 String[] partes = aux2.split(",");
                 for(int i=0; i< partes.length;i++){
                     if(partes[i].startsWith("NUM")){
                         aux +="Integer ";
-                        aux += partes[i].substring(3,partes[i].length());
+                        aux += partes[i].substring(3);
                     }
                     if(partes[i].startsWith("LOG")){
                         aux +="Boolean ";
-                        aux += partes[i].substring(3,partes[i].length());
+                        aux += partes[i].substring(3);
                     }
                     if(partes[i].startsWith("SEQ(NUM)")){
                         aux +="Integer[] ";
-                        aux += partes[i].substring(8,partes[i].length());
+                        aux += partes[i].substring(8);
                     }
                     if(partes[i].startsWith("SEQ(BOOL)")){
                         aux +="Boolean[] ";
-                        aux += partes[i].substring(9,partes[i].length());
+                        aux += partes[i].substring(9);
                     }
 
                     if((i+1)< partes.length){
@@ -406,36 +404,34 @@ public class Compilador extends AnasintBaseListener {
             try{
                 fichero.write("public static "+tipo+ ctx.variable().VAR().getText()+"("+aux+"){\n");
             }catch (IOException e){
-
+                System.out.println("Error: "+e.toString());
             }
 
         }
         // Genera código procedimientos
         private void gencodigo_procedimientos(Anasint.ProcedimientoContext ctx){
 
-            String aux = new String();
+            String aux = "";
             String aux2 = ctx.getChild(3).getText();
             System.out.println(ctx.getChild(3).getText());
-            if(aux2.equals(")")){
-
-            }else{
+            if(!aux2.equals(")")){
                 String[] partes = aux2.split(",");
                 for(int i=0; i< partes.length;i++){
                     if(partes[i].startsWith("NUM")){
                         aux +="Integer ";
-                        aux += partes[i].substring(3,partes[i].length());
+                        aux += partes[i].substring(3);
                     }
                     if(partes[i].startsWith("LOG")){
                         aux +="Boolean ";
-                        aux += partes[i].substring(3,partes[i].length());
+                        aux += partes[i].substring(3);
                     }
                     if(partes[i].startsWith("SEQ(NUM)")){
                         aux +="Integer[] ";
-                        aux += partes[i].substring(8,partes[i].length());
+                        aux += partes[i].substring(8);
                     }
                     if(partes[i].startsWith("SEQ(BOOL)")){
                         aux +="Boolean[] ";
-                        aux += partes[i].substring(9,partes[i].length());
+                        aux += partes[i].substring(9);
                     }
 
                     if((i+1)< partes.length){
@@ -446,7 +442,7 @@ public class Compilador extends AnasintBaseListener {
             try{
                 fichero.write("public static void "+ctx.variable().VAR().getText()+"("+aux+"){\n");
             }catch (IOException e){
-
+                System.out.println("Error: "+e.toString());
             }
 
         }
@@ -454,11 +450,11 @@ public class Compilador extends AnasintBaseListener {
         //Generar codigo mostrar por pantalla
 
         private  void gencodigo_mostrar(List<Anasint.ExprContext> exprs){
-            String res = new String();
-            for(int i=0;i< exprs.size();i++){
+            String res = "";
+            for(Anasint.ExprContext expr: exprs){
                 gencode_espacios();
                 res += "System.out.println(";
-                res += generador.visit(exprs.get(i));
+                res += generador.visit(expr);
                 res += ");\n";
 
             }
@@ -466,13 +462,13 @@ public class Compilador extends AnasintBaseListener {
                 fichero.write(res);
                 gencode_espacios();
             }catch(IOException e){
-
+                System.out.println("Error: "+e.toString());
             }
         }
         // Genera código return
         private void gencodigo_devolucion(List<Anasint.ExprContext> exprs){
             String res = "return ";
-            String res2 = new String();
+            String res2 = "";
             for(int i=0;i< exprs.size();i++){
                 res += generador.visit(exprs.get(i));
                 if(i+1 != exprs.size()){
@@ -482,6 +478,7 @@ public class Compilador extends AnasintBaseListener {
                 }
             }
             try{
+                gencode_espacios();
                 if(res.contains(",")){
                     String[] partes = res.split(",");
                     partes[0] = partes[0].substring(7,partes[0].length());
@@ -499,33 +496,32 @@ public class Compilador extends AnasintBaseListener {
                     fichero.write(res2);
                     gencode_espacios();
 
-                }else {
-                    gencode_espacios();
+                }else{
                     fichero.write(res);
-                    gencode_espacios();
                 }
+                gencode_espacios();
             }catch(IOException e){
-
+                System.out.println("Error: "+e.toString());
             }
         }
         // Genera código de ruptura
-        private void gencodigo_break(Anasint.BreakContext ctx){
+        private void gencodigo_break(Anasint.BreakContext ctx) {
             System.out.println(ctx.getParent().getText());
-            if(ctx.getParent().getText().startsWith("mientras")){
-                try{
+            if (ctx.getParent().getText().startsWith("mientras")) {
+                try {
                     fichero.write("break;\n");
-                }catch (IOException e){
-
+                } catch (IOException e) {
+                    System.out.println("Error: "+e.toString());
                 }
             }
-            if(ctx.getParent().getText().startsWith("si")){
+            if (ctx.getParent().getText().startsWith("si")) {
                 ruptura_condicional++;
             }
-            if(ctx.getParent().getText().startsWith("INSTRUCCIONES")){
-                try{
+            if (ctx.getParent().getText().startsWith("INSTRUCCIONES")) {
+                try {
                     fichero.write("System.exit(0);\n");
-                }catch (IOException e){
-
+                } catch (IOException e) {
+                    System.out.println("Error: "+e.toString());
                 }
             }
 
@@ -558,7 +554,7 @@ public class Compilador extends AnasintBaseListener {
             try{
                 fichero.write("}\n");
             }catch (IOException e){
-
+                System.out.println("Error: "+e.toString());
             }
             almacen_definiciones_Integer_Temporal.clear();
             almacen_definiciones_Bool_Temporal.clear();
@@ -631,7 +627,7 @@ public class Compilador extends AnasintBaseListener {
 
         public void enterCond(Anasint.CondContext ctx){
             if(ruptura_condicional==0){
-                gencodigo_condicional(ctx.condicion().expr_bool(), ctx.condicion().declaracion_instrucciones());
+                gencodigo_condicional(ctx.condicion().expr_bool());
             }
         }
 
@@ -646,7 +642,7 @@ public class Compilador extends AnasintBaseListener {
                         hayElse=0;
                     }
                 }catch (IOException e){
-
+                    System.out.println("Error: "+e.toString());
                 }
             }else{
                 ruptura_condicional = 0;
@@ -655,7 +651,7 @@ public class Compilador extends AnasintBaseListener {
 
         public void enterBlq_sino(Anasint.Blq_sinoContext ctx){
             if(ruptura_condicional==0){
-                gencodigo_blq_sino(ctx.declaracion_instrucciones());
+                gencodigo_blq_sino();
             }
         }
 
@@ -665,13 +661,13 @@ public class Compilador extends AnasintBaseListener {
                     fichero.write("}\n");
                 }
             }catch (IOException e){
-
+                System.out.println("Error: "+e.toString());
             }
         }
 
         public void enterIt(Anasint.ItContext ctx){
             if(ruptura_condicional==0){
-                gencodigo_iteracion(ctx.iteracion().expr_bool(), ctx.iteracion().declaracion_instrucciones());
+                gencodigo_iteracion(ctx.iteracion().expr_bool());
             }
         }
 
@@ -681,7 +677,7 @@ public class Compilador extends AnasintBaseListener {
                     fichero.write("}\n");
                 }
             }catch (IOException e){
-
+                System.out.println("Error: "+e.toString());
             }
         }
 
@@ -726,10 +722,6 @@ public class Compilador extends AnasintBaseListener {
             }
 
         }
-
-        public void exitDeclaracion_Instrucciones(Anasint.Declaracion_instruccionesContext ctx) {
-
-        }
         public void exitPrograma(Anasint.ProgramaContext ctx) {
             gencode_end_main();
             try{
@@ -740,7 +732,7 @@ public class Compilador extends AnasintBaseListener {
                     "return s.length-1;"
                 +"}\n");
             }catch (IOException e){
-
+                System.out.println("Error: "+e.toString());
             }
             gencode_end_class();
             close_file();

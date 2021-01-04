@@ -14,7 +14,7 @@ SUBPROGRAMAS
 
     dev i;
   FFUNCION
-   FUNCION prueba(NUM j) dev (NUM i,NUM k)
+  FUNCION prueba(NUM j) dev (NUM i,NUM k)
     VARIABLES
     i, min, max, k: NUM;
     s: SEQ(NUM);

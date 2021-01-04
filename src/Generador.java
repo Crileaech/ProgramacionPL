@@ -8,48 +8,30 @@ public class Generador extends AnasintBaseVisitor<String> {
 //    }
 
     public String visitExpr(Anasint.ExprContext ctx){
-        return (String) visit(ctx.getChild(0));
+        return visit(ctx.getChild(0));
     }
 
     public String visitExpr_sacar_elem(Anasint.Expr_sacar_elemContext ctx){
         String i = ctx.variable().VAR().getText();
         String j = visit(ctx.expr_integer());
-        String res = i+"["+j+"]";
-        return res;
-    }
-
-    public String visitExpr_Integer(Anasint.Expr_integerContext ctx){
-        return (String) visit(ctx.getChild(0));
-    }
-
-    public String visitExpr_bool(Anasint.Expr_boolContext ctx){
-        return (String) visit(ctx.getChild(0));
-    }
-
-    public String visitExpr_seq(Anasint.Expr_seqContext ctx){
-        return (String) visit(ctx.getChild(0));
+        return  i+"["+j+"]";
     }
 
     public String visitExpr_func(Anasint.Expr_funcContext ctx){
-        String res = new String();
+        String res;
         String k = ctx.variable().VAR().getText();
         res = k+"(";
         List<Anasint.ExprContext> expresiones = iterarExprs(ctx.exprs());
-        for(int i=0;i<expresiones.size();i++){
-            res += visit(expresiones.get(i));
+        for(Anasint.ExprContext expr: expresiones){
+            res += visit(expr);
         }
         res +=")";
         return res;
     }
 
-    public String visitVaciaSeq(Anasint.VarSeqContext ctx){
-        String res="[];";
-        return res;
-    }
-
     public String visitSeq(Anasint.SeqContext ctx){
         Boolean esInteger = true;
-        String res = new String();
+        String res = "";
         if((ctx.expr(0).getText().equals("true")) ||(ctx.expr(0).getText().equals("false"))){
             esInteger = false;
         }else if(Compilador.almacen_definiciones_Seq_Bool.containsKey(ctx.expr(0).getText()) ||
@@ -61,7 +43,7 @@ public class Generador extends AnasintBaseVisitor<String> {
         }else{
              res = "new Boolean[]{";
         }
-        String aux= new String();
+        String aux= "";
         for(int i=0;i<ctx.expr().size();i++){
             aux = visit(ctx.expr(i));
             res += aux;
@@ -91,7 +73,7 @@ public class Generador extends AnasintBaseVisitor<String> {
     }
 
     public String visitCompararBool(Anasint.CompararBoolContext ctx){
-        String res = new String();
+        String res = "";
         if(ctx.getChild(1)==ctx.IGUALL()){
             String i=visit(ctx.expr_bool(0));
             String j=visit(ctx.expr_bool(1));
@@ -120,7 +102,7 @@ public class Generador extends AnasintBaseVisitor<String> {
         return res;
     }
     public String visitOpBool(Anasint.OpBoolContext ctx){
-        String res = new String();
+        String res = "";
         if(ctx.getChild(1)==ctx.AND()){
             String i=visit(ctx.expr_bool(0));
             String j=visit(ctx.expr_bool(1));
@@ -135,7 +117,7 @@ public class Generador extends AnasintBaseVisitor<String> {
     }
 
     public String visitCompararInteger(Anasint.CompararIntegerContext ctx){
-        String res = new String();
+        String res = "";
         if(ctx.getChild(1)==ctx.MENORIGUAL()) {
             String i = visit(ctx.expr_integer(0));
             String j = visit(ctx.expr_integer(1));
@@ -171,8 +153,7 @@ public class Generador extends AnasintBaseVisitor<String> {
 
     public String visitNegacionBool(Anasint.NegacionBoolContext ctx){
         String i=visit(ctx.expr_bool());
-        String res = "!"+i;
-        return res;
+        return "!"+i;
     }
 
     public String visitVarBool(Anasint.VarBoolContext ctx){
@@ -215,7 +196,7 @@ public class Generador extends AnasintBaseVisitor<String> {
     }
 
     public String visitOpInteger(Anasint.OpIntegerContext ctx){
-        String res = new String();
+        String res = "";
         if(ctx.getChild(1)==ctx.SUMA()){
             String i=visit(ctx.expr_integer(0));
             String j=visit(ctx.expr_integer(1));
