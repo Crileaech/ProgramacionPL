@@ -1,8 +1,8 @@
 ESPECIFICACIÓN INTÉRPRETE:
 
-Objetivo principal: Desarollar un intérprete para P.
-
-OBJETIVO 1: Llevar a cabo la ejecución secuencial de las instrucciones de P.
+OBJETIVO: La construcción de un intérprete para el lenguaje P que ejecute sus instrucciones
+respetando los bucles de control, condiciones, rupturas, llamadas a función y procedimiento y que verifique
+la corrección del programa mediante la interpretación de los asertos.
 
 DECISIONES DE DISEÑO:
 
@@ -33,7 +33,7 @@ DECISIONES DE DISEÑO:
     las instrucciones que contiene dependen su ejecución de una misma condición iterativa.
 
     (DECISIÓN 2) Interpretación de las asignaciones: Dispondremos de un almacén de asignaciones
-    donde almacenemos los valores asignados a cada una de las variables.
+    donde almacenaremos los valores asignados a cada una de las variables.
 
                                 | var   | asignación |
                                 ----------------------
@@ -50,17 +50,18 @@ DECISIONES DE DISEÑO:
             almacén.
 
         -Para asignaciones con llamadas a una función de tipos a = expr_func1() o a,b = expr_func2():
-            -La función devolverá en cualquier caso una o más expresiones y un identificador de función,
-            con el objetivo de no confundir con secuencias a la hora de evaluar las expresiones.
-            Una vez obtenidas las expresiones, se aplica el mismo procedimiento que en las
-            asignaciones simples y múltiples del tipo a = expr y tipo a,b = expr1, expr2.
+            -La función devolverá una o más expresiones reunidas en una lista junto con un centinela
+            que indicará que dicha lista contiene el o los elementos devueltos por la función y que
+            no se trata de una secuencia. Una vez obtenida la lista se extraeran los elementos y
+            se procederá a la correspondiente asignación simple o múltiple del tipo a = expr y tipo
+            a,b = expr1, expr2.
 
         -Las asignaciones también se pueden realizar a una posición en concreto de una secuencia.
         Ej: s[i] = 9 -> Se asigna en la posición iésima de la secuencia numérica s el número 9.
 
-        asignacion(asignacion ctx): //a, s[1] = 2, T;
+        asignacion(asignacion ctx): //Ejemplo: a, s[i] = 2, T;
             si la cima es true:
-                aAsignar = extrae asignados de ctx // [a,s[1]]
+                aAsignar = extrae asignados de ctx // [a,s[i]]
                 expresiones = extrae expr de ctx
                 evaluaciones = evalua cada expr de expresiones // [2,true]
                 para cada (asignado,evaluación) en aAsignar y evaluaciones:
@@ -68,7 +69,7 @@ DECISIONES DE DISEÑO:
                         añade al almacén var y evaluación
                     sino: //s[i]
                         variable = extraigo variable de asignado //s
-                        pos = extraigo pos de asignado //i
+                        pos = evalua pos de asignado //i. En este caso es una variable pero podría ser una función.
                         secuencia = obtengo del almacén la secuencia s
                         si pos excede a secuencia:
                             error
@@ -110,8 +111,8 @@ DECISIONES DE DISEÑO:
         pila.
 
         -Que la cima sea true, pero la condición no, añadir a la pila un false:
-            -Si hay sino. Tras añadir el false añadir true -> Se ejecutarán las instrucciones
-            del bloque sino.
+            -Si hay sino. Tras añadir false añadir true llegados al bloque sino -> Se ejecutarán
+            las instrucciones del bloque sino.
 
         -Si la cima es false -> No ejecutar las instrucciones ni del si, ni del sino en caso
         de existir. Añadir tanto para el si, como para el sino en caso de existir, false
@@ -150,6 +151,7 @@ DECISIONES DE DISEÑO:
     Las iteraciones además pueden presentar una función avanza. El objetivo de la función avanza es comprobar
     que el bucle avanza a término. Si los valores devueltos por avanza no decrecen tras cada iteración.
     se considera que la iteración es errónea.
+
     valorAnteriorAvanza = indefinido //será una variable que almacene el valor anterior de la función avanza.
 
     bucleIt(iteracion ctx):
@@ -166,7 +168,8 @@ DECISIONES DE DISEÑO:
         mientras cumpleCond y cima pila sean true:
             ejecuta las instrucciones hijas de ctx
             cumpleCond = evalua ctx.cond
-            compruebaAvanza(ctx.avanza)
+            si hay avanza
+                compruebaAvanza(ctx.avanza)
         //dado que el flujo de ejecución de las instrucciones lo ejecutamos nosotros, una vez terminamos
         //debemos añadir un false para que no se ejecute una vez más de la cuenta.
         retira la cima de la pila
@@ -179,6 +182,7 @@ DECISIONES DE DISEÑO:
             valorActualAvanza = ejecuta de ctx la funcion
             si valorActualAvanza es mayor o igual a valorAnteriorAvanza //los valores no decrecen. Estamos ante iteración errónea.
                 finaliza ejecución programa
+            valorAnteriorAvanza = valorActualAvanza
 
 
     (DECISIÓN 8) Interpretación de la instrucción mostrar: La instrucción mostrar muestra el valor asociado
@@ -215,12 +219,12 @@ DECISIONES DE DISEÑO:
         ej: {EXISTE(p:[0,3],a[p]==2)}
         evaluaAserto(aserto ctx):
             var = extrae variable de ctx // var=p
-            comienzo = extrae el elemento 0 del rango // comienzo = 0
-            fin = extrae el elemento 1 del rango //fin = 3
+            comienzo = evalua el elemento 0 del rango // comienzo = 0
+            fin = evalua el elemento 1 del rango //fin = 3
             si comienzo > fin
                 retorna aserto indefinido
             sino
-                añade var y comienzo al almacén asignaciones
+                añade var = comienzo al almacén asignaciones
                 si cuantificador de ctx es existencial
                     mientras almacen[var] < fin
                         si cond de ctx es true
@@ -353,10 +357,12 @@ DECISIONES DE DISEÑO:
                         -> Interpretar como una lista a la que para cada expr se le añade evaluar(expr)
             (RECURSIVO) si la expresión es exprFuncSeq -> evaluar(expr_func)
 
-        -evaluar(expr_sacar_elem): Es el tipo nombreVar[i].
-            secuencia = extraemos del almacén de asignaciones el valor asociado a nombre var.
-            Retornamos el elemento en la posición i de la secuencia.
-            Si i excede a la secuencia -> Valor indefinido.
+        -evaluar(expr_sacar_elem): Es el tipo nombreVar[i] o expr_func[i].
+            secuencia = extraemos del almacén de asignaciones el valor asociado a nombre var o si no hay es el valor
+                retornado por expr_func.
+            pos = evalua i
+            Retornamos el elemento en la posición pos de la secuencia.
+            Si pos excede a la secuencia -> Valor indefinido.
 
     (DECISIÓN 13) Interpretación de las evaluaciones de subprogramas: Un subprograma (definido como expr_func) puede ser
     de dos tipos: función si retorna expresiones (ya evaluadas), o procedimiento si no devuelve nada.
@@ -485,17 +491,57 @@ GRAMÁTICA ATRIBUIDA:
 
     procedimiento: PROCEDIMIENTO variable PA (params)? PC variables instrucciones FPROCEDIMIENTO;
 
-
-    ...
     params: tipos variable
           | tipos variable COMA params
           ;
 
-    ...
+    expr: expr_integer
+        | expr_bool
+        | expr_seq
+        | expr_func
+        ;
+
+    expr_sacar_elem: (variable|expr_func) CA expr_integer CC ;
+
+    expr_func: variable PA (exprs)? PC;
+
+    exprs: expr
+         | expr COMA exprs
+         ;
+
+    declaracion_instrucciones: asignacion
+                             | condicion
+                             | iteracion
+                             | BREAK PyC
+                             | devolucion
+                             | mostrar
+                             | asertos
+                             | expr_func PyC
+                             ;
+
+    (parámetro de salida devueltos)
+    devolucion: RETURN (expr=ei COMA)* expr=en PyC;
+                {almacena en devueltos "func"}
+                {para cada ei (expr) almacena en devueltos evalua expr}
+
     asignacion: ((variable=v|expr_sacar_elem=s[i]) COMA)* (variable=v|expr_sacar_elem=s[i]) IGUAL (expr COMA)* (expr) PyC;
                 {Para cada v añadimos v a almacén_asignaciones con valor asociado evalua(expr)}
                 {Para cada s[i] extraemos s de almacén_asignaciones y le añadimos evalua(expr) en la posición i}
-    ...
+
+    condicion: IF PA expr_bool PC THEN (declaracion_instrucciones)+ (blq_sino)? ENDIF;
+
+    blq_sino: ELSE (declaracion_instrucciones)+;
+
+    iteracion: WHILE PA expr_bool PC DO (expr_avanza)? (declaracion_instrucciones)+ ENDWHILE;
+
+    (parámetro de salida avanza) (parámetro de entrada valorAnterior y valorActual)
+    expr_avanza: LA AVANZA DOSPTOS expr_func LC;
+                {si valor anterior indefinido valorAnterior=evalua expr_func}
+                {valorActual si valor anterior no indefinido -> valorActual=evalua expr_func}
+                {avanza=valorAnterior>valorActual, valorAnterior=valorActual}
+
+    mostrar: MOSTRAR PA (expr COMA)* expr PC PyC;
+
     asertos: LA ( expr_bool | cuantificador ) LC;
 
     cuantificador: cuantificadorUniversal
