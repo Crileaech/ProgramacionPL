@@ -46,7 +46,7 @@ public class flujoInstrucciones extends AnasintBaseListener{
     //sí o sí vas a ejecutar o no la instrucción hija, porque si lo sabes para que vas a introducirla. Esto se ve en
     //enterAsignación.
     public void enterPrograma(Anasint.ProgramaContext ctx) {
-        System.out.println("INTÉRPRETE");
+        System.out.println("\nINTÉRPRETE");
         pila.push(true);
 
         //evaluaExpr tiene un constructor al que se le pasan los subprogramas para que a la hora de asignar una función
@@ -54,7 +54,10 @@ public class flujoInstrucciones extends AnasintBaseListener{
         evalua = new evaluaExpr(ctx.subprogramas());
     }
     public void exitPrograma(Anasint.ProgramaContext ctx) {
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.print("ALMACÉN VARIABLES: ");
         System.out.println(asig);
+        System.out.println("----------------------------------------------------------------------------");
         System.out.println("FIN INTÉRPRETE");
         pila.pop();
     }
