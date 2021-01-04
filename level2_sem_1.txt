@@ -1,0 +1,33 @@
+PROGRAMA
+VARIABLES
+   a,b:LOG;
+   i,j:NUM;
+   s:SEQ(NUM);
+   t:SEQ(LOG);
+SUBPROGRAMAS
+   FUNCION verdadero() dev (LOG r)
+      VARIABLES
+      INSTRUCCIONES
+         r=T;
+         dev r;
+   FFUNCION
+   FUNCION siguiente(NUM i) dev (NUM r)
+         VARIABLES
+         INSTRUCCIONES
+            r=i+1+j;
+            dev r,r+1;
+   FFUNCION
+   PROCEDIMIENTO asignar(NUM variable, NUM valor)
+      VARIABLES
+      INSTRUCCIONES
+         variable = valor;
+   FPROCEDIMIENTO
+INSTRUCCIONES
+   i,j=0;
+   asignar(i,1*(j+2),0);
+   asignar(i,1);
+   a=verdadero(T);
+   i=verdadero(T);
+   s=[i,siguiente(T)];
+   t=[a,1+verdadero(),F];
+   t=[];

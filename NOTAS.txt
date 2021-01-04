@@ -1,0 +1,98 @@
+COSAS A TENER EN CUENTA:
+Interpretación -> En la compilación traducimos a otro lenguaje y posteriormente ejecutas. Aquí interpretas
+directamente desde el código, NO HAY INTERMEDIARIO.
+
+PENSAMIENTOS:
+Asignación de valores -> Complejo, ¿Mejor hacemos una asignación de expresiones Anasint.ExprContext? -> Cuando sea
+requerido su valor se la hace un visit. -> He comprobado y es posible.
+
+    -Funciones expr -> expr_integer -> expr_func
+    -Variables expr -> expr_integer -> variable
+    -Cte booleanas expr -> expr_bool -> T/F
+    -Cte numéricas expr -> expr_integer -> cte num
+    -Cte secuencias expr -> expr_seq -> [expr,expr,expr]
+    -Cte sacar de seq expr -> expr_integer -> expr_sacar_elem
+
+    COMPLICACIONES:
+        -expr_integer cuelga variables -> que podrían ser booleanas, integer o secuencia.
+                       cuelga expr_func -> que deben ser evaluadas ¿CÓMO HAREMOS ESTO?.
+                       cuelga expr_sacar_elem -> extraer elem i de s -> Podría ser bool.
+        -expr_bool > fácil.
+
+
+Inicialmente las variables sin nada asignado pueden tener null -> Cuando se le asigne algo tenemos que cambiar el
+almacén.
+Volveremos a tener un almacén de variables globales y de subprograma -> Pensarlo bien to-do para no volver
+a tener los DESASTROSOS PROBLEMAS DEL SEMÁNTICO -> Código feo ETC. Y POR SUPUESTO EMPEZARLO CON TIEMPO.
+
+¿HABRÁ PROBLEMAS DE CICLICIDAD?
+si tenemos [(b, Anasint.ExprContext)]
+y nos encontramos con b = b -> b = evalua(b) -> evalua(b) extrae de almacén correspondiente su exprCOntext y visita.
+El resultado será asignado a b -> b seguirá igual -> ¿Se podría tratar casos así de este modo? ¿Será válido?
+ ... Creo que sí -> De hecho -> SI NO complica mucho el código podemos comprobar si a var se le asigna tan sólo var en
+ ese caso no hacer nada -> Mejora en eficiencia posiblemente despreciable pero ok.
+
+
+PRIMERO:
+Abordar el proyecto como un proyecto sin subprogramas -> Habremos solucionado asignaciones etc -> Una vez logrado
+que esto funcione de manera correcta pensar ya en los subprogramas. Buena parte del problema habrá sido solucionado,
+aunque la implementación de los subprogramas no será ni MUCHO MENOS TRIVIAL:
+        -Hay que alterar el flujo de ejecución del programa al encontrarse una función -> Se ejecuta la función
+          y tras ello seguirá la secuencialidad de las instrucciones del programa global.
+          Si se han producido asignaciones resolverlas -> ¡INCLUSO PUEDEN SER MÚLTIPLES!
+
+        ¿CÓMO HACER ESTO?:
+            Se podría hacer que en una función aparte de JAVA se genere una INTERPRETACIÓN -> Java no permite de-
+            volución múltiple -> Retornar una lista ORDENADA de lo que se retorna. Esto es posible.
+            Esta función podrá acceder también a variables globales.
+
+            ALMACÉN FUNCIONES: Qué tal si no tenemos un almacén de funciones indexado por funciones -> sino que
+            única y exclusivamente tenemos un almacén para cada función que se creará cuando se llame a dicha
+            función -> Al almacén de funciones solo se accede cuando estamos en el contexto de una función ->
+            y además qué tal si juntamos DEV CUERPO Y PARAMS en un único almacén? -> REFLEXIÓN: Permite la reutiliza-
+            ción de código realizado para la ejecución del PROGRAMA GLOBAL.
+            Luego para discernir entre DEV, PARAM Y CUERPO podemos tener un almacén más sencillo cuya ÚNICA Y EXCLUSIVA
+            funcionalidad sea discernir [b:DEV,a:DEV,c:PARAM,x:CUERPO] -> también se crearía solo cuando se llame a la
+            función.
+
+            La comprobación de una asignación bien tipada con una función sería capturada por el semántico -> y por tanto
+            no será necesario que el global tenga conocimiento del almacén de funciones en la parte DEV.
+            Esto me hace pensar que el almacén de discernir tampoco será necesario. Pero ya se verá más adelante.
+
+Se me olvidaba algo también importante -> Bucles de control y asertos -> Tengo que repasar los asertos.
+En cuanto a bucles de control -> No creo que sea difícil su implementación -> Podemos universalizar dichas estructuras
+de control? -> Pensamiento muy remoto -> Me refiero a modularizar. func_while(inicializacion, modificacion, condicionParada,
+funcAserto=null); -> No creo que sea buena idea -> pero dejo la reflexión
+funcAserto pensarlo en otro momento.
+
+¿Cómo afrontaremos los breaks?
+¿Flujo de ejecución?
+¿Hacer como el profesor de prácticas? -> ¿Copia descarada? -> Pila entendida. Lo cual es ventaja.
+
+SUPONGO NO FUNCIONES:
+-Diseño sistema pila para decidir que instrucciones se ejecutarán o no -> Es en profundidad.
+-Una vez funcionen de manera adecuada y correcta este sistema procedo a generar el almacén de ASIGNACIONES.
+-Una vez funcionen bien las asignaciones continúo con los if.
+-While.
+-Asertos.
+-Si todo OK entonces funciones.
+
+SEQ -> ¿Cómo saber si son de enteros, bool etc sin acceder a los almacenes del semántico?
+ -> Una vez se visite un elemento hacer .getClass -> ¿Valdría?
+
+ REVISAR ORDEN OPERACIONES MATEMÁTICAS
+
+FLUJO DE EJECUCIÓN DE INSTRUCCIONES
+Pila -> En la cima si true se procesa instrucciones bloque actual -> si se entra en nuevo bloque añadir true.
+
+        Sacaremos true cuando terminemos la ejecución de un bloque.
+        Intruduciremos false cuando queramos que no entre en un bloque -> If no cumple cond, while termina,
+        aserto, break.
+
+        Por defecto a subprogramas se pondrá false.
+
+CICLICIDAD:
+    -El almacén de expr genera problemas. Si en éste aparece b,b -> visitará b que a su vez es b ->
+    stackOverflow. Se podría decir "hay ciclicidad" pero entonces no habría manera de incrementar los
+    índices de un while -> en definitiva -> NO DEBE HABER CICLICIDAD -> ¿Cambiar el almacén de Anasint.
+    ExprContext a Object? ¿Tener dos almacenes paralelos? -> Pensar mañana.

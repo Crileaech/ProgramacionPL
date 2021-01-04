@@ -1,0 +1,51 @@
+
+
+PROGRAMA
+VARIABLES
+a,b, min, max: NUM;
+b2: LOG;
+s: SEQ(NUM);
+s2: SEQ(LOG);
+SUBPROGRAMAS
+  FUNCION bucle_1_avance(SEQ(NUM) s, NUM i) dev (NUM i)
+  VARIABLES
+  INSTRUCCIONES
+    i=ultima_posicion(s)-i;
+
+    dev i;
+  FFUNCION
+   FUNCION prueba(NUM j) dev (NUM i,NUM k)
+    VARIABLES
+    i, min, max, k: NUM;
+    s: SEQ(NUM);
+  INSTRUCCIONES
+    s=[3,4,2,7,9,0,11];
+    min=0;
+    max=12;
+    i=123123;
+    k=j+1;
+    { PARATODO(p:[0,ultima_posicion(s)],s[p]<=max && s[p]>=min) }
+    mostrar(5);
+    dev i,k;
+    FFUNCION
+
+  PROCEDIMIENTO sustituir(NUM anterior, NUM aaaaaa, NUM nuevo)
+  VARIABLES
+  INSTRUCCIONES
+  anterior=nuevo;
+  FPROCEDIMIENTO
+
+INSTRUCCIONES
+i=0;
+s=[3,4,2,7,9,0,11];
+mientras (i <= ultima_posicion(s)) hacer
+    mostrar(i);
+    i = i+1;
+fmientras
+s2=[];
+min=2;
+min,max=prueba(6);
+a,b = prueba(2);
+min=(9);
+i=7;
+sustituir(i,50, a);
