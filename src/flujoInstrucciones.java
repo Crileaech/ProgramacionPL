@@ -151,7 +151,9 @@ public class flujoInstrucciones extends AnasintBaseListener{
             if(asignEvaluadasAux.stream().anyMatch(x -> x instanceof List)) {
                 for (int i = 0; i < asignEvaluadasAux.size(); i++) {
                     if (asignEvaluadasAux.get(i) instanceof List) {
+                        ((List<Object>)asignEvaluadasAux.get(i)).remove(null);
                         if(!((List<Object>) asignEvaluadasAux.get(i)).isEmpty() && ((List<Object>) asignEvaluadasAux.get(i)).get(0).equals("func")) {
+
                             ((List<Object>) asignEvaluadasAux.get(i)).remove(0);
                             if(((List<Object>) asignEvaluadasAux.get(i)).size()==0) {
                                 asignEvaluadas.add("indef");
@@ -181,27 +183,36 @@ public class flujoInstrucciones extends AnasintBaseListener{
                 if(evaluacion==null) {
                     break;
                 }
+                //s[i]=5;
                 if(ctx.getChild(j*2).getClass()==Anasint.Expr_sacar_elemContext.class) {
                     Anasint.Expr_sacar_elemContext elem = (Anasint.Expr_sacar_elemContext) ctx.getChild(j*2);
-                    String nombreVar = elem.getChild(0).getText();
-                    int pos = Integer.parseInt(elem.getChild(2).getText());
-                    List<Object> seq = (List<Object>) asig.get(nombreVar);
-                    String antes = seq.toString();
-                    seq.set(pos, evaluacion);
-                    String dsps = seq.toString();
-                    asig.put(nombreVar,seq);
-                    String exprAsignada = evaluacion.toString();
-                    //si el valor a asignar viene de una operación, deseo que se observe la operación realizada.
-                    if (!asign.get(j).getText().equals(exprAsignada))
-                        exprAsignada+= " (" + asign.get(j).getText() + ")";
-                    if(pila.peek()) {
-                        muestraConIdentación("(asignación) " + elem.getText() + " <- "
-                                + exprAsignada + ". Antes: " + antes + ". Ahora: " + dsps);
+                    if(evaluacion.equals("indef")) {
+                        if(pila.peek()) {
+                            muestraConIdentación("(asignación) " + elem.getText() + " <- indefinido");
+                        }
+                    } else {
+                        String nombreVar = elem.getChild(0).getText();
+                        int pos = Integer.parseInt(elem.getChild(2).getText());
+                        List<Object> seq = (List<Object>) asig.get(nombreVar);
+                        String antes = seq.toString();
+                        seq.set(pos, evaluacion);
+                        String dsps = seq.toString();
+                        asig.put(nombreVar,seq);
+                        String exprAsignada = evaluacion.toString();
+                        //si el valor a asignar viene de una operación, deseo que se observe la operación realizada.
+                        if (!asign.get(j).getText().equals(exprAsignada))
+                            exprAsignada+= " (" + asign.get(j).getText() + ")";
+                        if(pila.peek()) {
+                            muestraConIdentación("(asignación) " + elem.getText() + " <- "
+                                    + exprAsignada + ". Antes: " + antes + ". Ahora: " + dsps);
+                        }
                     }
                 } else {
                     Anasint.VariableContext elem = (Anasint.VariableContext) ctx.getChild(j*2);
                     if(evaluacion.equals("indef")) {
-                        muestraConIdentación("(asignación) " + elem.getText() + " <- indefinido");
+                        if(pila.peek()) {
+                            muestraConIdentación("(asignación) " + elem.getText() + " <- indefinido");
+                        }
                     } else {
                         asig.put(elem.getText(), evaluacion);
                         String exprAsignada = evaluacion.toString();
@@ -370,3 +381,4 @@ public class flujoInstrucciones extends AnasintBaseListener{
         for(int i = 0; i<tam; i++) { pila.push(false); }
     }
 }
+
