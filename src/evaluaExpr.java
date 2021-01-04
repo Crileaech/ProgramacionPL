@@ -283,7 +283,6 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
             for (int i = 0; i < subpParams.get(nomProc).size(); i++) {
                 nombresYvalores.put(nombresParamsEntrada.get(i), subpParams.get(nomProc).get(i));
             }
-
             List<Anasint.Declaracion_instruccionesContext> instCtx = ctx.instrucciones().declaracion_instrucciones();
 
             //en cuanto se ve la instrucción dev, se devuelven las variables indicadas
@@ -296,7 +295,7 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
             flujoInstrucciones.asig.clear();
 
             //creamos un flujo de instrucciones para la función correspondiente
-            flujoInstrucciones.muestraConIdentación("(PROCEDIMIENTO " + nomProc + ")");
+            flujoInstrucciones.muestraConIdentación("(PROCEDIMIENTO " + nomProc + ")",1);
             flujoInstrucciones proc = new flujoInstrucciones(subpParamsAsignados.get(nomProc));
 
             proc.asig.putAll(nombresYvalores);
@@ -320,7 +319,7 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
             proc.asig.putAll(asigParametros);
 
             if (flujoInstrucciones.pila.peek())
-                flujoInstrucciones.muestraConIdentación("(FIN PROCEDIMIENTO " + nomProc + ")");
+                flujoInstrucciones.muestraConIdentación("(FIN PROCEDIMIENTO " + nomProc + ")",1);
 
             flujoInstrucciones.pila.pop();
         }
@@ -407,29 +406,6 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
         return valores;
     }
 
-    //función que devuelve una lista con todos los nombres de los parámetros de la función
-    /*public List<String> getNombresParamsEntrada(Anasint.FuncionContext ctx){
-        List<String> acum = new ArrayList<>();
-        acum.add(ctx.params().get(0).variable().VAR().getText());
-
-        if(ctx.params().get(0).params()!=null){
-            acum.addAll(getNombresParamsEntrada(ctx.params().get(0).params(), acum));
-        }
-
-        return acum;
-    }
-
-    public List<String> getNombresParamsEntrada(Anasint.ProcedimientoContext ctx){
-        List<String> acum = new ArrayList<>();
-        acum.add(ctx.params().variable().VAR().getText());
-
-        if(ctx.params().params()!=null){
-            acum.addAll(getNombresParamsEntrada(ctx.params().params(), acum));
-        }
-
-        return acum;
-    }*/
-
     public List<String> getNombresParamsEntrada(Anasint.FuncionContext ctx){
         List<String> acum = new ArrayList<>();
         acum.add(ctx.params().get(0).variable().VAR().getText());
@@ -463,19 +439,6 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
 
         return acum;
     }
-
-    /*public List<String> getNombresParamsEntrada(Anasint.ParamsContext params, List<String> acum){
-        acum.add(params.variable().VAR().getText());
-        if(params.getChildCount()>2) {
-            acum.addAll(getNombresParamsEntrada(params.params(),acum));
-        }
-
-        return acum;
-    }*/
-
-
-
-    //FIN: Asignar una función a una variable
 
     public List<Object> visitVarSeq(Anasint.VarSeqContext ctx) {
         return (List<Object>) flujoInstrucciones.asig.get(ctx.getText());
@@ -530,11 +493,13 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
         return -(Integer)num;
     }
 
-    /*
-    public Integer visitParentesisNum(Anasint.ParentesisNumContext ctx) {
-        return (Integer) Integer.parseInt(ctx.NUM().getText());
+    public Integer visitParentesisInteger(Anasint.ParentesisIntegerContext ctx) {
+        Object num = visit(ctx.expr_integer());
+        if(num instanceof List) {
+            num = ((List<Object>) num).get(1);
+        }
+        return (Integer) num;
     }
-    */
 
     public List<Anasint.ExprContext> iterarExprs(Anasint.ExprsContext ctx){
         List<Anasint.ExprContext> l = new ArrayList<>();
