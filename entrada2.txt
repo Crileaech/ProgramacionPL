@@ -20,12 +20,19 @@ SUBPROGRAMAS
     s=[3,4,2,7,9,0,11];
     min=0;
     max=12;
-    i=0;
+    i=123123;
     k=j+1;
     { PARATODO(p:[0,ultima_posicion(s)],s[p]<=max && s[p]>=min) }
     mostrar(5);
     dev i,k;
     FFUNCION
+
+  PROCEDIMIENTO sustituir(NUM anterior, NUM aaaaaa, NUM nuevo)
+  VARIABLES
+  INSTRUCCIONES
+  anterior=nuevo;
+  FPROCEDIMIENTO
+
 INSTRUCCIONES
 i=0;
 s=[3,4,2,7,9,0,11];
@@ -37,5 +44,4 @@ s2=[];
 min=2;
 min,max=prueba(6);
 a,b = prueba(2);
-
-
+sustituir(i,,50, a);

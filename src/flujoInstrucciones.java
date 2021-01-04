@@ -11,12 +11,20 @@ public class flujoInstrucciones extends AnasintBaseListener{
     //push lo mete
     public static Stack<Boolean> pila = new Stack<>();
     public static Map<String,Object> asig = new LinkedHashMap<>();
+
+    //almacena las variable que dentro de un procedimiento es equivalente a otra global
+    //por ej:
+    //llamada proc(a,b)
+    //procedimiento proc(NUM x, NUM y)
+    //el mapa nos ayuda a saber que a = x, b = y
+    //y a que los cambios se hagan vigentes
+    public static Map<String,Map<String, String>> procEquivalencias = new LinkedHashMap<>();
     //iterador es una clase con un visitor para poder gestionar el flujo de ejecución de las iteraciones, ya que
     //no permite hacerlo los listener.
-
-    //ayuda a las funciones a comprobar que todo
-
     private iterador it = new iterador();
+
+
+
     //evaluaExpr es una clase que dado un Anasint.ExprContext retorna su valor. Si le pasas 3+c -> lo calcula.
     private evaluaExpr evalua;
     //clase que dado un Anasint.AsertoContext te dice si la ejecución del programa es correcta(true) o incorrecta(false)
@@ -52,6 +60,8 @@ public class flujoInstrucciones extends AnasintBaseListener{
         System.out.println("FIN INTÉRPRETE");
         pila.pop();
     }
+
+
 
     public void enterVariables(Anasint.VariablesContext ctx) {
         pila.push(pila.peek());
@@ -89,13 +99,55 @@ public class flujoInstrucciones extends AnasintBaseListener{
         pila.pop();
     }
 
+    //solo usaremos enterExpr_func para los procedimientos, ya que las funciones se gestionan en las asignaciones,
+    //asertos, condicionales, etc. ya que devuelven valores
+    public void enterExpr_func(Anasint.Expr_funcContext ctx){
+        if(pila.peek()){
+            String nombreSubp = ctx.variable().VAR().getText();
+            //buscamos si hay algún procedimiento con el mismo nombre
+            //excepto si se llama ultima_posicion o vacia, que son funciones predefinidas
+            if(!nombreSubp.equals("vacia")&&!nombreSubp.equals("ultima_posicion")) {
+                for (int i = 0; i < evalua.subprogramas.declaracion_subprogramas().size(); i++) {
+                    ParseTree subp = evalua.subprogramas.declaracion_subprogramas().get(i).getChild(0);
+                    if (subp.getChild(0).getText().equals("PROCEDIMIENTO") && subp.getChild(1).getText().equals(nombreSubp)) {
+
+                        //creamos un mapa auxiliar de equivalencias de variables en parámetro/llamada al procedimiento
+                        Map<String, String> aux = new LinkedHashMap<>();
+
+                        //lista con los parámetros de entrada dentro de la función
+                        List<String> paramsEntrada = evalua.getNombresParamsEntrada((Anasint.ProcedimientoContext) subp);
+
+                        List<Anasint.ExprContext> listaExpr = evalua.iterarExprs(ctx.exprs());
+
+                        //asociamos las equivalencias
+                        for (int j = 0; j < listaExpr.size() && j < paramsEntrada.size(); j++) {
+
+                            if (listaExpr.get(j).getChildCount() > 0 && listaExpr.get(j).getChild(0).getClass().toString().equals("class Anasint$VarIntContext")) {
+                                aux.put(paramsEntrada.get(j), listaExpr.get(j).getText());
+                            }
+                        }
+
+                        procEquivalencias.put(nombreSubp, aux);
+
+                        evalua.subpParams.put(nombreSubp, listaExpr.stream().map(v -> evalua.visit(v)).collect(Collectors.toList()));
+
+                        evalua.visit(subp);
+
+                        break;
+                    }
+                }
+            }
+        }
+
+
+    }
+
     public void enterAsignacion(Anasint.AsignacionContext ctx) {
         if(pila.peek()) {
             List<Anasint.ExprContext> asign = ctx.expr();
             List<Object> asignEvaluadasAux = asign.stream().map(x -> evalua.visit(x))
                     .collect(Collectors.toList());
             List<Object> asignEvaluadas = new ArrayList<>();
-
             //Aplana la lista de asignaciones, porque las funciones devuelven listas cuando tienen múltiples valores,
             //en caso de que haya alguna función que devuelva múltiples valores
             if(asignEvaluadasAux.stream().anyMatch(x -> x instanceof List)) {
@@ -103,6 +155,9 @@ public class flujoInstrucciones extends AnasintBaseListener{
                     if (asignEvaluadasAux.get(i) instanceof List) {
                         if(!((List<Object>) asignEvaluadasAux.get(i)).isEmpty() && ((List<Object>) asignEvaluadasAux.get(i)).get(0).equals("func")) {
                             ((List<Object>) asignEvaluadasAux.get(i)).remove(0);
+                            if(((List<Object>) asignEvaluadasAux.get(i)).size()==0) {
+                                asignEvaluadas.add("indef");
+                            }
                             asignEvaluadas.addAll((List<Object>)asignEvaluadasAux.get(i));
                             //si devuelve más de una cosa la funciójn debemos añadir a la lista asign ExprContext de la función
                             //para que aparezca al lado del valor el nombre de la función (de donde viene). Es un detalle esté-
@@ -141,22 +196,24 @@ public class flujoInstrucciones extends AnasintBaseListener{
                     //si el valor a asignar viene de una operación, deseo que se observe la operación realizada.
                     if (!asign.get(j).getText().equals(exprAsignada))
                         exprAsignada+= " (" + asign.get(j).getText() + ")";
-
                     if(pila.peek()) {
                         muestraConIdentación("(asignación) " + elem.getText() + " <- "
                                 + exprAsignada + ". Antes: " + antes + ". Ahora: " + dsps);
                     }
                 } else {
                     Anasint.VariableContext elem = (Anasint.VariableContext) ctx.getChild(j*2);
-                    asig.put(elem.getText(), evaluacion);
-                    String exprAsignada = evaluacion.toString();
-                    //si una asignación es una expresión compuesta, quiero que se observe a la
-                    //dcha de donde viene el resultado.
-
-                    if (j<asign.size()&&!asign.get(j).getText().equals(exprAsignada)&&!asig.get(elem.getText()).getClass().equals(ArrayList.class))
-                        exprAsignada+= " (" + asign.get(j).getText() + ")";
-                    if(pila.peek())
-                        muestraConIdentación("(asignación) " + elem.getText() + " <- " + exprAsignada);
+                    if(evaluacion.equals("indef")) {
+                        muestraConIdentación("(asignación) " + elem.getText() + " <- indefinido");
+                    } else {
+                        asig.put(elem.getText(), evaluacion);
+                        String exprAsignada = evaluacion.toString();
+                        //si una asignación es una expresión compuesta, quiero que se observe a la
+                        //dcha de donde viene el resultado.
+                        if (j<asign.size()&&!asign.get(j).getText().equals(exprAsignada)&&!asig.get(elem.getText()).getClass().equals(ArrayList.class))
+                            exprAsignada+= " (" + asign.get(j).getText() + ")";
+                        if(pila.peek())
+                            muestraConIdentación("(asignación) " + elem.getText() + " <- " + exprAsignada);
+                    }
                 }
             }
         }
@@ -166,7 +223,15 @@ public class flujoInstrucciones extends AnasintBaseListener{
         if(pila.peek()) {
             Anasint.Blq_sinoContext blqSino = ctx.blq_sino();
             Boolean tieneElse = blqSino!=null;
-            Boolean cond = (Boolean) evalua.visit(ctx.expr_bool());
+            Boolean cond;
+            Object eval = evalua.visit(ctx.expr_bool());
+            if(eval instanceof List) {
+                //Si procede de una función el visit retorna ["func",T]
+                cond = (Boolean)((List<Object>) eval).get(1);
+            } else {
+                //Si no procede de una función el visit retorna true/false
+                cond = (Boolean) eval;
+            }
             //si se cumple cond debe asignarse a la pila para que las instrucciones del
             //if sean ejecutadas. Sino se añadirá false
             muestraConIdentación("(condicional) " + ctx.expr_bool().getText(), false);
@@ -233,7 +298,6 @@ public class flujoInstrucciones extends AnasintBaseListener{
         if(pila.peek()) {
             pila.pop();
             pila.push(false);
-            muestraConIdentación("(devolución)");
         }
     }
 

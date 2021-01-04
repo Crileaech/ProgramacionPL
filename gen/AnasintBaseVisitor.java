@@ -1,4 +1,4 @@
-// Generated from C:/Users/saito/OneDrive/Documentos/ETSII/Tercero/PL/proyecto/src\Anasint.g4 by ANTLR 4.9
+// Generated from C:/Users/saito/OneDrive/Documentos/ETSII/Tercero/PL/casifinal/src\Anasint.g4 by ANTLR 4.9
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 /**
@@ -304,6 +304,13 @@ public class AnasintBaseVisitor<T> extends AbstractParseTreeVisitor<T> implement
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitExpr_func(Anasint.Expr_funcContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitExprs(Anasint.ExprsContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

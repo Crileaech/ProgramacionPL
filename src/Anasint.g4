@@ -88,8 +88,11 @@ expr_sacar_elem: variable CA expr_integer CC ;
 
 expr_avanza: LA AVANZA DOSPTOS expr_func LC;
 
-expr_func: variable PA (expr COMA)? (expr)* PC;
+expr_func: variable PA (exprs)? PC;
 
+exprs: expr
+     | expr COMA exprs
+     ;
 //---INSTRUCCIONES---
 
 declaracion_instrucciones: asignacion   #asig

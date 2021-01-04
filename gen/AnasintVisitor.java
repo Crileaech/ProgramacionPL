@@ -1,4 +1,4 @@
-// Generated from C:/Users/saito/OneDrive/Documentos/ETSII/Tercero/PL/proyecto/src\Anasint.g4 by ANTLR 4.9
+// Generated from C:/Users/saito/OneDrive/Documentos/ETSII/Tercero/PL/casifinal/src\Anasint.g4 by ANTLR 4.9
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
 /**
@@ -283,6 +283,12 @@ public interface AnasintVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitExpr_func(Anasint.Expr_funcContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link Anasint#exprs}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExprs(Anasint.ExprsContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code asig}
 	 * labeled alternative in {@link Anasint#declaracion_instrucciones}.

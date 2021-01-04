@@ -1,4 +1,4 @@
-// Generated from C:/Users/saito/OneDrive/Documentos/ETSII/Tercero/PL/proyecto/src\Anasint.g4 by ANTLR 4.9
+// Generated from C:/Users/saito/OneDrive/Documentos/ETSII/Tercero/PL/casifinal/src\Anasint.g4 by ANTLR 4.9
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
 /**
@@ -470,6 +470,16 @@ public interface AnasintListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExpr_func(Anasint.Expr_funcContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link Anasint#exprs}.
+	 * @param ctx the parse tree
+	 */
+	void enterExprs(Anasint.ExprsContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link Anasint#exprs}.
+	 * @param ctx the parse tree
+	 */
+	void exitExprs(Anasint.ExprsContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code asig}
 	 * labeled alternative in {@link Anasint#declaracion_instrucciones}.
