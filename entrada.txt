@@ -1,50 +1,6 @@
 PROGRAMA
 VARIABLES
-a, c: LOG;
-b: NUM;
-s: SEQ(NUM);
-SUBPROGRAMAS
-  FUNCION mayor(LOG r) dev (LOG e)
-  VARIABLES
-  t: LOG;
-  INSTRUCCIONES
-  t=!r;
-  dev t;
-  FFUNCION
-INSTRUCCIONES
-a=[5,4,3,2];
-a[0]=6-3;
-c=a[0];
-f=2*3;
-d=T&&!((F||(T&&!F))||(F&&F))||(T&&F);
-k=5*4-3-2-2-6*3;
-b=7;
-t=(2-3);
-si(mayor(F)==T) entonces
-    mostrar(10);
-    c=2;
-    si(t!=0) entonces
-        ruptura;
-        c=1;
-    fsi
-sino
-    c=1;
-fsi
-mientras(c<3) hacer
-    c = c+1;
-    mientras(b>7) hacer
-        b=b-1;
-        mientras(t<2) hacer
-            t=t+1;
-            ruptura;
-        fmientras
-    fmientras
-fmientras
-mostrar(a);
-
-PROGRAMA
-VARIABLES
-a,b, min, max: NUM;
+a,b, min, max, i: NUM;
 b2: LOG;
 s: SEQ(NUM);
 s2: SEQ(LOG);
@@ -53,12 +9,11 @@ SUBPROGRAMAS
   VARIABLES
   INSTRUCCIONES
     i=ultima_posicion(s)-i;
-
     dev i;
   FFUNCION
-   FUNCION prueba(NUM j) dev (NUM i,NUM k)
+  FUNCION prueba(NUM j) dev (NUM i,NUM k)
     VARIABLES
-    i, min, max: NUM;
+    i, min, max, k: NUM;
     s: SEQ(NUM);
   INSTRUCCIONES
     s=[3,4,2,7,9,0,11];
@@ -88,5 +43,6 @@ s2=[];
 min=2;
 min,max=prueba(6);
 a,b = prueba(2);
+min=(9);
 i=7;
 sustituir(i,50, a);

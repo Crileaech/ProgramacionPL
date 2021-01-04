@@ -32,7 +32,8 @@ public class Generador extends AnasintBaseVisitor<String> {
     public String visitSeq(Anasint.SeqContext ctx){
         Boolean esInteger = true;
         String res = "";
-        if((ctx.expr(0).getText().equals("true")) ||(ctx.expr(0).getText().equals("false"))){
+        if((ctx.expr(0).getText().equals("true")) ||(ctx.expr(0).getText().equals("false")) ||
+            (ctx.expr(0).getText().equals("T")) || (ctx.expr(0).getText().equals("F"))){
             esInteger = false;
         }else if(Compilador.almacen_definiciones_Seq_Bool.containsKey(ctx.expr(0).getText()) ||
             Compilador.almacen_definiciones_Seq_Bool_Temporal.containsKey(ctx.expr(0).getText())){
