@@ -84,7 +84,7 @@ expr_seq: CA CC                             #vaciaSeq // []
         | variable                          #varSeq
         ;
 
-expr_sacar_elem: variable CA expr_integer CC ;
+expr_sacar_elem: (variable|expr_func) CA expr_integer CC ;
 
 expr_avanza: LA AVANZA DOSPTOS expr_func LC;
 
