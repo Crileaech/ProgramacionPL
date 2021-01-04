@@ -55,13 +55,14 @@ expr: expr_integer
     ;
 
 expr_integer: expr_sacar_elem                                                 #sacarElemInteger
+            | RESTA expr_integer                                              #menosNum
+            | PA expr_integer PC                                              #parentesisInteger
             | PA expr_integer (POR) expr_integer PC                           #parentesisOpInteger
             | PA expr_integer (SUMA|RESTA) expr_integer PC                    #parentesisOpInteger
             | expr_integer (POR) expr_integer                                 #opInteger
             | expr_integer (SUMA|RESTA) expr_integer                          #opInteger
             | expr_func                                                       #exprFuncInt
             | NUM                                                             #num
-            | RESTA expr_integer                                              #menosNum
             | variable                                                        #varInt
             ;
 
