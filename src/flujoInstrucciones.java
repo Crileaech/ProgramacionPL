@@ -203,7 +203,13 @@ public class flujoInstrucciones extends AnasintBaseListener{
                         }
                     } else {
                         String nombreVar = elem.getChild(0).getText();
-                        int pos = Integer.parseInt(elem.getChild(2).getText());
+                        Object posO = evalua.visit(elem.getChild(2));
+                        Integer pos;
+                        if(posO instanceof List) {
+                            pos = (Integer) ((List<Object>) posO).get(1);
+                        } else {
+                            pos = (Integer) posO;
+                        }
                         List<Object> seq = (List<Object>) asig.get(nombreVar);
                         String antes = seq.toString();
                         seq.set(pos, evaluacion);
@@ -257,7 +263,7 @@ public class flujoInstrucciones extends AnasintBaseListener{
             muestraConIdentación("(condicional) " + ctx.expr_bool().getText(), false);
             if(cond) System.out.print(" se satisface ");
             else System.out.print(" no se satisface ");
-            if(!cond&&tieneElse) muestraConIdentación("ejecutando else:");
+            if(!cond&&tieneElse) System.out.print("ejecutando else:\n");
             else System.out.println("");
             pila.add(cond);
         } else {
