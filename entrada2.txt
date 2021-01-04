@@ -44,4 +44,5 @@ s2=[];
 min=2;
 min,max=prueba(6);
 a,b = prueba(2);
+i=7;
 sustituir(i,,50, a);

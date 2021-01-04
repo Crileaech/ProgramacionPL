@@ -30,23 +30,20 @@ public class asertos extends AnasintBaseVisitor<Boolean>{
                 .cuantificadorExistencial().cuantificacion();
         String var = cuant.variable().getText();
         //Si comienzo es una función
-        Integer comienzo;
-        if(cuant.expr_integer(0).getChild(0).getClass()==Anasint.Expr_funcContext.class){
-            comienzo = (Integer)((List<Object>) evalua.visit(cuant.expr_integer(0))).get(1);
-        } else {
-            comienzo = (Integer) evalua.visit(cuant.expr_integer(0));
+        Object comienzo = evalua.visit(cuant.expr_integer(0));
+        if(comienzo instanceof List) {
+            comienzo = ((List<Object>) comienzo).get(1);
         }
+
         //Si fin es una función
-        Integer fin;
-        if(cuant.expr_integer(1).getChild(0).getClass()==Anasint.Expr_funcContext.class){
-            fin = (Integer)((List<Object>) evalua.visit(cuant.expr_integer(1))).get(1);
-        } else {
-            fin = (Integer) evalua.visit(cuant.expr_integer(1));
+        Object fin = evalua.visit(cuant.expr_integer(1));
+        if(fin instanceof List){
+            fin = ((List<Object>) fin).get(1);
         }
         if(comienzo==null || fin==null) { return null;}
-        if(comienzo>fin) { return null; }
+        if((Integer)comienzo>(Integer)fin) { return null; }
         flujoInstrucciones.asig.put(var, comienzo);
-        while((Integer)flujoInstrucciones.asig.get(var)<=fin) {
+        while((Integer)flujoInstrucciones.asig.get(var)<=(Integer)fin) {
             Boolean res = (Boolean) evalua.visit(cuant.expr_bool());
             if(res) { return true; }
             flujoInstrucciones.asig.put(var,(Integer)flujoInstrucciones.asig.get(var)+1);
@@ -61,33 +58,27 @@ public class asertos extends AnasintBaseVisitor<Boolean>{
                 .cuantificadorUniversal().cuantificacion();
         String var = cuant.variable().getText();
         //Si comienzo es una función
-        Integer comienzo;
-        if(cuant.expr_integer(0).getChild(0).getClass()==Anasint.Expr_funcContext.class){
-            comienzo = (Integer)((List<Object>) evalua.visit(cuant.expr_integer(0))).get(1);
-        } else {
-            comienzo = (Integer) evalua.visit(cuant.expr_integer(0));
+        Object comienzo = evalua.visit(cuant.expr_integer(0));
+        if(comienzo instanceof List) {
+            comienzo = ((List<Object>) comienzo).get(1);
         }
         //Si fin es una función
-        Integer fin;
-        if(cuant.expr_integer(1).getChild(0).getClass()==Anasint.Expr_funcContext.class){
-            Object a = evalua.visit(cuant.expr_integer(1));
-            if (a.getClass().toString().equals("class java.util.ArrayList"))
-                fin = (Integer)((List<Object>) evalua.visit(cuant.expr_integer(1))).get(1);
-            else
-                fin = (Integer)(evalua.visit(cuant.expr_integer(1)));
-        } else {
-            fin = (Integer) evalua.visit(cuant.expr_integer(1));
+        Object fin = evalua.visit(cuant.expr_integer(1));
+        if(fin instanceof List){
+            fin = ((List<Object>) fin).get(1);
         }
-        if(comienzo>fin) { return null; }
+        if((Integer)comienzo>(Integer)fin) { return null; }
         flujoInstrucciones.asig.put(var, comienzo);
         Boolean res = (Boolean) evalua.visit(cuant.expr_bool());
-        while(res && (Integer)flujoInstrucciones.asig.get(var)<=fin) {
+        while(res && (Integer)flujoInstrucciones.asig.get(var)<=(Integer)fin) {
             res = res&&(Boolean) evalua.visit(cuant.expr_bool());
             flujoInstrucciones.asig.put(var,(Integer)flujoInstrucciones.asig.get(var)+1);
         }
         return res;
     }
-
+    //dado un ctx de aserto. Se obtiene un ctx de subprogramas, con el objetivo de que si
+    //se encuentra una función en uno de sus rangos, se pueda ejecutar dicha función sin problemas.
+    //Este subprograma pasa como parámetro al constructor de evaluaExpr
     private Anasint.SubprogramasContext subprogramaAPartirDeAserto(Anasint.AsertosContext ctx) {
         ParserRuleContext padre = ctx.getParent();
         while(true) {

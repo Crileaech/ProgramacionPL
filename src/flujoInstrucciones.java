@@ -23,8 +23,6 @@ public class flujoInstrucciones extends AnasintBaseListener{
     //no permite hacerlo los listener.
     private iterador it = new iterador();
 
-
-
     //evaluaExpr es una clase que dado un Anasint.ExprContext retorna su valor. Si le pasas 3+c -> lo calcula.
     private evaluaExpr evalua;
     //clase que dado un Anasint.AsertoContext te dice si la ejecución del programa es correcta(true) o incorrecta(false)

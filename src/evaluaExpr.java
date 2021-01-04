@@ -41,30 +41,74 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
         return (Boolean) visit(ctx.expr_sacar_elem());
     }
     public Boolean visitCompararBool(Anasint.CompararBoolContext ctx) {
-        if(ctx.getChild(1).getText().equals("==")) {
-            return visit(ctx.getChild(0))==visit(ctx.getChild(2));
+        //Si la izq o dcha son una función -> Debemos saberlo ya que las funciones retornan ["func", T] -> Para
+        //ello comprobamos si el objeto retornado por los visits es una instancia de Lista -> En caso de serlo tomar
+        // el segundo elemento (T). Si no lo es pues es el valor retornado del visit.
+        Boolean izq; Boolean dcha;
+        Object izqO = visit(ctx.getChild(0));
+        Object dchaO = visit(ctx.getChild(2));
+        if(izqO instanceof List) {
+            izq = (Boolean) ((List<Object>) izqO).get(1);
         } else {
-            return visit(ctx.getChild(0))!=visit(ctx.getChild(2));
+            izq = (Boolean) izqO;
+        }
+        if(dchaO instanceof List) {
+            dcha = (Boolean) ((List<Object>) dchaO).get(1);
+        } else {
+            dcha = (Boolean) dchaO;
+        }
+        if(ctx.getChild(1).getText().equals("==")) {
+            return izq==dcha;
+        } else {
+            return izq!=dcha;
         }
     }
     public Boolean visitParentesisOpBool(Anasint.ParentesisOpBoolContext ctx) {
-        Anasint.Expr_boolContext izq = (Anasint.Expr_boolContext) ctx.getChild(1);
-        Anasint.Expr_boolContext dcha = (Anasint.Expr_boolContext) ctx.getChild(3);
+        Boolean izq; Boolean dcha;
+        Object izqO = visit(ctx.getChild(1));
+        Object dchaO = visit(ctx.getChild(3));
+        if(izqO instanceof List) {
+            izq = (Boolean) ((List<Object>) izqO).get(1);
+        } else {
+            izq = (Boolean) izqO;
+        }
+        if(dchaO instanceof List) {
+            dcha = (Boolean) ((List<Object>) dchaO).get(1);
+        } else {
+            dcha = (Boolean) dchaO;
+        }
         String operador = ctx.getChild(2).getText();
-        if(operador.equals("&&")) { return (Boolean) visit(izq)&&(Boolean) visit(dcha); }
-        else { return (Boolean) visit(izq)||(Boolean) visit(dcha); }
+        if(operador.equals("&&")) { return izq&&dcha; }
+        else { return izq||dcha; }
     }
     public Boolean visitOpBool(Anasint.OpBoolContext ctx) {
-        Anasint.Expr_boolContext izq = (Anasint.Expr_boolContext) ctx.getChild(0);
-        Anasint.Expr_boolContext dcha = (Anasint.Expr_boolContext) ctx.getChild(2);
+        Boolean izq; Boolean dcha;
+        Object izqO = visit(ctx.getChild(0));
+        Object dchaO = visit(ctx.getChild(2));
+        if(izqO instanceof List) {
+            izq = (Boolean) ((List<Object>) izqO).get(1);
+        } else {
+            izq = (Boolean) izqO;
+        }
+        if(dchaO instanceof List) {
+            dcha = (Boolean) ((List<Object>) dchaO).get(1);
+        } else {
+            dcha = (Boolean) dchaO;
+        }
         String operador = ctx.getChild(1).getText();
-        if(operador.equals("&&")) { return (Boolean) visit(izq)&&(Boolean) visit(dcha); }
-        else { return (Boolean) visit(izq)||(Boolean) visit(dcha); }
+        if(operador.equals("&&")) { return izq&&dcha; }
+        else { return izq||dcha; }
     }
 
     public Boolean visitCompararSeq(Anasint.CompararSeqContext ctx) {
         List<Object> seq1 = (List<Object>) visit(ctx.getChild(0));
         List<Object> seq2 = (List<Object>) visit(ctx.getChild(2));
+        if(seq1.get(0).equals("func")) {
+            seq1 = (List<Object>)seq1.get(1);
+        }
+        if(seq2.get(0).equals("func")) {
+            seq2 = (List<Object>)seq2.get(1);
+        }
         if(ctx.getChild(1).getText().equals("==")) {
             return seq1.equals(seq2);
         } else {
@@ -72,8 +116,19 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
         }
     }
     public Boolean visitCompararInteger(Anasint.CompararIntegerContext ctx) {
-        Integer n1 = (Integer) visit(ctx.getChild(0));
-        Integer n2 = (Integer) visit(ctx.getChild(2));
+        Integer n1; Integer n2;
+        Object n1O = visit(ctx.getChild(0));
+        Object n2O = visit(ctx.getChild(2));
+        if(n1O instanceof List) {
+            n1 = (Integer) ((List<Object>) n1O).get(1);
+        } else {
+            n1 = (Integer) n1O;
+        }
+        if(n2O instanceof List) {
+            n2 = (Integer) ((List<Object>) n2O).get(1);
+        } else {
+            n2 = (Integer) n2O;
+        }
         String comp = ctx.getChild(1).getText();
         if(comp.equals("<=")) return n1<=n2;
         else if(comp.equals(">=")) return n1>=n2;
@@ -170,14 +225,10 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
     public Object visitExpr_sacar_elem(Anasint.Expr_sacar_elemContext ctx) {
         List<Object> elems = (List<Object>) flujoInstrucciones.asig.get(ctx.variable().getText());
         Integer index = (Integer) visit(ctx.expr_integer());
-        if(index>elems.size()) {
+        if(index>=elems.size()) {
             System.out.println("ERROR: El índice excede la secuencia. (" + ctx.getText() + ").");
             System.out.println("Ejecución finalizada.");
-            int tam = flujoInstrucciones.pila.size();
-            flujoInstrucciones.pila.clear();
-            for(int i=0; i<tam; i++) {
-                flujoInstrucciones.pila.push(false);
-            }
+            flujoInstrucciones.finalizaEjecución();
             return null;
         }
         return elems.get(index);
@@ -268,9 +319,9 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
             //si el tercer hijo es un paréntesis, es que la función tiene parámetros de entrada
             //y, por tanto, debemos asignar el nombre que aparece en la declaración de la función
             //al valor introducido al llamarla
-            if(ctx.params().size()>1){
+            if (ctx.params().size() > 1) {
                 List<String> nombresParamsEntrada = getNombresParamsEntrada(ctx);
-                for (int i=0; i<subpParams.get(nomFunc).size(); i++){
+                for (int i = 0; i < subpParams.get(nomFunc).size(); i++) {
                     nombresYvalores.put(nombresParamsEntrada.get(i), subpParams.get(nomFunc).get(i));
                 }
             }
@@ -283,11 +334,11 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
 
             //clonamos en un mapa las asignaciones de la función, y sustituimos las asignaciones globales con las de la función
             //con el objetivo de que el flujo de instrucciones para la función sólo utilice las variables de la propia función
-            Map<String,Object> asigAnterior = new LinkedHashMap<>(flujoInstrucciones.asig);
+            Map<String, Object> asigAnterior = new LinkedHashMap<>(flujoInstrucciones.asig);
             flujoInstrucciones.asig.clear();
 
             //creamos un flujo de instrucciones para la función correspondiente
-            flujoInstrucciones.muestraConIdentación("(FUNCIÓN "+nomFunc+")");
+            flujoInstrucciones.muestraConIdentación("(FUNCIÓN " + nomFunc + ")",1);
             flujoInstrucciones func = new flujoInstrucciones(subpParamsAsignados.get(nomFunc));
 
             func.asig.putAll(nombresYvalores);
@@ -295,31 +346,41 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
             ParseTreeWalker walker = new ParseTreeWalker();
             walker.walk(func, ctx);
 
-            if(flujoInstrucciones.pila.peek()) {
-                flujoInstrucciones.muestraConIdentación("(FIN FUNCIÓN "+nomFunc+")");
-
+            if (flujoInstrucciones.pila.peek()) {
+                String textoADevolver = "";
                 valores.add("func");
                 //me recorro la instrucción dev. Si los hijos son variables añado a valores lo que hay en el almacén.
                 //Si lo que hay es algo que no son variables lo evaluo y lo añado en valores.
-                for(int i=0; i<instCtx.size(); i++) {
-                    if(instCtx.get(i).getChild(0).getChild(0).getText().equals("dev")) {
-                        Anasint.DevolucionContext dev = (Anasint.DevolucionContext) instCtx.get(i).getChild(0);
-                        for(int j=1; j<dev.getChildCount(); j+=2) {
-                            if(dev.getChild(j).getClass()==Anasint.VariablesContext.class) {
-                                valores.add(func.asig.get(dev.getChild(j).getText()));
-                            } else {
-                                valores.add(visit(dev.getChild(j)));
+                for (int i = 0; i < instCtx.size(); i++) {
+                    if (instCtx.get(i).getChild(0).getChild(0) != null) {
+                        if (instCtx.get(i).getChild(0).getChild(0).getText().equals("dev")) {
+                            Anasint.DevolucionContext dev = (Anasint.DevolucionContext) instCtx.get(i).getChild(0);
+                            for (int j = 1; j < dev.getChildCount(); j += 2) {
+                                if (dev.getChild(j).getChild(0).getChild(0).getClass()
+                                        == Anasint.VariableContext.class) {
+                                    valores.add(func.asig.get(dev.getChild(j).getText()));
+                                    textoADevolver += " " + dev.getChild(j).getText() + "="
+                                            + valores.get(valores.size() - 1) + ",";
+                                } else {
+                                    valores.add(visit(dev.getChild(j)));
+                                    textoADevolver += " " + valores.get(valores.size() - 1) + ",";
+                                }
+
                             }
+                            textoADevolver = textoADevolver.substring(0, textoADevolver.length() - 1);
                         }
+                    } else {
+                        break;
                     }
                 }
+                //restauramos el mapa de asignaciones global con las antiguas
                 func.asig.clear();
                 func.asig.putAll(asigAnterior);
-
+                flujoInstrucciones.muestraConIdentación("(devolución)" + textoADevolver, 1);
+                flujoInstrucciones.muestraConIdentación("(FIN FUNCIÓN "+nomFunc+")", 1);
             }
             flujoInstrucciones.pila.pop();
         }
-
         return valores;
     }
 
@@ -401,23 +462,49 @@ public class evaluaExpr extends AnasintBaseVisitor<Object>{
         return (Integer) visit(ctx.expr_sacar_elem());
     }
     public Integer visitParentesisOpInteger(Anasint.ParentesisOpIntegerContext ctx) {
-        Anasint.Expr_integerContext izq = (Anasint.Expr_integerContext) ctx.getChild(1);
-        Anasint.Expr_integerContext dcha = (Anasint.Expr_integerContext) ctx.getChild(3);
+        Integer n1; Integer n2;
+        Object n1O = visit(ctx.getChild(1));
+        Object n2O = visit(ctx.getChild(3));
+        if(n1O instanceof List) {
+            n1 = (Integer) ((List<Object>) n1O).get(1);
+        } else {
+            n1 = (Integer) n1O;
+        }
+        if(n2O instanceof List) {
+            n2 = (Integer) ((List<Object>) n2O).get(1);
+        } else {
+            n2 = (Integer) n2O;
+        }
         String operador = ctx.getChild(2).getText();
-        if(operador.equals("*")) { return (Integer)visit(izq)*(Integer)visit(dcha); }
-        else if(operador.equals("+")) { return (Integer)visit(izq)+(Integer)visit(dcha); }
-        else { return (Integer)visit(izq)-(Integer)visit(dcha); }
+        if(operador.equals("*")) { return n1*n2; }
+        else if(operador.equals("+")) { return n1+n2; }
+        else { return n1-n2; }
     }
     public Integer visitOpInteger(Anasint.OpIntegerContext ctx) {
-        Anasint.Expr_integerContext izq = (Anasint.Expr_integerContext) ctx.getChild(0);
-        Anasint.Expr_integerContext dcha = (Anasint.Expr_integerContext) ctx.getChild(2);
+        Integer n1; Integer n2;
+        Object n1O = visit(ctx.getChild(0));
+        Object n2O = visit(ctx.getChild(2));
+        if(n1O instanceof List) {
+            n1 = (Integer) ((List<Object>) n1O).get(1);
+        } else {
+            n1 = (Integer) n1O;
+        }
+        if(n2O instanceof List) {
+            n2 = (Integer) ((List<Object>) n2O).get(1);
+        } else {
+            n2 = (Integer) n2O;
+        }
         String operador = ctx.getChild(1).getText();
-        if(operador.equals("*")) { return (Integer)visit(izq)*(Integer)visit(dcha); }
-        else if(operador.equals("+")) { return (Integer)visit(izq)+(Integer)visit(dcha); }
-        else { return (Integer)visit(izq)-(Integer)visit(dcha); }
+        if(operador.equals("*")) { return n1*n2; }
+        else if(operador.equals("+")) { return n1+n2; }
+        else { return n1-n2; }
     }
     public Integer visitMenosNum(Anasint.MenosNumContext ctx) {
-        return -(Integer)visit(ctx.expr_integer());
+        Object num = visit(ctx.expr_integer());
+        if(num instanceof List) {
+            num = ((List<Object>) num).get(1);
+        }
+        return -(Integer)num;
     }
 
     /*
