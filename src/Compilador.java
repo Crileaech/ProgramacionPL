@@ -31,11 +31,11 @@ public class Compilador extends AnasintBaseListener {
     //////////////////////////
     //Nombre del fichero sin la extensión
     public void init(String f){
-        SalidaCompilador=f.substring(0,17); }
+        SalidaCompilador=f.substring(0,16); }
     //Abrir fichero
     private void open_file(){
         try{
-            fichero = new FileWriter("src/"+SalidaCompilador+"java");
+            fichero = new FileWriter(SalidaCompilador+".java");
         }catch(IOException e)
         {System.out.println("open_file (exception): "+e.toString());}
     }
@@ -354,61 +354,65 @@ public class Compilador extends AnasintBaseListener {
         // Genera código funciones
         private void gencodigo_funcion(Anasint.FuncionContext ctx){
             tipo="";
-            String aux = "";
-
+            String aux = new String();
+            int auxParams=0;
             String aux2 = ctx.getChild(3).getText();
-            if(!aux2.equals(")")){
+            if(aux2.equals(")")){
+            }else{
                 String[] partes = aux2.split(",");
                 for(int i=0; i< partes.length;i++){
                     if(partes[i].startsWith("NUM")){
                         aux +="Integer ";
-                        aux += partes[i].substring(3);
+                        aux += partes[i].substring(3,partes[i].length());
                     }
                     if(partes[i].startsWith("LOG")){
                         aux +="Boolean ";
-                        aux += partes[i].substring(3);
+                        aux += partes[i].substring(3,partes[i].length());
                     }
                     if(partes[i].startsWith("SEQ(NUM)")){
                         aux +="Integer[] ";
-                        aux += partes[i].substring(8);
+                        aux += partes[i].substring(8,partes[i].length());
                     }
                     if(partes[i].startsWith("SEQ(BOOL)")){
                         aux +="Boolean[] ";
-                        aux += partes[i].substring(9);
+                        aux += partes[i].substring(9,partes[i].length());
                     }
-
                     if((i+1)< partes.length){
                         aux += ",";
                     }
                 }
             }
-            if(ctx.params().size()<2){
-                if(ctx.params(0).getText().startsWith("NUM")){
-                    tipo ="Integer ";
+            System.out.println(ctx.params(0).getText());
+            System.out.println(auxParams);
+            String[] partes2 = ctx.params(1).getText().split(",");
+            auxParams = partes2.length;
+            if(auxParams<2) {
+                if (ctx.params(1).getText().startsWith("NUM")) {
+                    tipo = "Integer ";
                 }
-                if(ctx.params(0).getText().startsWith("LOG")){
+                if (ctx.params(1).getText().startsWith("LOG")) {
                     tipo = "Boolean ";
                 }
-                if(ctx.params(0).getText().startsWith("SEQ(NUM)")){
+                if (ctx.params(1).getText().startsWith("SEQ(NUM)")) {
                     tipo = "Integer[]";
                 }
-                if(ctx.params(0).getText().startsWith("SEQ(BOOL)")){
+                if (ctx.params(1).getText().startsWith("SEQ(BOOL)")) {
                     tipo = "Boolean[]";
                 }
-            }else if(ctx.params(0).getText().startsWith("NUM")){
+            }
+            else if(ctx.params(1).getText().startsWith("NUM")){
                 tipo = "Integer[] ";
-            }else if(ctx.params(0).getText().startsWith("LOG")){
+            }else if(ctx.params(1).getText().startsWith("LOG")){
                 tipo = "Boolean[] ";
             }
-
             try{
                 fichero.write("public static "+tipo+ ctx.variable().VAR().getText()+"("+aux+"){\n");
             }catch (IOException e){
                 System.out.println("Error: "+e.toString());
             }
-
         }
-        // Genera código procedimientos
+
+    // Genera código procedimientos
         private void gencodigo_procedimientos(Anasint.ProcedimientoContext ctx){
 
             String aux = "";

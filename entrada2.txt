@@ -1,8 +1,6 @@
-
-
 PROGRAMA
 VARIABLES
-a,b, min, max: NUM;
+a,b, min, max, i: NUM;
 b2: LOG;
 s: SEQ(NUM);
 s2: SEQ(LOG);
@@ -11,7 +9,6 @@ SUBPROGRAMAS
   VARIABLES
   INSTRUCCIONES
     i=ultima_posicion(s)-i;
-
     dev i;
   FFUNCION
   FUNCION prueba(NUM j) dev (NUM i,NUM k)
