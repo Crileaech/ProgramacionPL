@@ -119,25 +119,36 @@ public class flujoInstrucciones extends AnasintBaseListener{
 
                         //asociamos las equivalencias
                         for (int j = 0; j < listaExpr.size() && j < paramsEntrada.size(); j++) {
-
                             if (listaExpr.get(j).getChildCount() > 0 && listaExpr.get(j).getChild(0).getClass().toString().equals("class Anasint$VarIntContext")) {
                                 aux.put(paramsEntrada.get(j), listaExpr.get(j).getText());
                             }
                         }
 
                         procEquivalencias.put(nombreSubp, aux);
-
                         evalua.subpParams.put(nombreSubp, listaExpr.stream().map(v -> evalua.visit(v)).collect(Collectors.toList()));
-
                         evalua.visit(subp);
-
                         break;
                     }
                 }
             }
         }
+    }
 
-
+    public void enterExprfun(Anasint.ExprfunContext ctx) {
+        if(pila.peek()) {
+            String nombreSubp = ctx.expr_func().variable().VAR().getText();
+            for (int i = 0; i < evalua.subprogramas.declaracion_subprogramas().size(); i++) {
+                ParseTree subp = evalua.subprogramas.declaracion_subprogramas().get(i).getChild(0);
+                if (subp.getChild(0).getText().equals("FUNCION") && subp.getChild(1).getText().equals(nombreSubp)) {
+                    List<Anasint.ExprContext> listaExpr = new ArrayList<>();
+                    if(ctx.expr_func().exprs()!=null) {
+                        listaExpr = evalua.iterarExprs(ctx.expr_func().exprs());
+                    }
+                    evalua.subpParams.put(nombreSubp, listaExpr.stream().map(v -> evalua.visit(v)).collect(Collectors.toList()));
+                    evalua.visit(subp);
+                }
+            }
+        }
     }
 
     public void enterAsignacion(Anasint.AsignacionContext ctx) {
@@ -381,4 +392,3 @@ public class flujoInstrucciones extends AnasintBaseListener{
         for(int i = 0; i<tam; i++) { pila.push(false); }
     }
 }
-
