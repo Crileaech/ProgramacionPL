@@ -55,13 +55,14 @@ expr: expr_integer
     ;
 
 expr_integer: expr_sacar_elem                                                 #sacarElemInteger
+            | RESTA expr_integer                                              #menosNum
+            | PA expr_integer PC                                              #parentesisInteger
             | PA expr_integer (POR) expr_integer PC                           #parentesisOpInteger
             | PA expr_integer (SUMA|RESTA) expr_integer PC                    #parentesisOpInteger
             | expr_integer (POR) expr_integer                                 #opInteger
             | expr_integer (SUMA|RESTA) expr_integer                          #opInteger
             | expr_func                                                       #exprFuncInt
             | NUM                                                             #num
-            | RESTA expr_integer                                              #menosNum
             | variable                                                        #varInt
             ;
 
@@ -84,12 +85,15 @@ expr_seq: CA CC                             #vaciaSeq // []
         | variable                          #varSeq
         ;
 
-expr_sacar_elem: variable CA expr_integer CC ;
+expr_sacar_elem: (variable|expr_func) CA expr_integer CC ;
 
 expr_avanza: LA AVANZA DOSPTOS expr_func LC;
 
-expr_func: variable PA (expr COMA)? (expr)* PC;
+expr_func: variable PA (exprs)? PC;
 
+exprs: expr
+     | expr COMA exprs
+     ;
 //---INSTRUCCIONES---
 
 declaracion_instrucciones: asignacion   #asig

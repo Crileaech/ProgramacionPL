@@ -1,6 +1,43 @@
 PROGRAMA
 VARIABLES
-     x:NUM;
+a, c: LOG;
+b: NUM;
+s: SEQ(NUM);
 SUBPROGRAMAS
+  FUNCION mayor(LOG r) dev (LOG e)
+  VARIABLES
+  t: LOG;
+  INSTRUCCIONES
+  t=!r;
+  dev t;
+  FFUNCION
 INSTRUCCIONES
-    x=x+1 //error x+1 no tiene valor porque x no tiene valor
+a=[5,4,3,2];
+a[0]=6-3;
+c=a[0];
+f=2*3;
+d=T&&!((F||(T&&!F))||(F&&F))||(T&&F);
+k=5*4-3-2-2-6*3;
+b=7;
+t=(2-3);
+si(mayor(F)==T) entonces
+    mostrar(10);
+    c=2;
+    si(t!=0) entonces
+        ruptura;
+        c=1;
+    fsi
+sino
+    c=1;
+fsi
+mientras(c<3) hacer
+    c = c+1;
+    mientras(b>7) hacer
+        b=b-1;
+        mientras(t<2) hacer
+            t=t+1;
+            ruptura;
+        fmientras
+    fmientras
+fmientras
+mostrar(a);

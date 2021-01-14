@@ -1,8 +1,4 @@
 public class Generador extends AnasintBaseVisitor<String> {
-    //Generar texto correspondiente a variable
-//    public String visitIdExpr(Anasint.IdExprContext ctx) {
-//        return ctx.VAR().getText();
-//    }
 
     public String visitExpr(Anasint.ExprContext ctx){
         return (String) visit(ctx.getChild(0));
@@ -27,16 +23,16 @@ public class Generador extends AnasintBaseVisitor<String> {
         return (String) visit(ctx.getChild(0));
     }
 
-    public String visitExpr_func(Anasint.Expr_funcContext ctx){
-        String res = new String();
-        String k = ctx.variable().VAR().getText();
-        res = k+"(";
-        for(int i=0;i<ctx.expr().size();i++){
-            res += visit(ctx.expr(i));
-        }
-        res +=")";
-        return res;
-    }
+//    public String visitExprFuncInt(Anasint.Expr_funcContext ctx){
+//        String res = new String();
+//        String k = ctx.variable().VAR().getText();
+//        res = k+"(";
+//        for(int i=0;i<ctx.exprs().expr().expr_func().size();i++){
+//            res += visit(ctx.exprs());
+//        }
+//        res +=")";
+//        return res;
+//    }
 
     public String visitVaciaSeq(Anasint.VarSeqContext ctx){
         String res="[];";

@@ -581,6 +581,7 @@ public class Compilador extends AnasintBaseListener {
             return null;
         }
         asig.put(vars, ini);
+        // TODO : Finalizar asertos universal
         boolean res = Boolean.parseBoolean(generador.visit(cuantificacionContext.expr_bool()));
         while(res && (Integer)asig.get(vars)<=fin) {
             res = res && Boolean.parseBoolean(generador.visit(cuantificacionContext.expr_bool()));
